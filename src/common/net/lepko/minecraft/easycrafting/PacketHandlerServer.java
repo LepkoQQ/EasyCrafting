@@ -46,8 +46,6 @@ public class PacketHandlerServer implements IPacketHandler {
 					ingredients[i] = new ItemStack(_id, _stackSize, _damage);
 				}
 
-				// System.out.println("packet:");
-
 				ItemStack inHand = sender.inventory.getItemStack();
 				EasyRecipe recipe = Recipes.getValidRecipe(result, ingredients);
 

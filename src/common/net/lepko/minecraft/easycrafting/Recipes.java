@@ -109,7 +109,7 @@ public class Recipes {
 					count++;
 
 					// Completed the last check and didn't fail
-					if (j == r.ingredients.length) {
+					if (count == ingredients.length) {
 						return r;
 					}
 				}
