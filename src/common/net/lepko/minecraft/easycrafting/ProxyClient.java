@@ -7,7 +7,7 @@ import cpw.mods.fml.common.registry.TickRegistry;
 public class ProxyClient extends ProxyCommon {
 
 	@Override
-	public void registerTextures() {
+	public void registerClientSideSpecific() {
 		MinecraftForgeClient.preloadTexture(blocksTextureFile);
 
 		// Register Client Tick Handler

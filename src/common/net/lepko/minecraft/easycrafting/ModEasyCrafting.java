@@ -71,7 +71,7 @@ public class ModEasyCrafting {
 		}
 
 		// Textures
-		proxy.registerTextures();
+		proxy.registerClientSideSpecific();
 
 		// Gui
 		NetworkRegistry.instance().registerGuiHandler(this, guiHandler);

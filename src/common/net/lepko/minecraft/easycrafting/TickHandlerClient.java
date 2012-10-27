@@ -30,7 +30,7 @@ public class TickHandlerClient implements ITickHandler {
 
 	@Override
 	public EnumSet<TickType> ticks() {
-		return EnumSet.of(TickType.RENDER, TickType.CLIENT);
+		return EnumSet.of(TickType.CLIENT);
 	}
 
 	@Override
