@@ -107,7 +107,8 @@ public class ContainerEasyCrafting extends Container {
 					player.inventory.setItemStack(is);
 				}
 				// need to refresh after server updates players inventory
-				refreshCraftingOutput(player);
+				// refreshCraftingOutput(player);
+				TickHandlerClient.updateEasyCraftingOutput = true;
 				return is;
 			}
 
@@ -116,7 +117,8 @@ public class ContainerEasyCrafting extends Container {
 			// normal storage slot
 			ItemStack is = super.slotClick(slot_index, mouse_button, isShiftDown, player);
 			if (side == Side.CLIENT) {
-				refreshCraftingOutput(player);
+				// refreshCraftingOutput(player);
+				TickHandlerClient.updateEasyCraftingOutput = true;
 			}
 			return is;
 		}
@@ -174,7 +176,5 @@ public class ContainerEasyCrafting extends Container {
 				tile_entity.setInventorySlotContents(i, is);
 			}
 		}
-		// System.out.println("Refreshed crafting output!");
-		// TODO: find out why it doesnt refresh properly after you make the last item that you have resources for (you have to click once again to update)
 	}
 }

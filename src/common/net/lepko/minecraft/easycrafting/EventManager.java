@@ -1,6 +1,5 @@
 package net.lepko.minecraft.easycrafting;
 
-import net.minecraft.src.Item;
 import net.minecraft.src.TileEntity;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -23,9 +22,6 @@ public class EventManager {
 	public void playerPickupItem(EntityItemPickupEvent event) {
 		if (event.entityPlayer.craftingInventory instanceof ContainerEasyCrafting) {
 			PacketSender.sendEasyCraftingUpdateOutputToClient((Player) event.entityPlayer);
-			// TODO: this refreshes the crafting list before the picked up item is inserted in to the players
-			// inventory (to allow canceling this event fires before that), so the crafting list doesnt update
-			// with proper data
 		}
 	}
 }

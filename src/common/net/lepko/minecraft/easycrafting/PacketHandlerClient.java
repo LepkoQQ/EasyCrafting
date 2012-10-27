@@ -20,8 +20,9 @@ public class PacketHandlerClient implements IPacketHandler {
 			if (i1 == 1) {
 				EntityPlayer player1 = (EntityPlayer) player;
 				if (player1.craftingInventory instanceof ContainerEasyCrafting) {
-					ContainerEasyCrafting c = (ContainerEasyCrafting) player1.craftingInventory;
-					c.refreshCraftingOutput(player1);
+					// ContainerEasyCrafting c = (ContainerEasyCrafting) player1.craftingInventory;
+					// c.refreshCraftingOutput(player1);
+					TickHandlerClient.updateEasyCraftingOutput = true;
 				}
 			}
 		} catch (IOException e) {
