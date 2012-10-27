@@ -1,6 +1,6 @@
 package net.lepko.minecraft.easycrafting;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.src.Container;
 import net.minecraft.src.EntityPlayer;
@@ -106,9 +106,6 @@ public class ContainerEasyCrafting extends Container {
 					// set the returned IS in hand
 					player.inventory.setItemStack(is);
 				}
-				// need to refresh after server updates players inventory
-				// refreshCraftingOutput(player);
-				TickHandlerClient.updateEasyCraftingOutput = true;
 				return is;
 			}
 
@@ -145,7 +142,6 @@ public class ContainerEasyCrafting extends Container {
 		ItemStack return_stack = null;
 
 		// TODO: Shift clicking to transfer stack to inventory and right click to craft whole stack to hand
-		// TODO: Scrolling when more than 40 recipes available
 
 		if (stack_in_hand == null) {
 			return_stack = stack_in_slot.copy();
@@ -166,13 +162,13 @@ public class ContainerEasyCrafting extends Container {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public void refreshCraftingOutput(EntityPlayer player) {
-		ArrayList<EasyRecipe> rl = Recipes.getCraftableItems(player.inventory);
+	public void scrollTo(int currentScroll, List<EasyRecipe> rl) {
+		int offset = currentScroll * 8;
 		for (int i = 0; i < 40; i++) {
-			if (i >= rl.size()) {
+			if (i + offset >= rl.size() || i + offset < 0) {
 				tile_entity.setInventorySlotContents(i, null);
 			} else {
-				ItemStack is = rl.get(i).result;
+				ItemStack is = rl.get(i + offset).result;
 				tile_entity.setInventorySlotContents(i, is);
 			}
 		}
