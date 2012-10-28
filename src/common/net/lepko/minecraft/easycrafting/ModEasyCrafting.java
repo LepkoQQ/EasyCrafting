@@ -18,11 +18,11 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod(modid = "Lepko-EasyCrafting", name = "Easy Crafting", version = "1.0.0")
+@Mod(modid = "Lepko-EasyCrafting", name = Version.MOD_NAME, version = Version.VERSION)
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, clientPacketHandlerSpec = @SidedPacketHandler(channels = { "EasyCrafting" }, packetHandler = PacketHandlerClient.class), serverPacketHandlerSpec = @SidedPacketHandler(channels = { "EasyCrafting" }, packetHandler = PacketHandlerServer.class))
 public class ModEasyCrafting {
 
-	@Instance
+	@Instance("Lepko-EasyCrafting")
 	public static ModEasyCrafting instance = new ModEasyCrafting();
 
 	// Blocks
@@ -34,8 +34,10 @@ public class ModEasyCrafting {
 	// Config values
 	public int blockEasyCraftingTableID;
 	public boolean useRedstoneRecipe;
-	public boolean allowBlockVariations;
-	// TODO: implement block variations (like all color wood etc.)
+	public boolean allowBlockVariations; // TODO: implement block variations (like all color wood etc.)
+	public boolean checkForUpdates;
+
+	//
 
 	@SidedProxy(clientSide = "net.lepko.minecraft.easycrafting.ProxyClient", serverSide = "net.lepko.minecraft.easycrafting.ProxyCommon")
 	public static ProxyCommon proxy;
@@ -46,14 +48,18 @@ public class ModEasyCrafting {
 		config.load();
 
 		blockEasyCraftingTableID = config.getBlock("EasyCraftingTable", 404).getInt();
-		useRedstoneRecipe = config.get("options", "useRedstoneRecipe", true).getBoolean(true);
-		allowBlockVariations = config.get("options", "allowBlockVariations", false).getBoolean(false);
+		useRedstoneRecipe = config.get(Configuration.CATEGORY_GENERAL, "useRedstoneRecipe", true).getBoolean(true);
+		allowBlockVariations = config.get(Configuration.CATEGORY_GENERAL, "allowBlockVariations", false).getBoolean(false);
+		checkForUpdates = config.get(Configuration.CATEGORY_GENERAL, "checkForUpdates", true).getBoolean(true);
 
 		config.save();
 	}
 
 	@Init
 	public void load(FMLInitializationEvent event) {
+
+		// Update check
+		Version.updateCheck();
 
 		// Add Blocks
 		blockEasyCraftingTable = new BlockEasyCraftingTable(blockEasyCraftingTableID);

@@ -4,6 +4,9 @@ import net.minecraft.src.TileEntity;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.WorldEvent;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.network.Player;
 
 public class EventManager {
@@ -22,6 +25,13 @@ public class EventManager {
 	public void playerPickupItem(EntityItemPickupEvent event) {
 		if (event.entityPlayer.craftingInventory instanceof ContainerEasyCrafting) {
 			PacketSender.sendEasyCraftingUpdateOutputToClient((Player) event.entityPlayer);
+		}
+	}
+
+	@ForgeSubscribe
+	public void worldLoad(WorldEvent.Load event) {
+		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+			Version.updatePrint();
 		}
 	}
 }
