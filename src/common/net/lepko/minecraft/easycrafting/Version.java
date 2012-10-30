@@ -1,4 +1,4 @@
-﻿package net.lepko.minecraft.easycrafting;
+package net.lepko.minecraft.easycrafting;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
