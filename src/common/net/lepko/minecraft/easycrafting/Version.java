@@ -1,4 +1,4 @@
-package net.lepko.minecraft.easycrafting;
+ï»¿package net.lepko.minecraft.easycrafting;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -38,8 +38,8 @@ public class Version {
 
 	public static void updatePrint() {
 		if (!updatePrinted && !newVersionString.trim().isEmpty() && !VERSION.equalsIgnoreCase(newVersionString)) {
-			ModEasyCrafting.proxy.printMessageToChat("§6[" + MOD_NAME + "] §aUpdate available! §7You have: §c" + VERSION + " §7Latest: §2" + newVersionString);
-			ModEasyCrafting.proxy.printMessageToChat("§6[" + MOD_NAME + "] §f" + updateMessageString);
+			ModEasyCrafting.proxy.printMessageToChat("Â§6[" + MOD_NAME + "] Â§aUpdate available! Â§7You have: Â§c" + VERSION + " Â§7Latest: Â§2" + newVersionString);
+			ModEasyCrafting.proxy.printMessageToChat("Â§6[" + MOD_NAME + "] Â§f" + updateMessageString);
 		}
 		updatePrinted = true;
 	}
