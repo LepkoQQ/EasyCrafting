@@ -24,7 +24,7 @@ public class GuiEasyCrafting extends GuiContainer {
 	}
 
 	@Override
-	protected void drawGuiContainerForegroundLayer() {
+	protected void drawGuiContainerForegroundLayer(int i, int j) {
 		fontRenderer.drawString("Easy Crafting Table", 8, 6, 0x404040);
 	}
 

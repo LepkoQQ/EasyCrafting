@@ -31,6 +31,9 @@ public class Recipes {
 					for (int j = 0; j < tmp.size(); j++) {
 						ingredients[j] = (ItemStack) tmp.get(j);
 					}
+				} else {
+					// It's a special recipe (map extending, armor dyeing, ...) - ignore
+					continue;
 				}
 				recipes.add(new EasyRecipe(r.getRecipeOutput(), ingredients));
 			}

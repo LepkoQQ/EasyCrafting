@@ -55,8 +55,9 @@ public class ContainerEasyCrafting extends Container {
 		return tile_entity.isUseableByPlayer(player);
 	}
 
+	// public ItemStack transferStackInSlot(int slot_index)
 	@Override
-	public ItemStack transferStackInSlot(int slot_index) {
+	public ItemStack func_82846_b(EntityPlayer player, int slot_index) {
 		ItemStack stack = null;
 		Slot slot_object = (Slot) inventorySlots.get(slot_index);
 
@@ -85,7 +86,7 @@ public class ContainerEasyCrafting extends Container {
 	}
 
 	@Override
-	public ItemStack slotClick(int slot_index, int mouse_button, boolean isShiftDown, EntityPlayer player) {
+	public ItemStack slotClick(int slot_index, int mouse_button, int modifier, EntityPlayer player) {
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
 		if (slot_index >= 0 && inventorySlots.get(slot_index) instanceof FakeSlot) {
 			// is a crafting output slot
@@ -98,9 +99,9 @@ public class ContainerEasyCrafting extends Container {
 				}
 
 				// handle click on fake slot
+				boolean isShiftDown = (modifier == 1);
 				ItemStack is = handleFakeSlotClick(slot_index, mouse_button, isShiftDown, player);
 				if (is != null) {
-					// System.out.println("Client: " + is);
 					// need to send inHand data on player as it was before handleClick
 					PacketSender.sendEasyCraftingPacketToServer(is, slot_index, player.inventory, inHand);
 					// set the returned IS in hand
@@ -112,7 +113,7 @@ public class ContainerEasyCrafting extends Container {
 			return null;
 		} else {
 			// normal storage slot
-			ItemStack is = super.slotClick(slot_index, mouse_button, isShiftDown, player);
+			ItemStack is = super.slotClick(slot_index, mouse_button, modifier, player);
 			if (side == Side.CLIENT) {
 				// refreshCraftingOutput(player);
 				TickHandlerClient.updateEasyCraftingOutput = true;
@@ -145,14 +146,16 @@ public class ContainerEasyCrafting extends Container {
 
 		if (stack_in_hand == null) {
 			return_stack = stack_in_slot.copy();
-			clicked_slot.onPickupFromSlot(return_stack);
+			// clicked_slot.onPickupFromSlot(return_stack);
+			clicked_slot.func_82870_a(player, return_stack);
 		} else {
 			if (stack_in_slot.itemID == stack_in_hand.itemID && stack_in_hand.getMaxStackSize() > 1 && (!stack_in_slot.getHasSubtypes() || stack_in_slot.getItemDamage() == stack_in_hand.getItemDamage()) && ItemStack.func_77970_a(stack_in_slot, stack_in_hand)) {
 				int numberOfItemsToMove = stack_in_slot.stackSize;
 				if (numberOfItemsToMove > 0 && numberOfItemsToMove + stack_in_hand.stackSize <= stack_in_hand.getMaxStackSize()) {
 					stack_in_hand.stackSize += numberOfItemsToMove;
 					return_stack = stack_in_hand.copy();
-					clicked_slot.onPickupFromSlot(player_inventory.getItemStack());
+					// clicked_slot.onPickupFromSlot(player_inventory.getItemStack());
+					clicked_slot.func_82870_a(player, player_inventory.getItemStack());
 				}
 			}
 		}
