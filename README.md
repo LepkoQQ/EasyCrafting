@@ -7,20 +7,19 @@ I also plan to extend its functionality and usefulness by implementing new featu
 If you have a mod that Easy Crafting is not working properly with, please submit an issue (and/or a pull request to fix it) and the accompanying crash report (if there is one).
 
 ### Official Builds
-Official builds of the mod can be found [here](temp-link).
+Official builds of the mod can be found [here](http://lepko.net/minecraft/).
 
 ### Contributing
 If you wish to submit a pull request to fix bugs or broken behavior feel free to do so. If you would like to add features or change existing behavior, please discuss it with me (Lepko) first.
 
-You can reach me:
-here (obviously)
-MinecraftForums: Lepko
-Twitter: @Lepko
+You can reach me at:
+* MinecraftForums: Lepko
+* Twitter: @Lepko
 
 ----
 
 ### License
-This mod is completely open source and anyone can use the code and/or the full mod in their project or modpack if they provide a link back to the mod [homepage](temp-link).
+This mod is completely open source and anyone can use the code and/or the full mod in their project or modpack if they provide a link back to the mod [homepage](http://lepko.net/minecraft/).
 
 ### Liability
 
