@@ -172,7 +172,7 @@ public class ContainerEasyCrafting extends Container {
 				tile_entity.setInventorySlotContents(i, null);
 			} else {
 				ItemStack is = rl.get(i + offset).result;
-				tile_entity.setInventorySlotContents(i, is);
+				tile_entity.setInventorySlotContents(i, is.copy());
 			}
 		}
 	}

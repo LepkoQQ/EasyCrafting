@@ -1,0 +1,17 @@
+[
+{
+  "modid": "Lepko-EasyCrafting",
+  "name": "Easy Crafting",
+  "description": "Easily craft items that you have the materials for with just a click of a button!",
+  "version": "",
+  "credits": "Created by Lepko; Based on mods by ljdp and Zeldo",
+  "logoFile": "",
+  "mcversion": "",
+  "url": "http://lepko.net/minecraft/",
+  "updateUrl": "",
+  "authors": [ "Lepko" ],
+  "parent":"",
+  "screenshots": [],
+  "dependencies": []
+}
+]

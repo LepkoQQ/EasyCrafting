@@ -43,11 +43,12 @@ public class GuiEasyCrafting extends GuiContainer {
 
 	@Override
 	public void handleMouseInput() {
-		super.handleMouseInput();
-
 		// Handle mouse scroll
 		int delta = Mouse.getEventDWheel();
-		if (delta != 0) {
+		if (delta == 0) {
+			// Fix NEI auto clicking slots when mouse is being scrolled; only call super when mouse is not scrolling
+			super.handleMouseInput();
+		} else {
 			this.maxScroll = (rl.size() / 8 + 1 - 5);
 			if (this.maxScroll < 0) {
 				this.maxScroll = 0;
