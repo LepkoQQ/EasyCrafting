@@ -20,6 +20,11 @@ public class GuiEasyCrafting extends GuiContainer {
 
 	public GuiEasyCrafting(InventoryPlayer player_inventory, TileEntityEasyCrafting tile_entity) {
 		super(new ContainerEasyCrafting(tile_entity, player_inventory));
+
+		if (this.inventorySlots != null && this.inventorySlots instanceof ContainerEasyCrafting) {
+			((ContainerEasyCrafting) this.inventorySlots).gui = this;
+		}
+
 		ySize = 235;
 	}
 

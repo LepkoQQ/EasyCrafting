@@ -18,16 +18,15 @@ public class PacketHandlerServer implements IPacketHandler {
 		DataInputStream data = new DataInputStream(new ByteArrayInputStream(packet.data));
 		EntityPlayer sender = (EntityPlayer) player;
 
-		int i1;
+		int identifier;
 
 		ItemStack result;
 		ItemStack[] ingredients;
 
 		try {
-			i1 = data.readInt(); // identifier
+			identifier = data.readInt();
 
-			if (i1 == 1) {
-
+			if (identifier == 1 || identifier == 2) {
 				int id = data.readInt();
 				int damage = data.readInt();
 				int stackSize = data.readInt();
@@ -51,18 +50,23 @@ public class PacketHandlerServer implements IPacketHandler {
 
 				if (recipe != null) {
 					if ((inHand == null && result.stackSize == recipe.result.stackSize) || (inHand != null && (inHand.stackSize + recipe.result.stackSize) == result.stackSize)) {
-						if (Recipes.takeIngredients(ingredients, sender.inventory)) {
-							sender.inventory.setItemStack(result);
+						if (identifier == 1) {
+							if (Recipes.takeIngredients(ingredients, sender.inventory)) {
+								sender.inventory.setItemStack(result);
+							}
+						} else if (identifier == 2) {
+							int maxTimes = Recipes.calculateCraftingMultiplierUntilMaxStack(recipe.result, inHand);
+							int timesCrafted = Recipes.takeIngredientsMaxStack(ingredients, sender.inventory, maxTimes);
+							if (timesCrafted > 0) {
+								result.stackSize += (timesCrafted - 1) * recipe.result.stackSize;
+								sender.inventory.setItemStack(result);
+							}
 						}
 					}
 				}
-
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		PacketSender.sendEasyCraftingUpdateOutputToClient(player);
 	}
 }

@@ -38,8 +38,8 @@ public class Version {
 
 	public static void updatePrint() {
 		if (!updatePrinted && !newVersionString.trim().isEmpty() && !VERSION.equalsIgnoreCase(newVersionString)) {
-			ModEasyCrafting.proxy.printMessageToChat("§6[" + MOD_NAME + "] §aUpdate available! §7You have: §c" + VERSION + " §7Latest: §2" + newVersionString);
-			ModEasyCrafting.proxy.printMessageToChat("§6[" + MOD_NAME + "] §f" + updateMessageString);
+			ProxyCommon.proxy.printMessageToChat("\u00A7" + "6[" + MOD_NAME + "] " + "\u00A7" + "aUpdate available! " + "\u00A7" + "7You have: " + "\u00A7" + "c" + VERSION + " " + "\u00A7" + "7Latest: " + "\u00A7" + "2" + newVersionString);
+			ProxyCommon.proxy.printMessageToChat("\u00A7" + "6[" + MOD_NAME + "] " + "\u00A7" + "f" + updateMessageString);
 		}
 		updatePrinted = true;
 	}
