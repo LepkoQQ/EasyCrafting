@@ -43,7 +43,7 @@ public class Recipes {
 		return recipes;
 	}
 
-	public static ArrayList<EasyRecipe> getCraftableItems(InventoryPlayer player_inventory) {
+	public static ArrayList<EasyRecipe> getCraftableRecipes(InventoryPlayer player_inventory) {
 		ArrayList<EasyRecipe> r = new ArrayList<EasyRecipe>();
 
 		ArrayList<EasyRecipe> all = getVanillaRecipes();
@@ -96,7 +96,7 @@ public class Recipes {
 			k++;
 		}
 
-		if (take_ingredients) {
+		if (take_ingredients && k > 0) {
 			player_inventory.copyInventory(tmp2);
 		}
 		return k;
@@ -150,10 +150,10 @@ public class Recipes {
 	@SideOnly(Side.CLIENT)
 	public static EasyRecipe getValidRecipe(GuiEasyCrafting gui, int slot_index, ItemStack inHand, ItemStack is) {
 		int i = slot_index + (gui.currentScroll * 8);
-		ArrayList<EasyRecipe> rl = gui.rl;
+		ArrayList<EasyRecipe> rl = gui.renderList;
 		if (i < rl.size() && rl.get(i) != null) {
 			EasyRecipe r = rl.get(i);
-			if (r.result.itemID == is.itemID && r.result.getItemDamage() == is.getItemDamage()) {
+			if (r.result.itemID == is.itemID && r.result.getItemDamage() == is.getItemDamage() && gui.craftableList.contains(r)) {
 				if (inHand == null && r.result.stackSize == is.stackSize) {
 					return r;
 				} else if (inHand != null && (inHand.stackSize + r.result.stackSize) == is.stackSize) {
