@@ -84,7 +84,18 @@ public class Recipes {
 					for (int j = 0; j < tmp.mainInventory.length; j++) {
 						if (tmp.mainInventory[j] != null) {
 							if (tmp.mainInventory[j].itemID == ingredients[i].itemID && (tmp.mainInventory[j].getItemDamage() == ingredients[i].getItemDamage() || ingredients[i].getItemDamage() == -1)) {
+								ItemStack stack = tmp.getStackInSlot(j);
 								tmp.decrStackSize(j, 1);
+								if (stack.getItem().hasContainerItem()) {
+									ItemStack containerStack = stack.getItem().getContainerItemStack(stack);
+									// TODO: damage Items that take damage when crafting with them
+									if (containerStack.isItemStackDamageable() && containerStack.getItemDamage() > containerStack.getMaxDamage()) {
+										containerStack = null;
+									}
+									if (containerStack != null && !tmp.addItemStackToInventory(containerStack)) {
+										break timesLoop;
+									}
+								}
 								continue ingLoop;
 							}
 						}

@@ -173,35 +173,7 @@ public class GuiEasyCrafting extends GuiContainer {
 			// Fix NEI auto clicking slots when mouse is being scrolled; only call super when mouse is not scrolling
 			super.handleMouseInput();
 		} else {
-			this.maxScroll = (renderList.size() / 8 + 1 - 5);
-			if (this.maxScroll < 0) {
-				this.maxScroll = 0;
-			}
-
-			if (renderList.size() > 40) {
-				if (delta > 0) {
-					this.currentScroll--;
-				} else if (delta < 0) {
-					this.currentScroll++;
-				}
-
-				if (this.currentScroll < 0) {
-					this.currentScroll = 0;
-				} else if (this.currentScroll > this.maxScroll) {
-					this.currentScroll = this.maxScroll;
-				}
-
-				this.scrollbarOffset = (float) this.currentScroll / (float) this.maxScroll;
-
-				if (this.scrollbarOffset < 0.0F) {
-					this.scrollbarOffset = 0.0F;
-				} else if (this.scrollbarOffset > 1.0F) {
-					this.scrollbarOffset = 1.0F;
-				}
-
-				ContainerEasyCrafting c = (ContainerEasyCrafting) this.inventorySlots;
-				c.scrollTo(this.currentScroll, renderList);
-			}
+			setScrollPosition(this.currentScroll + (int) (delta / 120 * -1));
 		}
 	}
 
@@ -215,7 +187,7 @@ public class GuiEasyCrafting extends GuiContainer {
 		int bottom = top + 89;
 
 		if (!this.wasClicking && leftMouseDown && mouseX >= left && mouseY >= top && mouseX < right && mouseY < bottom) {
-			this.isScrolling = renderList.size() > 40;
+			this.isScrolling = this.maxScroll > 0;
 		} else if (!leftMouseDown) {
 			this.isScrolling = false;
 		}
@@ -223,24 +195,7 @@ public class GuiEasyCrafting extends GuiContainer {
 		this.wasClicking = leftMouseDown;
 
 		if (this.isScrolling) {
-			this.scrollbarOffset = ((float) (mouseY - top) - 7.5F) / ((float) (bottom - top) - 15.0F);
-
-			if (this.scrollbarOffset < 0.0F) {
-				this.scrollbarOffset = 0.0F;
-			} else if (this.scrollbarOffset > 1.0F) {
-				this.scrollbarOffset = 1.0F;
-			}
-
-			this.currentScroll = (int) (this.scrollbarOffset * (float) this.maxScroll);
-
-			if (this.currentScroll < 0) {
-				this.currentScroll = 0;
-			} else if (this.currentScroll > this.maxScroll) {
-				this.currentScroll = this.maxScroll;
-			}
-
-			ContainerEasyCrafting c = (ContainerEasyCrafting) this.inventorySlots;
-			c.scrollTo(this.currentScroll, renderList);
+			setScrollPosition(((float) (mouseY - top) - 7.5F) / ((float) (bottom - top) - 15.0F));
 		}
 
 		super.drawScreen(mouseX, mouseY, par3);
@@ -334,24 +289,23 @@ public class GuiEasyCrafting extends GuiContainer {
 		if (selectedTabIndex == TABINDEX_CRAFTING) {
 			renderList = craftableList;
 		} else if (selectedTabIndex == TABINDEX_SEARCH) {
-			computeSlotBackgrounds();
+			updateSlotBackgroundCache();
 		}
 
-		this.maxScroll = (renderList.size() / 8 + 1 - 5);
-
+		this.maxScroll = (int) (Math.ceil((double) renderList.size() / 8.0D) - 5);
 		if (this.maxScroll < 0) {
 			this.maxScroll = 0;
 		}
 
 		if (this.currentScroll > this.maxScroll) {
-			this.currentScroll = this.maxScroll;
+			setScrollPosition(this.maxScroll);
+		} else {
+			ContainerEasyCrafting c = (ContainerEasyCrafting) this.inventorySlots;
+			c.scrollTo(this.currentScroll, renderList);
 		}
-
-		ContainerEasyCrafting c = (ContainerEasyCrafting) this.inventorySlots;
-		c.scrollTo(this.currentScroll, renderList);
 	}
 
-	private void computeSlotBackgrounds() {
+	private void updateSlotBackgroundCache() {
 		this.canCraftCache = new boolean[renderList.size()];
 		for (int i = 0; i < renderList.size(); i++) {
 			if (craftableList.contains(renderList.get(i))) {
@@ -360,5 +314,47 @@ public class GuiEasyCrafting extends GuiContainer {
 				canCraftCache[i] = false;
 			}
 		}
+	}
+
+	private void setScrollPosition(int scroll) {
+		if (scroll < 0) {
+			scroll = 0;
+		} else if (scroll > this.maxScroll) {
+			scroll = this.maxScroll;
+		}
+		this.currentScroll = scroll;
+
+		this.scrollbarOffset = (float) this.currentScroll / (float) this.maxScroll;
+		if (this.scrollbarOffset < 0.0F || Float.isNaN(this.scrollbarOffset)) {
+			this.scrollbarOffset = 0.0F;
+		} else if (this.scrollbarOffset > 1.0F) {
+			this.scrollbarOffset = 1.0F;
+		}
+
+		ContainerEasyCrafting c = (ContainerEasyCrafting) this.inventorySlots;
+		c.scrollTo(this.currentScroll, renderList);
+	}
+
+	private void setScrollPosition(float scrollOffset) {
+		if (scrollOffset < 0.0F || Float.isNaN(scrollOffset)) {
+			scrollOffset = 0.0F;
+		} else if (scrollOffset > 1.0F) {
+			scrollOffset = 1.0F;
+		}
+
+		if (this.scrollbarOffset == scrollOffset) {
+			return;
+		}
+		this.scrollbarOffset = scrollOffset;
+
+		this.currentScroll = (int) (this.scrollbarOffset * (float) this.maxScroll);
+		if (this.currentScroll < 0) {
+			this.currentScroll = 0;
+		} else if (this.currentScroll > this.maxScroll) {
+			this.currentScroll = this.maxScroll;
+		}
+
+		ContainerEasyCrafting c = (ContainerEasyCrafting) this.inventorySlots;
+		c.scrollTo(this.currentScroll, renderList);
 	}
 }
