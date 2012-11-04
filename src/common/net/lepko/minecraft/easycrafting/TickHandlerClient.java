@@ -2,8 +2,8 @@ package net.lepko.minecraft.easycrafting;
 
 import java.util.EnumSet;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiScreen;
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
@@ -18,7 +18,7 @@ public class TickHandlerClient implements ITickHandler {
 	@Override
 	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
 		if (updateEasyCraftingOutput && type.equals(EnumSet.of(TickType.CLIENT))) {
-			GuiScreen gs = Minecraft.getMinecraft().currentScreen;
+			GuiScreen gs = FMLClientHandler.instance().getClient().currentScreen;
 			if (gs instanceof GuiEasyCrafting) {
 				GuiEasyCrafting gec = (GuiEasyCrafting) gs;
 				gec.refreshCraftingOutput();

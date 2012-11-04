@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.src.InventoryPlayer;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Packet250CustomPayload;
@@ -26,10 +25,7 @@ public class ProxyClient extends ProxyCommon {
 	@Override
 	public void printMessageToChat(String msg) {
 		if (msg != null) {
-			Minecraft mc = FMLClientHandler.instance().getClient();
-			if (mc.ingameGUI != null) {
-				mc.ingameGUI.getChatGUI().printChatMessage(msg);
-			}
+			FMLClientHandler.instance().getClient().ingameGUI.getChatGUI().printChatMessage(msg);
 		}
 	}
 

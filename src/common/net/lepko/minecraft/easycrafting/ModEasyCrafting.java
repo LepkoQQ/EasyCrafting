@@ -33,7 +33,6 @@ public class ModEasyCrafting {
 	// Config values
 	public int blockEasyCraftingTableID;
 	public boolean useRedstoneRecipe;
-	public boolean allowBlockVariations; // TODO: implement block variations (like all color wood etc.)
 	public boolean checkForUpdates;
 
 	//
@@ -45,7 +44,6 @@ public class ModEasyCrafting {
 
 		blockEasyCraftingTableID = config.getBlock("EasyCraftingTable", 404).getInt();
 		useRedstoneRecipe = config.get(Configuration.CATEGORY_GENERAL, "useRedstoneRecipe", true).getBoolean(true);
-		allowBlockVariations = config.get(Configuration.CATEGORY_GENERAL, "allowBlockVariations", false).getBoolean(false);
 		checkForUpdates = config.get(Configuration.CATEGORY_GENERAL, "checkForUpdates", true).getBoolean(true);
 
 		config.save();
