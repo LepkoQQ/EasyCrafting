@@ -51,12 +51,12 @@ public class PacketHandlerServer implements IPacketHandler {
 				if (recipe != null) {
 					if ((inHand == null && result.stackSize == recipe.result.stackSize) || (inHand != null && (inHand.stackSize + recipe.result.stackSize) == result.stackSize)) {
 						if (identifier == 1) {
-							if (Recipes.takeIngredients(ingredients, sender.inventory)) {
+							if (Recipes.takeIngredients(ingredients, sender.inventory, 0)) {
 								sender.inventory.setItemStack(result);
 							}
 						} else if (identifier == 2) {
 							int maxTimes = Recipes.calculateCraftingMultiplierUntilMaxStack(recipe.result, inHand);
-							int timesCrafted = Recipes.takeIngredientsMaxStack(ingredients, sender.inventory, maxTimes);
+							int timesCrafted = Recipes.takeIngredientsMaxStack(ingredients, sender.inventory, maxTimes, 0);
 							if (timesCrafted > 0) {
 								result.stackSize += (timesCrafted - 1) * recipe.result.stackSize;
 								sender.inventory.setItemStack(result);

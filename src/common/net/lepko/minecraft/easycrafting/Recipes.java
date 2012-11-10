@@ -27,13 +27,11 @@ public class Recipes {
 				if (r instanceof ShapedRecipes) {
 					ingredients = ReflectionHelper.<ItemStack[], ShapedRecipes> getPrivateValue(ShapedRecipes.class, (ShapedRecipes) r, 2);
 				} else if (r instanceof ShapelessRecipes) {
-					List tmp = ReflectionHelper.<List, ShapelessRecipes> getPrivateValue(ShapelessRecipes.class, (ShapelessRecipes) r, 1);
-					ingredients = new ItemStack[tmp.size()];
-					for (int j = 0; j < tmp.size(); j++) {
-						ingredients[j] = (ItemStack) tmp.get(j);
-					}
+					List<ItemStack> tmp = ReflectionHelper.<List<ItemStack>, ShapelessRecipes> getPrivateValue(ShapelessRecipes.class, (ShapelessRecipes) r, 1);
+					ingredients = tmp.toArray(new ItemStack[0]);
 				} else {
 					// It's a special recipe (map extending, armor dyeing, ...) - ignore
+					// TODO: Handle OreDict recipes
 					continue;
 				}
 				recipes.add(new EasyRecipe(r.getRecipeOutput(), ingredients));
@@ -48,7 +46,7 @@ public class Recipes {
 
 		ArrayList<EasyRecipe> all = getVanillaRecipes();
 		for (int i = 0; i < all.size(); i++) {
-			if (hasIngredients(all.get(i).ingredients, player_inventory)) {
+			if (hasIngredients(all.get(i).ingredients, player_inventory, 0)) {
 				r.add(all.get(i));
 			}
 		}
@@ -56,23 +54,27 @@ public class Recipes {
 		return r;
 	}
 
-	public static boolean hasIngredients(ItemStack[] ingredients, InventoryPlayer player_inventory) {
-		return checkIngredients(ingredients, player_inventory, false, 1) == 0 ? false : true;
+	public static boolean hasIngredients(ItemStack[] ingredients, InventoryPlayer player_inventory, int recursionCount) {
+		return checkIngredients(ingredients, player_inventory, false, 1, recursionCount) == 0 ? false : true;
 	}
 
-	public static boolean takeIngredients(ItemStack[] ingredients, InventoryPlayer player_inventory) {
-		return checkIngredients(ingredients, player_inventory, true, 1) == 0 ? false : true;
+	public static boolean takeIngredients(ItemStack[] ingredients, InventoryPlayer player_inventory, int recursionCount) {
+		return checkIngredients(ingredients, player_inventory, true, 1, recursionCount) == 0 ? false : true;
 	}
 
-	public static int hasIngredientsMaxStack(ItemStack[] ingredients, InventoryPlayer player_inventory, int maxTimes) {
-		return checkIngredients(ingredients, player_inventory, false, maxTimes);
+	public static int hasIngredientsMaxStack(ItemStack[] ingredients, InventoryPlayer player_inventory, int maxTimes, int recursionCount) {
+		return checkIngredients(ingredients, player_inventory, false, maxTimes, recursionCount);
 	}
 
-	public static int takeIngredientsMaxStack(ItemStack[] ingredients, InventoryPlayer player_inventory, int maxTimes) {
-		return checkIngredients(ingredients, player_inventory, true, maxTimes);
+	public static int takeIngredientsMaxStack(ItemStack[] ingredients, InventoryPlayer player_inventory, int maxTimes, int recursionCount) {
+		return checkIngredients(ingredients, player_inventory, true, maxTimes, recursionCount);
 	}
 
-	private static int checkIngredients(ItemStack[] ingredients, InventoryPlayer player_inventory, boolean take_ingredients, int maxTimes) {
+	private static int checkIngredients(ItemStack[] ingredients, InventoryPlayer player_inventory, boolean take_ingredients, int maxTimes, int recursionCount) {
+		if (recursionCount >= 10) {
+			return 0;
+		}
+
 		InventoryPlayer tmp = new InventoryPlayer(null);
 		InventoryPlayer tmp2 = new InventoryPlayer(null);
 		tmp.copyInventory(player_inventory);
@@ -100,6 +102,17 @@ public class Recipes {
 							}
 						}
 					}
+					ArrayList<EasyRecipe> rList = getValidRecipe(ingredients[i]);
+					if (!rList.isEmpty()) {
+						for (int l = 0; l < rList.size(); l++) {
+							EasyRecipe ingRecipe = rList.get(l);
+							if (takeIngredients(ingRecipe.ingredients, tmp, recursionCount + 1) && tmp.addItemStackToInventory(ingRecipe.result.copy())) {
+								// Try to take the same ingredient again
+								i--;
+								continue ingLoop;
+							}
+						}
+					}
 					break timesLoop;
 				}
 			}
@@ -113,8 +126,19 @@ public class Recipes {
 		return k;
 	}
 
-	public static EasyRecipe getValidRecipe(ItemStack result, ItemStack[] ingredients) {
+	public static ArrayList<EasyRecipe> getValidRecipe(ItemStack result) {
+		ArrayList<EasyRecipe> list = new ArrayList<EasyRecipe>();
+		ArrayList<EasyRecipe> all = getVanillaRecipes();
+		for (int i = 0; i < all.size(); i++) {
+			EasyRecipe r = all.get(i);
+			if (r.result.itemID == result.itemID && (r.result.getItemDamage() == result.getItemDamage() || result.getItemDamage() == -1)) {
+				list.add(r);
+			}
+		}
+		return list;
+	}
 
+	public static EasyRecipe getValidRecipe(ItemStack result, ItemStack[] ingredients) {
 		ArrayList<EasyRecipe> all = getVanillaRecipes();
 		allLoop: for (int i = 0; i < all.size(); i++) {
 			EasyRecipe r = all.get(i);

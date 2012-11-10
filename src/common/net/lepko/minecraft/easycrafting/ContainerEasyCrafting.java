@@ -144,7 +144,7 @@ public class ContainerEasyCrafting extends Container {
 
 				if (ident == 2) { // Right click; craft until max stack
 					int maxTimes = Recipes.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand_to_send);
-					int timesCrafted = Recipes.hasIngredientsMaxStack(r.ingredients, player_inventory, maxTimes);
+					int timesCrafted = Recipes.hasIngredientsMaxStack(r.ingredients, player_inventory, maxTimes, 0);
 					if (timesCrafted > 0) {
 						return_stack.stackSize += (timesCrafted - 1) * r.result.stackSize;
 						player.inventory.setItemStack(return_stack);

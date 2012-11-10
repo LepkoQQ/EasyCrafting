@@ -173,7 +173,7 @@ public class GuiEasyCrafting extends GuiContainer {
 			// Fix NEI auto clicking slots when mouse is being scrolled; only call super when mouse is not scrolling
 			super.handleMouseInput();
 		} else {
-			setScrollPosition(this.currentScroll + (int) (delta / 120 * -1));
+			setScrollPosition(this.currentScroll + (delta > 0 ? -1 : 1));
 		}
 	}
 
