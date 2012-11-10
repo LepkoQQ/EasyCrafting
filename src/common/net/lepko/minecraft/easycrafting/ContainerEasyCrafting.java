@@ -55,9 +55,8 @@ public class ContainerEasyCrafting extends Container {
 		return tile_entity.isUseableByPlayer(player);
 	}
 
-	// public ItemStack transferStackInSlot(int slot_index)
 	@Override
-	public ItemStack func_82846_b(EntityPlayer player, int slot_index) {
+	public ItemStack transferStackInSlot(EntityPlayer player, int slot_index) {
 		ItemStack stack = null;
 		Slot slot_object = (Slot) inventorySlots.get(slot_index);
 
@@ -123,14 +122,14 @@ public class ContainerEasyCrafting extends Container {
 
 		if (stack_in_hand == null) {
 			return_stack = stack_in_slot.copy();
-			clicked_slot.func_82870_a(player, return_stack); // clicked_slot.onPickupFromSlot(return_stack);
+			clicked_slot.onPickupFromSlot(player, return_stack);
 		} else {
-			if (stack_in_slot.itemID == stack_in_hand.itemID && stack_in_hand.getMaxStackSize() > 1 && (!stack_in_slot.getHasSubtypes() || stack_in_slot.getItemDamage() == stack_in_hand.getItemDamage()) && ItemStack.func_77970_a(stack_in_slot, stack_in_hand)) {
+			if (stack_in_slot.itemID == stack_in_hand.itemID && stack_in_hand.getMaxStackSize() > 1 && (!stack_in_slot.getHasSubtypes() || stack_in_slot.getItemDamage() == stack_in_hand.getItemDamage()) && ItemStack.areItemStackTagsEqual(stack_in_slot, stack_in_hand)) {
 				int numberOfItemsToMove = stack_in_slot.stackSize;
 				if (numberOfItemsToMove > 0 && numberOfItemsToMove + stack_in_hand.stackSize <= stack_in_hand.getMaxStackSize()) {
 					stack_in_hand.stackSize += numberOfItemsToMove;
 					return_stack = stack_in_hand.copy();
-					clicked_slot.func_82870_a(player, player_inventory.getItemStack()); // clicked_slot.onPickupFromSlot(player_inventory.getItemStack());
+					clicked_slot.onPickupFromSlot(player, player_inventory.getItemStack());
 				}
 			}
 		}

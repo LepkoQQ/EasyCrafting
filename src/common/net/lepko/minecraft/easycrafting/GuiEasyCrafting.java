@@ -139,7 +139,7 @@ public class GuiEasyCrafting extends GuiContainer {
 		GL11.glEnable(GL11.GL_LIGHTING);
 		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 		ItemStack iconItemStack = tabIcons[i];
-		itemRenderer.func_82406_b(this.fontRenderer, this.mc.renderEngine, iconItemStack, x, y);
+		itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.renderEngine, iconItemStack, x, y);
 		itemRenderer.renderItemOverlayIntoGUI(this.fontRenderer, this.mc.renderEngine, iconItemStack, x, y);
 		GL11.glDisable(GL11.GL_LIGHTING);
 		itemRenderer.zLevel = 0.0F;
@@ -267,7 +267,7 @@ public class GuiEasyCrafting extends GuiContainer {
 
 			recipeLoop: for (int i = 0; i < all.size(); i++) {
 				EasyRecipe r = all.get(i);
-				List<String> itemProps = r.result.func_82840_a(this.mc.thePlayer, this.mc.gameSettings.field_82882_x);
+				List<String> itemProps = r.result.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
 				for (int j = 0; j < itemProps.size(); j++) {
 					if (itemProps.get(j).toLowerCase().contains(query)) {
 						list.add(r);
