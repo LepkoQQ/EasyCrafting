@@ -12,6 +12,6 @@ public class SlotInterceptor extends Slot {
 	@Override
 	public void onSlotChanged() {
 		super.onSlotChanged();
-		TickHandlerClient.updateEasyCraftingOutput = true;
+		TickHandlerClient.updateEasyCraftingOutput();
 	}
 }

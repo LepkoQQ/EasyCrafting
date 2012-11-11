@@ -34,6 +34,7 @@ public class ModEasyCrafting {
 	public int blockEasyCraftingTableID;
 	public boolean useRedstoneRecipe;
 	public boolean checkForUpdates;
+	public int allowMultiStepRecipes;
 
 	//
 
@@ -45,6 +46,7 @@ public class ModEasyCrafting {
 		blockEasyCraftingTableID = config.getBlock("EasyCraftingTable", 404).getInt();
 		useRedstoneRecipe = config.get(Configuration.CATEGORY_GENERAL, "useRedstoneRecipe", true).getBoolean(true);
 		checkForUpdates = config.get(Configuration.CATEGORY_GENERAL, "checkForUpdates", true).getBoolean(true);
+		allowMultiStepRecipes = config.get(Configuration.CATEGORY_GENERAL, "allowMultiStepRecipes", 3).getInt(3);
 
 		config.save();
 	}

@@ -17,9 +17,12 @@ public class Recipes {
 
 	private static ArrayList<EasyRecipe> recipes = new ArrayList<EasyRecipe>();
 
-	public static ArrayList<EasyRecipe> getVanillaRecipes() {
+	public static ArrayList<EasyRecipe> getAllRecipes() {
 		if (recipes.isEmpty()) {
+			long beforeTime = System.nanoTime();
+
 			List temp_recipes = CraftingManager.getInstance().getRecipeList();
+			int skipped = 0;
 
 			for (int i = 0; i < temp_recipes.size(); i++) {
 				IRecipe r = (IRecipe) temp_recipes.get(i);
@@ -32,25 +35,35 @@ public class Recipes {
 				} else {
 					// It's a special recipe (map extending, armor dyeing, ...) - ignore
 					// TODO: Handle OreDict recipes
+					skipped++;
+					System.out.println(skipped + ": Skipped recipe: " + r);
+					continue;
+				}
+				if (r.getRecipeOutput().toString().contains("item.cart.tank")) {
+					skipped++;
+					System.out.println(skipped + ": Skipped recipe with Tank Cart: " + r.getRecipeOutput());
 					continue;
 				}
 				recipes.add(new EasyRecipe(r.getRecipeOutput(), ingredients));
 			}
-		}
 
+			System.out.println(String.format("Returning %d available recipes! ---- Total time: %.8f", recipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
+		}
 		return recipes;
 	}
 
 	public static ArrayList<EasyRecipe> getCraftableRecipes(InventoryPlayer player_inventory) {
-		ArrayList<EasyRecipe> r = new ArrayList<EasyRecipe>();
+		long beforeTime = System.nanoTime();
 
-		ArrayList<EasyRecipe> all = getVanillaRecipes();
+		ArrayList<EasyRecipe> r = new ArrayList<EasyRecipe>();
+		ArrayList<EasyRecipe> all = getAllRecipes();
 		for (int i = 0; i < all.size(); i++) {
 			if (hasIngredients(all.get(i).ingredients, player_inventory, 0)) {
 				r.add(all.get(i));
 			}
 		}
 
+		System.out.println(String.format("Returning %d craftable out of %d available recipes! ---- Total time: %.8f", r.size(), recipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
 		return r;
 	}
 
@@ -71,7 +84,7 @@ public class Recipes {
 	}
 
 	private static int checkIngredients(ItemStack[] ingredients, InventoryPlayer player_inventory, boolean take_ingredients, int maxTimes, int recursionCount) {
-		if (recursionCount >= 10) {
+		if (recursionCount >= ModEasyCrafting.instance.allowMultiStepRecipes) {
 			return 0;
 		}
 
@@ -102,14 +115,16 @@ public class Recipes {
 							}
 						}
 					}
-					ArrayList<EasyRecipe> rList = getValidRecipe(ingredients[i]);
-					if (!rList.isEmpty()) {
-						for (int l = 0; l < rList.size(); l++) {
-							EasyRecipe ingRecipe = rList.get(l);
-							if (takeIngredients(ingRecipe.ingredients, tmp, recursionCount + 1) && tmp.addItemStackToInventory(ingRecipe.result.copy())) {
-								// Try to take the same ingredient again
-								i--;
-								continue ingLoop;
+					if ((recursionCount + 1) < ModEasyCrafting.instance.allowMultiStepRecipes) {
+						ArrayList<EasyRecipe> rList = getValidRecipe(ingredients[i]);
+						if (!rList.isEmpty()) {
+							for (int l = 0; l < rList.size(); l++) {
+								EasyRecipe ingRecipe = rList.get(l);
+								if (takeIngredients(ingRecipe.ingredients, tmp, recursionCount + 1) && tmp.addItemStackToInventory(ingRecipe.result.copy())) {
+									// Try to take the same ingredient again
+									i--;
+									continue ingLoop;
+								}
 							}
 						}
 					}
@@ -128,7 +143,7 @@ public class Recipes {
 
 	public static ArrayList<EasyRecipe> getValidRecipe(ItemStack result) {
 		ArrayList<EasyRecipe> list = new ArrayList<EasyRecipe>();
-		ArrayList<EasyRecipe> all = getVanillaRecipes();
+		ArrayList<EasyRecipe> all = getAllRecipes();
 		for (int i = 0; i < all.size(); i++) {
 			EasyRecipe r = all.get(i);
 			if (r.result.itemID == result.itemID && (r.result.getItemDamage() == result.getItemDamage() || result.getItemDamage() == -1)) {
@@ -139,7 +154,7 @@ public class Recipes {
 	}
 
 	public static EasyRecipe getValidRecipe(ItemStack result, ItemStack[] ingredients) {
-		ArrayList<EasyRecipe> all = getVanillaRecipes();
+		ArrayList<EasyRecipe> all = getAllRecipes();
 		allLoop: for (int i = 0; i < all.size(); i++) {
 			EasyRecipe r = all.get(i);
 			if (r.result.itemID == result.itemID && r.result.getItemDamage() == result.getItemDamage()) {

@@ -261,7 +261,7 @@ public class GuiEasyCrafting extends GuiContainer {
 
 	private void updateSearch() {
 		if (selectedTabIndex == TABINDEX_SEARCH) {
-			ArrayList<EasyRecipe> all = (ArrayList<EasyRecipe>) Recipes.getVanillaRecipes();
+			ArrayList<EasyRecipe> all = (ArrayList<EasyRecipe>) Recipes.getAllRecipes();
 			ArrayList<EasyRecipe> list = new ArrayList<EasyRecipe>();
 			String query = this.searchField.getText().toLowerCase();
 
@@ -280,7 +280,7 @@ public class GuiEasyCrafting extends GuiContainer {
 		}
 		this.currentScroll = 0;
 		this.scrollbarOffset = 0.0F;
-		refreshCraftingOutput();
+		TickHandlerClient.updateEasyCraftingOutput();
 	}
 
 	public void refreshCraftingOutput() {
