@@ -11,8 +11,23 @@ import net.minecraft.src.Packet250CustomPayload;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
 
+/**
+ * @author      Lepko <http://lepko.net>
+ * 
+ * This handles any easycraft packets received by the server from the client.
+ * @see http://jd.minecraftforge.net/cpw/mods/fml/common/network/IPacketHandler.html
+ */
 public class PacketHandlerServer implements IPacketHandler {
 
+	/**
+	 * Informs the server of what easyrecipe the user crafted. So that the server can calculate the inventory change.
+	 * @see net.lepko.minecraft.easycrafting.ContainerEasyCrafting
+	 *
+	 * @param  manager				The network manager this packet arrives from.
+	 * @param  payload				The actual data of the packet.
+	 * @param  receiving_player		Represents the player from which the player originates. Can be used to find the actual player entity.
+	 * @return N/A
+	 */
 	@Override
 	public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) {
 		DataInputStream data = new DataInputStream(new ByteArrayInputStream(packet.data));
@@ -24,9 +39,11 @@ public class PacketHandlerServer implements IPacketHandler {
 		ItemStack[] ingredients;
 
 		try {
+			//Fetch what mouse button was pressed (left- or right-click)
 			identifier = data.readInt();
 
 			if (identifier == 1 || identifier == 2) {
+				//Fetch recipe result itemstack (id, metaid, size)
 				int id = data.readInt();
 				int damage = data.readInt();
 				int stackSize = data.readInt();
@@ -35,6 +52,7 @@ public class PacketHandlerServer implements IPacketHandler {
 
 				int ingSize = data.readInt();
 
+				//Fetch all ingredients
 				ingredients = new ItemStack[ingSize];
 
 				for (int i = 0; i < ingSize; i++) {
@@ -48,6 +66,7 @@ public class PacketHandlerServer implements IPacketHandler {
 				ItemStack inHand = sender.inventory.getItemStack();
 				EasyRecipe recipe = Recipes.getValidRecipe(result, ingredients);
 
+				//Tell server to determine recipe outcome (update of serverside copy of inventory)
 				if (recipe != null) {
 					if ((inHand == null && result.stackSize == recipe.result.stackSize) || (inHand != null && (inHand.stackSize + recipe.result.stackSize) == result.stackSize)) {
 						if (identifier == 1) {

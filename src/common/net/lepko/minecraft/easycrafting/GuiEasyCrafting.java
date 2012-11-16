@@ -17,25 +17,51 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+/**
+ * @author      Lepko <http://lepko.net>
+ * 
+ * This handles the drawing of the gui, and user inputs.
+ */
 public class GuiEasyCrafting extends GuiContainer {
 
+	/** Index of the crafting tab */
 	private static final int TABINDEX_CRAFTING = 0;
+	/** Index of the search tab */
 	private static final int TABINDEX_SEARCH = 1;
 
+	/** The index of the currently selected tab */
 	private static int selectedTabIndex = TABINDEX_CRAFTING;
 
+	/** How many rows down the slider of the scrollbar is currently scrolled */
 	protected int currentScroll = 0;
+	/** The maximum amount of rows the slider can scroll down */
 	private int maxScroll = 0;
+	/** The draw position of the slider of the scrollbar, from the top of the scrollbar */
 	private float scrollbarOffset = 0;
+	/** The list of recipes that are to appear in the gui (differs from the craftablelist when in the search tab, but equal when in the craft tab) */
 	protected ArrayList<EasyRecipe> renderList = new ArrayList<EasyRecipe>();
+	/** The list of recipes that the player can craft */
 	protected ArrayList<EasyRecipe> craftableList = new ArrayList<EasyRecipe>();
+	/** Search tab, the list of recipes that the player has the available ingredients for */
 	private boolean[] canCraftCache;
+	/** Used to track dragging of the scrollbar slider, keeps track if the user had the mouse-button pressed the previous tick */
 	private boolean wasClicking = false;
+	/** Used to track dragging of the scrollbar slider, keeps track if the slider is being dragged */
 	private boolean isScrolling = false;
+	/** Defines the icons for the tabs of the gui */
 	private ItemStack[] tabIcons = { new ItemStack(ModEasyCrafting.blockEasyCraftingTable), new ItemStack(Item.compass) };
+	/** The text that appears when hovering over the tabs of the gui */
 	private String[] tabDescriptions = { "Available Recipes", "Search Recipes" };
+	/** Search tab, the text used as the search criteria */
 	private GuiTextField searchField;
 
+	/**
+	 * Creates an instance of this class.
+	 *
+	 * @param  player_inventory		The inventory of the player interacting with this gui
+	 * @param  tile_entity			The tile entity that is the easycraft table
+	 * @return N/A
+	 */
 	public GuiEasyCrafting(InventoryPlayer player_inventory, TileEntityEasyCrafting tile_entity) {
 		super(new ContainerEasyCrafting(tile_entity, player_inventory));
 
@@ -46,6 +72,12 @@ public class GuiEasyCrafting extends GuiContainer {
 		ySize = 235;
 	}
 
+	/**
+	 * Initialises the needed variables with their default values.
+	 *
+	 * @param  N/A
+	 * @return N/A
+	 */
 	@Override
 	public void initGui() {
 		super.initGui();
@@ -58,12 +90,25 @@ public class GuiEasyCrafting extends GuiContainer {
 		switchToTab(selectedTabIndex);
 	}
 
+	/**
+	 * Properly closes off the gui.
+	 *
+	 * @param  N/A
+	 * @return N/A
+	 */
 	@Override
 	public void onGuiClosed() {
 		super.onGuiClosed();
 		Keyboard.enableRepeatEvents(false);
 	}
 
+	/**
+	 * Draws the foreground layer of the gui, such as text.
+	 *
+	 * @param  i	Unused; Parent requirement.
+	 * @param  j	Unused; Parent requirement.
+	 * @return N/A
+	 */
 	@Override
 	protected void drawGuiContainerForegroundLayer(int i, int j) {
 		if (selectedTabIndex != TABINDEX_SEARCH) {
@@ -73,6 +118,14 @@ public class GuiEasyCrafting extends GuiContainer {
 		}
 	}
 
+	/**
+	 * Draws the background layer of the gui, such as textures.
+	 *
+	 * @param  f	Unused; Parent requirement.
+	 * @param  i	Unused; Parent requirement.
+	 * @param  j	Unused; Parent requirement.
+	 * @return N/A
+	 */
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		int texture = mc.renderEngine.getTexture("/net/lepko/minecraft/easycrafting/textures/easycraftinggui.png");
@@ -108,6 +161,12 @@ public class GuiEasyCrafting extends GuiContainer {
 		drawTab(selectedTabIndex);
 	}
 
+	/**
+	 * Draws the two tabs (Craft and Search)
+	 *
+	 * @param  N/A
+	 * @return N/A
+	 */
 	private void drawTabs() {
 		for (int i = 0; i < 2; i++) {
 			if (i == selectedTabIndex) {
@@ -117,6 +176,12 @@ public class GuiEasyCrafting extends GuiContainer {
 		}
 	}
 
+	/**
+	 * Draws the requested tab.
+	 *
+	 * @param  i	The index of the tab to be drawn
+	 * @return N/A
+	 */
 	private void drawTab(int i) {
 		int width = 32;
 		int height = 28;
@@ -146,6 +211,13 @@ public class GuiEasyCrafting extends GuiContainer {
 		this.zLevel = 0.0F;
 	}
 
+	/**
+	 * Intercepts keyboard key types, and updates the gui as required.
+	 *
+	 * @param  par1		The UNICODE character of the pressed key
+	 * @param  par2		The keycode of the pressed key
+	 * @return N/A
+	 */
 	@Override
 	protected void keyTyped(char par1, int par2) {
 		if (selectedTabIndex != TABINDEX_SEARCH) {
@@ -165,6 +237,12 @@ public class GuiEasyCrafting extends GuiContainer {
 		}
 	}
 
+	/**
+	 * Handles scrolling of the scrollbar through the mousewheel.
+	 *
+	 * @param  N/A
+	 * @return N/A
+	 */
 	@Override
 	public void handleMouseInput() {
 		// Handle mouse scroll
@@ -177,6 +255,14 @@ public class GuiEasyCrafting extends GuiContainer {
 		}
 	}
 
+	/**
+	 * Handles intercepting of mousecursor position for updating the gui.
+	 *
+	 * @param  mouseX	The x coordinate of the mousecursor.
+	 * @param  mouseY	The y coordinate of the mousecursor.
+	 * @param  par3		Unused; Parent requirement.
+	 * @return N/A
+	 */
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float par3) {
 		// Handle scrollbar dragging
@@ -208,6 +294,14 @@ public class GuiEasyCrafting extends GuiContainer {
 		}
 	}
 
+	/**
+	 * Handles mouse-clicks for switching between tabs.
+	 *
+	 * @param  x		The x coordinate of the mousecursor.
+	 * @param  y		The y coordinate of the mousecursor.
+	 * @param  button	The mousebutton that was pressed.
+	 * @return N/A
+	 */
 	@Override
 	protected void mouseClicked(int x, int y, int button) {
 		// Handle tab changing
@@ -223,6 +317,14 @@ public class GuiEasyCrafting extends GuiContainer {
 		super.mouseClicked(x, y, button);
 	}
 
+	/**
+	 * Checks if the given x/y coordinates are within the boundaries of the given tab.
+	 *
+	 * @param  tabIndex		The index of the tab to check the boundaries for.
+	 * @param  x			The x coordinate to check.
+	 * @param  y			The y coordinate to check.
+	 * @return 				True if the coordinates are within the tab boundaries, false if not.
+	 */
 	private boolean isOverTab(int tabIndex, int x, int y) {
 		int width = 32;
 		int height = 28;
@@ -231,6 +333,12 @@ public class GuiEasyCrafting extends GuiContainer {
 		return x > tabX && x < tabX + width && y > tabY && y < tabY + height;
 	}
 
+	/**
+	 * Properly sets the variables for switching between the tabs
+	 *
+	 * @param  tabIndex		The tab index to switch to.
+	 * @return N/A
+	 */
 	private void switchToTab(int tabIndex) {
 		if (this.searchField != null) {
 			if (tabIndex == TABINDEX_SEARCH) {
@@ -248,6 +356,13 @@ public class GuiEasyCrafting extends GuiContainer {
 		updateSearch();
 	}
 
+	/**
+	 * Updates the backrgound colour of the slot (search tab) based on ingredient availability
+	 *
+	 * @param  slot			The slot to update the background colour of.
+	 * @param  canCraft		If the recipe in that slot can be crafted or not.
+	 * @return N/A
+	 */
 	public void renderSlotBackColor(Slot slot, boolean canCraft) {
 		ItemStack item = slot.getStack();
 
@@ -259,6 +374,12 @@ public class GuiEasyCrafting extends GuiContainer {
 		this.drawRect(x, y, x + w, y + h, color);
 	}
 
+	/**
+	 * Updates the recipe renderlist based on the search text entered by the user.
+	 *
+	 * @param  N/A
+	 * @return N/A
+	 */
 	private void updateSearch() {
 		if (selectedTabIndex == TABINDEX_SEARCH) {
 			ArrayList<EasyRecipe> all = (ArrayList<EasyRecipe>) Recipes.getAllRecipes();
@@ -283,6 +404,12 @@ public class GuiEasyCrafting extends GuiContainer {
 		TickHandlerClient.updateEasyCraftingOutput();
 	}
 
+	/**
+	 * Recalculates the displayed recipelist (craft tab) or their backgrounds (search tab).
+	 *
+	 * @param  N/A
+	 * @return N/A
+	 */
 	public void refreshCraftingOutput() {
 		EntityPlayer player = (EntityPlayer) this.mc.thePlayer;
 		craftableList = Recipes.getCraftableRecipes(player.inventory);
@@ -305,6 +432,12 @@ public class GuiEasyCrafting extends GuiContainer {
 		}
 	}
 
+	/**
+	 * Determines if a recipe can be crafted or not  based on ingredient availability (search tab)
+	 *
+	 * @param  N/A
+	 * @return N/A
+	 */
 	private void updateSlotBackgroundCache() {
 		this.canCraftCache = new boolean[renderList.size()];
 		for (int i = 0; i < renderList.size(); i++) {
@@ -316,6 +449,12 @@ public class GuiEasyCrafting extends GuiContainer {
 		}
 	}
 
+	/**
+	 * Updates the recipelist based on the scroll position.
+	 *
+	 * @param  scroll	How many rows down to scroll
+	 * @return N/A
+	 */
 	private void setScrollPosition(int scroll) {
 		if (scroll < 0) {
 			scroll = 0;
@@ -335,6 +474,12 @@ public class GuiEasyCrafting extends GuiContainer {
 		c.scrollTo(this.currentScroll, renderList);
 	}
 
+	/**
+	 * Updates the recipelist based on the scroll position.
+	 *
+	 * @param  scrollOffset		How far down (percentage wise: 0.0 to 1.0) the slider is.
+	 * @return N/A
+	 */
 	private void setScrollPosition(float scrollOffset) {
 		if (scrollOffset < 0.0F || Float.isNaN(scrollOffset)) {
 			scrollOffset = 0.0F;
