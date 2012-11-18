@@ -40,7 +40,7 @@ public class VersionHelper {
 		if (updateStatus == null) {
 			updateStatus = updateCheck();
 		}
-		if (!updateStatus.equals(UpdateStatus.OUTDATED)) {
+		if (updateStatus.equals(UpdateStatus.OUTDATED)) {
 			Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + "Using version " + VERSION + " for " + Loader.instance().getMCVersionString());
 			Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + "Available version " + updateInfo[1] + ". " + ChatFormat.AQUA + "Consider updating!");
 		}
