@@ -2,7 +2,7 @@ package net.lepko.minecraft.easycrafting.block;
 
 import java.util.List;
 
-import net.lepko.minecraft.easycrafting.ProxyCommon;
+import net.lepko.minecraft.easycrafting.Proxy;
 import net.lepko.minecraft.easycrafting.Recipes;
 import net.lepko.minecraft.easycrafting.SlotEasyCraftingOutput;
 import net.lepko.minecraft.easycrafting.SlotInterceptor;
@@ -99,7 +99,7 @@ public class ContainerEasyCrafting extends Container {
 	}
 
 	private ItemStack slotClickEasyCraftingOutput(int slot_index, int mouse_button, int modifier, EntityPlayer player) {
-		if (!ProxyCommon.proxy.isClient()) {
+		if (!Proxy.proxy.isClient()) {
 			return null;
 		}
 
@@ -145,7 +145,7 @@ public class ContainerEasyCrafting extends Container {
 			EasyRecipe r = Recipes.getValidRecipe(this.gui, slot_index, stack_in_hand_to_send, return_stack);
 
 			if (r != null) {
-				ProxyCommon.proxy.sendEasyCraftingPacketToServer(return_stack, ident, r);
+				Proxy.proxy.sendEasyCraftingPacketToServer(return_stack, ident, r);
 
 				if (ident == 2) { // Right click; craft until max stack
 					int maxTimes = Recipes.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand_to_send);

@@ -1,0 +1,126 @@
+package net.lepko.minecraft.easycrafting.helpers;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+
+import net.lepko.minecraft.easycrafting.Proxy;
+
+import cpw.mods.fml.common.Loader;
+
+public class VersionHelper {
+
+	private enum UpdateStatus {
+		LATEST, OUTDATED, FAILED, DISABLED
+	}
+
+	public static final String VERSION = "1.1.0";
+	public static final String MOD_NAME = "Easy Crafting";
+	public static final String MOD_ID = "Lepko-EasyCrafting";
+
+	private static final String UPDATE_URL = "http://lepko.net/external/easycrafting/updatex.txt";
+
+	private static String[] updateInfo;
+	private static UpdateStatus updateStatus;
+
+	public static void performCheck() {
+		if (updateStatus == null) {
+			updateStatus = updateCheck();
+		}
+		EasyLog.log("Update check -" + updateStatus + "- Using version " + VERSION + " for " + Loader.instance().getMCVersionString());
+		if (updateStatus.equals(UpdateStatus.OUTDATED)) {
+			EasyLog.log("Available version " + updateInfo[1] + ". Consider updating!");
+		}
+		if (updateInfo != null && updateInfo.length >= 3 && !updateInfo[2].trim().equalsIgnoreCase("x")) {
+			EasyLog.log(updateInfo[2].trim());
+		}
+	}
+
+	public static void printToChat() {
+		if (updateStatus == null) {
+			updateStatus = updateCheck();
+		}
+		if (!updateStatus.equals(UpdateStatus.OUTDATED)) {
+			Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + "Using version " + VERSION + " for " + Loader.instance().getMCVersionString());
+			Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + "Available version " + updateInfo[1] + ". " + ChatFormat.AQUA + "Consider updating!");
+		}
+		if (updateInfo != null && updateInfo.length >= 3 && !updateInfo[2].trim().equalsIgnoreCase("x")) {
+			Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + updateInfo[2].trim());
+		}
+	}
+
+	private static UpdateStatus checkVersion(String newVersion) {
+		String[] current = VERSION.trim().split("\\.");
+		String[] latest = newVersion.trim().split("\\.");
+
+		if (latest.length < 3 || current.length < 3) {
+			return UpdateStatus.FAILED;
+		}
+
+		int currentMajor = 0;
+		int currentMinor = 0;
+		int currentRevision = 0;
+
+		int latestMajor = 0;
+		int latestMinor = 0;
+		int latestRevision = 0;
+
+		try {
+			currentMajor = Integer.parseInt(current[0]);
+			currentMinor = Integer.parseInt(current[1]);
+			currentRevision = Integer.parseInt(current[2]);
+
+			latestMajor = Integer.parseInt(latest[0]);
+			latestMinor = Integer.parseInt(latest[1]);
+			latestRevision = Integer.parseInt(latest[2]);
+		} catch (NumberFormatException nfe) {
+			return UpdateStatus.FAILED;
+		}
+
+		if (latestMajor > currentMajor) {
+			return UpdateStatus.OUTDATED;
+		} else if (latestMinor > currentMinor) {
+			return UpdateStatus.OUTDATED;
+		} else if (latestRevision > currentRevision) {
+			return UpdateStatus.OUTDATED;
+		}
+
+		return UpdateStatus.LATEST;
+	}
+
+	private static UpdateStatus updateCheck() {
+		if (EasyConfig.UPDATE_CHECK) {
+			String mcversion = Loader.instance().getMCVersionString().split(" ")[1];
+			String newVersionString = "";
+			try {
+				URL url = new URL(UPDATE_URL);
+				BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+
+				while ((newVersionString = in.readLine()) != null) {
+					if (newVersionString.trim().split(":")[0].equals(mcversion)) {
+						break;
+					}
+					newVersionString = "";
+				}
+
+				in.close();
+			} catch (Exception e) {
+				return UpdateStatus.FAILED;
+			}
+
+			if (newVersionString.trim().isEmpty()) {
+				return UpdateStatus.FAILED;
+			}
+
+			updateInfo = newVersionString.trim().split(":");
+
+			if (updateInfo.length < 3) {
+				return UpdateStatus.FAILED;
+			}
+
+			UpdateStatus us = checkVersion(updateInfo[1]);
+			return us;
+		}
+		return UpdateStatus.DISABLED;
+	}
+}

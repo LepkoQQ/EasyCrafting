@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.minecraft.easycrafting.helpers.EasyLog;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Packet250CustomPayload;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -12,7 +13,7 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.registry.TickRegistry;
 
-public class ProxyClient extends ProxyCommon {
+public class ProxyClient extends Proxy {
 
 	@Override
 	public void registerClientSideSpecific() {
@@ -25,7 +26,11 @@ public class ProxyClient extends ProxyCommon {
 	@Override
 	public void printMessageToChat(String msg) {
 		if (msg != null) {
-			FMLClientHandler.instance().getClient().ingameGUI.getChatGUI().printChatMessage(msg);
+			if (FMLClientHandler.instance().getClient().ingameGUI != null) {
+				FMLClientHandler.instance().getClient().ingameGUI.getChatGUI().printChatMessage(msg);
+			} else {
+				EasyLog.log("[CHAT] " + msg);
+			}
 		}
 	}
 
@@ -53,6 +58,6 @@ public class ProxyClient extends ProxyCommon {
 		packet.length = packet.data.length;
 		FMLClientHandler.instance().sendPacket(packet);
 
-		System.out.println("Sent packet for recipe: hash: " + r.hashCode());
+		EasyLog.log("Sent packet for recipe: hashcode: " + r.hashCode());
 	}
 }

@@ -3,7 +3,7 @@ package net.lepko.minecraft.easycrafting.block;
 import java.util.Random;
 
 import net.lepko.minecraft.easycrafting.ModEasyCrafting;
-import net.lepko.minecraft.easycrafting.ProxyCommon;
+import net.lepko.minecraft.easycrafting.Proxy;
 import net.minecraft.src.BlockContainer;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityItem;
@@ -44,7 +44,7 @@ public class BlockEasyCraftingTable extends BlockContainer {
 
 	@Override
 	public String getTextureFile() {
-		return ProxyCommon.blocksTextureFile;
+		return Proxy.blocksTextureFile;
 	}
 
 	@Override

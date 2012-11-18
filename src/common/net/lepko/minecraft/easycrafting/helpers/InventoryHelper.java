@@ -3,7 +3,6 @@ package net.lepko.minecraft.easycrafting.helpers;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.lepko.minecraft.easycrafting.ModEasyCrafting;
 import net.lepko.minecraft.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
 import net.minecraft.src.IInventory;
@@ -62,7 +61,7 @@ public class InventoryHelper {
 	}
 
 	public static int checkIngredients(EasyRecipe recipe, InventoryPlayer inventory, boolean takeIngredients, int maxTimes, int recursionCount) {
-		if (recursionCount >= ModEasyCrafting.instance.allowMultiStepRecipes) {
+		if (recursionCount >= EasyConfig.RECIPE_RECURSION) {
 			// TODO: implement recursion in this new method
 			return 0;
 		}

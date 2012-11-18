@@ -7,6 +7,7 @@ import java.util.List;
 import net.lepko.minecraft.easycrafting.block.GuiEasyCrafting;
 import net.lepko.minecraft.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.minecraft.easycrafting.helpers.EasyLog;
 import net.lepko.minecraft.easycrafting.helpers.InventoryHelper;
 import net.minecraft.src.CraftingManager;
 import net.minecraft.src.IRecipe;
@@ -60,19 +61,19 @@ public class Recipes {
 						// It's a special recipe (map extending, armor dyeing, ...) - ignore
 						// TODO: add IC2 and any other custom recipe classes
 						skipped++;
-						System.out.println(skipped + ": Skipped recipe: " + r);
+						EasyLog.log(skipped + ": Skipped recipe: " + r);
 						continue;
 					}
 				}
 				if (r.getRecipeOutput().toString().contains("item.cart.tank")) {
 					skipped++;
-					System.out.println(skipped + ": Skipped recipe with Tank Cart: " + r.getRecipeOutput());
+					EasyLog.log(skipped + ": Skipped recipe with Tank Cart: " + r.getRecipeOutput());
 					continue;
 				}
 				recipes.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
 			}
 
-			System.out.println(String.format("Returning %d available recipes! ---- Total time: %.8f", recipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
+			EasyLog.log(String.format("Returning %d available recipes! ---- Total time: %.8f", recipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
 		}
 		return recipes;
 	}
@@ -88,7 +89,7 @@ public class Recipes {
 			}
 		}
 
-		System.out.println(String.format("Returning %d craftable out of %d available recipes! ---- Total time: %.8f", craftableRecipes.size(), recipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
+		EasyLog.log(String.format("Returning %d craftable out of %d available recipes! ---- Total time: %.8f", craftableRecipes.size(), recipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
 		return craftableRecipes;
 	}
 

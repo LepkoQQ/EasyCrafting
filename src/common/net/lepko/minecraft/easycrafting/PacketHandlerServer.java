@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import net.lepko.minecraft.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.minecraft.easycrafting.helpers.EasyLog;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.INetworkManager;
 import net.minecraft.src.ItemStack;
@@ -63,7 +64,7 @@ public class PacketHandlerServer implements IPacketHandler {
 						}
 					}
 
-					System.out.println("Recieved HC: " + recipe.hashCode());
+					EasyLog.log("Server: recieved recipe hashcode: " + recipe.hashCode());
 				}
 			}
 		} catch (IOException e) {
