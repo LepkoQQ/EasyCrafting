@@ -1,10 +1,16 @@
 package net.lepko.minecraft.easycrafting;
 
+import net.lepko.minecraft.easycrafting.block.BlockEasyCraftingTable;
+import net.lepko.minecraft.easycrafting.block.TileEntityEasyCrafting;
 import net.minecraft.src.Block;
+import net.minecraft.src.CraftingManager;
 import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.OreDictionary.OreRegisterEvent;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
@@ -70,6 +76,9 @@ public class ModEasyCrafting {
 		} else {
 			GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), new Object[] { Block.workbench, Item.book });
 		}
+
+		OreDictionary.registerOre("woodLog", new ItemStack(blockEasyCraftingTable));
+		CraftingManager.getInstance().getRecipeList().add(new ShapelessOreRecipe(Item.bucketEmpty, new Object[] { Block.dirt, "woodLog" }));
 
 		// Textures
 		ProxyCommon.proxy.registerClientSideSpecific();

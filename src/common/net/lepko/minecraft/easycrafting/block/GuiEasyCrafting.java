@@ -1,8 +1,12 @@
-package net.lepko.minecraft.easycrafting;
+package net.lepko.minecraft.easycrafting.block;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import net.lepko.minecraft.easycrafting.ModEasyCrafting;
+import net.lepko.minecraft.easycrafting.Recipes;
+import net.lepko.minecraft.easycrafting.TickHandlerClient;
+import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.GuiContainer;
 import net.minecraft.src.GuiTextField;
@@ -24,11 +28,11 @@ public class GuiEasyCrafting extends GuiContainer {
 
 	private static int selectedTabIndex = TABINDEX_CRAFTING;
 
-	protected int currentScroll = 0;
+	public int currentScroll = 0;
 	private int maxScroll = 0;
 	private float scrollbarOffset = 0;
-	protected ArrayList<EasyRecipe> renderList = new ArrayList<EasyRecipe>();
-	protected ArrayList<EasyRecipe> craftableList = new ArrayList<EasyRecipe>();
+	public ArrayList<EasyRecipe> renderList = new ArrayList<EasyRecipe>();
+	public ArrayList<EasyRecipe> craftableList = new ArrayList<EasyRecipe>();
 	private boolean[] canCraftCache;
 	private boolean wasClicking = false;
 	private boolean isScrolling = false;
@@ -267,7 +271,7 @@ public class GuiEasyCrafting extends GuiContainer {
 
 			recipeLoop: for (int i = 0; i < all.size(); i++) {
 				EasyRecipe r = all.get(i);
-				List<String> itemProps = r.result.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
+				List<String> itemProps = r.getResult().toItemStack().getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
 				for (int j = 0; j < itemProps.size(); j++) {
 					if (itemProps.get(j).toLowerCase().contains(query)) {
 						list.add(r);

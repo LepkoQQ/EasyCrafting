@@ -1,4 +1,4 @@
-package net.lepko.minecraft.easycrafting;
+package net.lepko.minecraft.easycrafting.block;
 
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;

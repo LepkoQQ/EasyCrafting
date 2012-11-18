@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import net.minecraft.src.InventoryPlayer;
+import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Packet250CustomPayload;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -30,32 +30,18 @@ public class ProxyClient extends ProxyCommon {
 	}
 
 	@Override
-	public void sendEasyCraftingPacketToServer(ItemStack is, int slot_index, InventoryPlayer player_inventory, ItemStack inHand, int identifier, EasyRecipe r) {
+	public void sendEasyCraftingPacketToServer(ItemStack is, int identifier, EasyRecipe r) {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		DataOutputStream data = new DataOutputStream(bytes);
 
 		try {
-			data.writeInt(identifier);
+			data.writeInt(identifier + 8);
 			data.writeInt(is.itemID);
 			data.writeInt(is.getItemDamage());
 			data.writeInt(is.stackSize);
 
-			int count = 0;
-			for (int j = 0; j < r.ingredients.length; j++) {
-				if (r.ingredients[j] != null) {
-					count++;
-				}
-			}
-
-			data.writeInt(count);
-
-			for (int i = 0; i < r.ingredients.length; i++) {
-				if (r.ingredients[i] != null) {
-					data.writeInt(r.ingredients[i].itemID);
-					data.writeInt(r.ingredients[i].getItemDamage());
-					data.writeInt(r.ingredients[i].stackSize);
-				}
-			}
+			data.writeInt(r.getIngredientsSize());
+			data.writeInt(r.hashCode());
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
@@ -66,5 +52,7 @@ public class ProxyClient extends ProxyCommon {
 		packet.data = bytes.toByteArray();
 		packet.length = packet.data.length;
 		FMLClientHandler.instance().sendPacket(packet);
+
+		System.out.println("Sent packet for recipe: hash: " + r.hashCode());
 	}
 }

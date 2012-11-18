@@ -1,14 +1,21 @@
 package net.lepko.minecraft.easycrafting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import net.lepko.minecraft.easycrafting.block.GuiEasyCrafting;
+import net.lepko.minecraft.easycrafting.easyobjects.EasyItemStack;
+import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.minecraft.easycrafting.helpers.InventoryHelper;
 import net.minecraft.src.CraftingManager;
 import net.minecraft.src.IRecipe;
 import net.minecraft.src.InventoryPlayer;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.ShapedRecipes;
 import net.minecraft.src.ShapelessRecipes;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
 import cpw.mods.fml.relauncher.ReflectionHelper;
@@ -26,25 +33,43 @@ public class Recipes {
 
 			for (int i = 0; i < temp_recipes.size(); i++) {
 				IRecipe r = (IRecipe) temp_recipes.get(i);
-				ItemStack[] ingredients = null;
+				List ingredients = null;
+				// TODO: in future versions of forge you don't have to use reflections anymore, fields are exposed
 				if (r instanceof ShapedRecipes) {
-					ingredients = ReflectionHelper.<ItemStack[], ShapedRecipes> getPrivateValue(ShapedRecipes.class, (ShapedRecipes) r, 2);
+					ItemStack[] input = ReflectionHelper.<ItemStack[], ShapedRecipes> getPrivateValue(ShapedRecipes.class, (ShapedRecipes) r, 2);
+					ingredients = new ArrayList(Arrays.asList(input));
 				} else if (r instanceof ShapelessRecipes) {
-					List<ItemStack> tmp = ReflectionHelper.<List<ItemStack>, ShapelessRecipes> getPrivateValue(ShapelessRecipes.class, (ShapelessRecipes) r, 1);
-					ingredients = tmp.toArray(new ItemStack[0]);
+					List input = ReflectionHelper.<List, ShapelessRecipes> getPrivateValue(ShapelessRecipes.class, (ShapelessRecipes) r, 1);
+					ingredients = new ArrayList(input);
+				} else if (r instanceof ShapedOreRecipe) {
+					Object[] input = ReflectionHelper.<Object[], ShapedOreRecipe> getPrivateValue(ShapedOreRecipe.class, (ShapedOreRecipe) r, 3);
+					ingredients = new ArrayList(Arrays.asList(input));
+				} else if (r instanceof ShapelessOreRecipe) {
+					List input = ReflectionHelper.<List, ShapelessOreRecipe> getPrivateValue(ShapelessOreRecipe.class, (ShapelessOreRecipe) r, 1);
+					ingredients = new ArrayList(input);
 				} else {
-					// It's a special recipe (map extending, armor dyeing, ...) - ignore
-					// TODO: Handle OreDict recipes
-					skipped++;
-					System.out.println(skipped + ": Skipped recipe: " + r);
-					continue;
+					String className = r.getClass().getName();
+					if (className.equals("ic2.common.AdvRecipe") || className.equals("ic2.common.AdvShapelessRecipe")) {
+						try {
+							Object[] input = (Object[]) Class.forName(className).getField("input").get(r);
+							ingredients = new ArrayList(Arrays.asList(input));
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					} else {
+						// It's a special recipe (map extending, armor dyeing, ...) - ignore
+						// TODO: add IC2 and any other custom recipe classes
+						skipped++;
+						System.out.println(skipped + ": Skipped recipe: " + r);
+						continue;
+					}
 				}
 				if (r.getRecipeOutput().toString().contains("item.cart.tank")) {
 					skipped++;
 					System.out.println(skipped + ": Skipped recipe with Tank Cart: " + r.getRecipeOutput());
 					continue;
 				}
-				recipes.add(new EasyRecipe(r.getRecipeOutput(), ingredients));
+				recipes.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
 			}
 
 			System.out.println(String.format("Returning %d available recipes! ---- Total time: %.8f", recipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
@@ -55,90 +80,32 @@ public class Recipes {
 	public static ArrayList<EasyRecipe> getCraftableRecipes(InventoryPlayer player_inventory) {
 		long beforeTime = System.nanoTime();
 
-		ArrayList<EasyRecipe> r = new ArrayList<EasyRecipe>();
-		ArrayList<EasyRecipe> all = getAllRecipes();
-		for (int i = 0; i < all.size(); i++) {
-			if (hasIngredients(all.get(i).ingredients, player_inventory, 0)) {
-				r.add(all.get(i));
+		ArrayList<EasyRecipe> craftableRecipes = new ArrayList<EasyRecipe>();
+		ArrayList<EasyRecipe> allRecipes = getAllRecipes();
+		for (int i = 0; i < allRecipes.size(); i++) {
+			if (hasIngredients(allRecipes.get(i), player_inventory, 0)) {
+				craftableRecipes.add(allRecipes.get(i));
 			}
 		}
 
-		System.out.println(String.format("Returning %d craftable out of %d available recipes! ---- Total time: %.8f", r.size(), recipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
-		return r;
+		System.out.println(String.format("Returning %d craftable out of %d available recipes! ---- Total time: %.8f", craftableRecipes.size(), recipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
+		return craftableRecipes;
 	}
 
-	public static boolean hasIngredients(ItemStack[] ingredients, InventoryPlayer player_inventory, int recursionCount) {
-		return checkIngredients(ingredients, player_inventory, false, 1, recursionCount) == 0 ? false : true;
+	public static boolean hasIngredients(EasyRecipe recipe, InventoryPlayer player_inventory, int recursionCount) {
+		return InventoryHelper.checkIngredients(recipe, player_inventory, false, 1, recursionCount) == 0 ? false : true;
 	}
 
-	public static boolean takeIngredients(ItemStack[] ingredients, InventoryPlayer player_inventory, int recursionCount) {
-		return checkIngredients(ingredients, player_inventory, true, 1, recursionCount) == 0 ? false : true;
+	public static boolean takeIngredients(EasyRecipe recipe, InventoryPlayer player_inventory, int recursionCount) {
+		return InventoryHelper.checkIngredients(recipe, player_inventory, true, 1, recursionCount) == 0 ? false : true;
 	}
 
-	public static int hasIngredientsMaxStack(ItemStack[] ingredients, InventoryPlayer player_inventory, int maxTimes, int recursionCount) {
-		return checkIngredients(ingredients, player_inventory, false, maxTimes, recursionCount);
+	public static int hasIngredientsMaxStack(EasyRecipe recipe, InventoryPlayer player_inventory, int maxTimes, int recursionCount) {
+		return InventoryHelper.checkIngredients(recipe, player_inventory, false, maxTimes, recursionCount);
 	}
 
-	public static int takeIngredientsMaxStack(ItemStack[] ingredients, InventoryPlayer player_inventory, int maxTimes, int recursionCount) {
-		return checkIngredients(ingredients, player_inventory, true, maxTimes, recursionCount);
-	}
-
-	private static int checkIngredients(ItemStack[] ingredients, InventoryPlayer player_inventory, boolean take_ingredients, int maxTimes, int recursionCount) {
-		if (recursionCount >= ModEasyCrafting.instance.allowMultiStepRecipes) {
-			return 0;
-		}
-
-		InventoryPlayer tmp = new InventoryPlayer(null);
-		InventoryPlayer tmp2 = new InventoryPlayer(null);
-		tmp.copyInventory(player_inventory);
-
-		int k = 0;
-		timesLoop: while (k < maxTimes) {
-			ingLoop: for (int i = 0; i < ingredients.length; i++) {
-				if (ingredients[i] != null) {
-					for (int j = 0; j < tmp.mainInventory.length; j++) {
-						if (tmp.mainInventory[j] != null) {
-							if (tmp.mainInventory[j].itemID == ingredients[i].itemID && (tmp.mainInventory[j].getItemDamage() == ingredients[i].getItemDamage() || ingredients[i].getItemDamage() == -1)) {
-								ItemStack stack = tmp.getStackInSlot(j);
-								tmp.decrStackSize(j, 1);
-								if (stack.getItem().hasContainerItem()) {
-									ItemStack containerStack = stack.getItem().getContainerItemStack(stack);
-									// TODO: damage Items that take damage when crafting with them
-									if (containerStack.isItemStackDamageable() && containerStack.getItemDamage() > containerStack.getMaxDamage()) {
-										containerStack = null;
-									}
-									if (containerStack != null && !tmp.addItemStackToInventory(containerStack)) {
-										break timesLoop;
-									}
-								}
-								continue ingLoop;
-							}
-						}
-					}
-					if ((recursionCount + 1) < ModEasyCrafting.instance.allowMultiStepRecipes) {
-						ArrayList<EasyRecipe> rList = getValidRecipe(ingredients[i]);
-						if (!rList.isEmpty()) {
-							for (int l = 0; l < rList.size(); l++) {
-								EasyRecipe ingRecipe = rList.get(l);
-								if (takeIngredients(ingRecipe.ingredients, tmp, recursionCount + 1) && tmp.addItemStackToInventory(ingRecipe.result.copy())) {
-									// Try to take the same ingredient again
-									i--;
-									continue ingLoop;
-								}
-							}
-						}
-					}
-					break timesLoop;
-				}
-			}
-			tmp2.copyInventory(tmp);
-			k++;
-		}
-
-		if (take_ingredients && k > 0) {
-			player_inventory.copyInventory(tmp2);
-		}
-		return k;
+	public static int takeIngredientsMaxStack(EasyRecipe recipe, InventoryPlayer player_inventory, int maxTimes, int recursionCount) {
+		return InventoryHelper.checkIngredients(recipe, player_inventory, true, maxTimes, recursionCount);
 	}
 
 	public static ArrayList<EasyRecipe> getValidRecipe(ItemStack result) {
@@ -146,36 +113,45 @@ public class Recipes {
 		ArrayList<EasyRecipe> all = getAllRecipes();
 		for (int i = 0; i < all.size(); i++) {
 			EasyRecipe r = all.get(i);
-			if (r.result.itemID == result.itemID && (r.result.getItemDamage() == result.getItemDamage() || result.getItemDamage() == -1)) {
+			if (r.getResult().getID() == result.itemID && (r.getResult().getDamage() == result.getItemDamage() || result.getItemDamage() == -1)) {
 				list.add(r);
 			}
 		}
 		return list;
 	}
 
+	public static EasyRecipe getValidRecipe(int hashCode) {
+		ArrayList<EasyRecipe> all = getAllRecipes();
+		for (int i = 0; i < all.size(); i++) {
+			EasyRecipe r = all.get(i);
+			if (r.hashCode() == hashCode) {
+				return r;
+			}
+		}
+		return null;
+	}
+
 	public static EasyRecipe getValidRecipe(ItemStack result, ItemStack[] ingredients) {
 		ArrayList<EasyRecipe> all = getAllRecipes();
 		allLoop: for (int i = 0; i < all.size(); i++) {
 			EasyRecipe r = all.get(i);
-			if (r.result.itemID == result.itemID && r.result.getItemDamage() == result.getItemDamage()) {
+			if (r.getResult().getID() == result.itemID && r.getResult().getDamage() == result.getItemDamage()) {
 				int j = 0;
 				int count = 0;
-				while (j < r.ingredients.length) {
-					if (r.ingredients[j] == null) {
+				while (j < r.getIngredientsSize()) {
+					if (r.getIngredient(j) instanceof EasyItemStack) {
+						EasyItemStack eis = (EasyItemStack) r.getIngredient(j);
+						if (eis.getID() != ingredients[count].itemID || eis.getDamage() != ingredients[count].getItemDamage()) {
+							continue allLoop;
+						}
+
 						j++;
-						continue;
-					}
+						count++;
 
-					if (r.ingredients[j].itemID != ingredients[count].itemID || r.ingredients[j].getItemDamage() != ingredients[count].getItemDamage()) {
-						continue allLoop;
-					}
-
-					j++;
-					count++;
-
-					// Completed the last check and didn't fail
-					if (count == ingredients.length) {
-						return r;
+						// Completed the last check and didn't fail
+						if (count == ingredients.length) {
+							return r;
+						}
 					}
 				}
 			}
@@ -203,10 +179,10 @@ public class Recipes {
 		ArrayList<EasyRecipe> rl = gui.renderList;
 		if (i < rl.size() && rl.get(i) != null) {
 			EasyRecipe r = rl.get(i);
-			if (r.result.itemID == is.itemID && r.result.getItemDamage() == is.getItemDamage() && gui.craftableList.contains(r)) {
-				if (inHand == null && r.result.stackSize == is.stackSize) {
+			if (r.getResult().equalsItemStack(is, true) && gui.craftableList.contains(r)) {
+				if (inHand == null && r.getResult().getSize() == is.stackSize) {
 					return r;
-				} else if (inHand != null && (inHand.stackSize + r.result.stackSize) == is.stackSize) {
+				} else if (inHand != null && (inHand.stackSize + r.getResult().getSize()) == is.stackSize) {
 					return r;
 				}
 			}

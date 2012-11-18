@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import net.lepko.minecraft.easycrafting.easyobjects.EasyItemStack;
+import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.INetworkManager;
 import net.minecraft.src.ItemStack;
@@ -20,49 +22,48 @@ public class PacketHandlerServer implements IPacketHandler {
 
 		int identifier;
 
-		ItemStack result;
-		ItemStack[] ingredients;
+		EasyItemStack result;
 
 		try {
 			identifier = data.readInt();
 
-			if (identifier == 1 || identifier == 2) {
+			if (identifier == 1 + 8 || identifier == 2 + 8) {
+				identifier -= 8;
+				// TODO: constant here and where the packet is sent
+
 				int id = data.readInt();
 				int damage = data.readInt();
 				int stackSize = data.readInt();
 
-				result = new ItemStack(id, stackSize, damage);
+				result = new EasyItemStack(id, damage, stackSize);
 
 				int ingSize = data.readInt();
-
-				ingredients = new ItemStack[ingSize];
-
-				for (int i = 0; i < ingSize; i++) {
-					int _id = data.readInt();
-					int _damage = data.readInt();
-					int _stackSize = data.readInt();
-
-					ingredients[i] = new ItemStack(_id, _stackSize, _damage);
-				}
+				int hashCode = data.readInt();
 
 				ItemStack inHand = sender.inventory.getItemStack();
-				EasyRecipe recipe = Recipes.getValidRecipe(result, ingredients);
+				EasyRecipe recipe = Recipes.getValidRecipe(hashCode);
 
 				if (recipe != null) {
-					if ((inHand == null && result.stackSize == recipe.result.stackSize) || (inHand != null && (inHand.stackSize + recipe.result.stackSize) == result.stackSize)) {
+					if ((inHand == null && result.getSize() == recipe.getResult().getSize()) || (inHand != null && (inHand.stackSize + recipe.getResult().getSize()) == result.getSize())) {
 						if (identifier == 1) {
-							if (Recipes.takeIngredients(ingredients, sender.inventory, 0)) {
-								sender.inventory.setItemStack(result);
+							if (Recipes.takeIngredients(recipe, sender.inventory, 0)) {
+								ItemStack is = recipe.getResult().toItemStack();
+								is.stackSize = result.getSize();
+								sender.inventory.setItemStack(is);
 							}
 						} else if (identifier == 2) {
-							int maxTimes = Recipes.calculateCraftingMultiplierUntilMaxStack(recipe.result, inHand);
-							int timesCrafted = Recipes.takeIngredientsMaxStack(ingredients, sender.inventory, maxTimes, 0);
+							int maxTimes = Recipes.calculateCraftingMultiplierUntilMaxStack(recipe.getResult().toItemStack(), inHand);
+							int timesCrafted = Recipes.takeIngredientsMaxStack(recipe, sender.inventory, maxTimes, 0);
 							if (timesCrafted > 0) {
-								result.stackSize += (timesCrafted - 1) * recipe.result.stackSize;
-								sender.inventory.setItemStack(result);
+								int size = result.getSize() + (timesCrafted - 1) * recipe.getResult().getSize();
+								ItemStack is = recipe.getResult().toItemStack();
+								is.stackSize = size;
+								sender.inventory.setItemStack(is);
 							}
 						}
 					}
+
+					System.out.println("Recieved HC: " + recipe.hashCode());
 				}
 			}
 		} catch (IOException e) {

@@ -2,6 +2,7 @@ package net.lepko.minecraft.easycrafting;
 
 import java.util.EnumSet;
 
+import net.lepko.minecraft.easycrafting.block.GuiEasyCrafting;
 import net.minecraft.src.GuiScreen;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.ITickHandler;

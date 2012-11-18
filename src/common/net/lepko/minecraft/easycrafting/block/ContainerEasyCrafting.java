@@ -1,7 +1,12 @@
-package net.lepko.minecraft.easycrafting;
+package net.lepko.minecraft.easycrafting.block;
 
 import java.util.List;
 
+import net.lepko.minecraft.easycrafting.ProxyCommon;
+import net.lepko.minecraft.easycrafting.Recipes;
+import net.lepko.minecraft.easycrafting.SlotEasyCraftingOutput;
+import net.lepko.minecraft.easycrafting.SlotInterceptor;
+import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
 import net.minecraft.src.Container;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.InventoryPlayer;
@@ -140,13 +145,13 @@ public class ContainerEasyCrafting extends Container {
 			EasyRecipe r = Recipes.getValidRecipe(this.gui, slot_index, stack_in_hand_to_send, return_stack);
 
 			if (r != null) {
-				ProxyCommon.proxy.sendEasyCraftingPacketToServer(return_stack, slot_index, player.inventory, stack_in_hand_to_send, ident, r);
+				ProxyCommon.proxy.sendEasyCraftingPacketToServer(return_stack, ident, r);
 
 				if (ident == 2) { // Right click; craft until max stack
 					int maxTimes = Recipes.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand_to_send);
-					int timesCrafted = Recipes.hasIngredientsMaxStack(r.ingredients, player_inventory, maxTimes, 0);
+					int timesCrafted = Recipes.hasIngredientsMaxStack(r, player_inventory, maxTimes, 0);
 					if (timesCrafted > 0) {
-						return_stack.stackSize += (timesCrafted - 1) * r.result.stackSize;
+						return_stack.stackSize += (timesCrafted - 1) * r.getResult().getSize();
 						player.inventory.setItemStack(return_stack);
 					}
 				} else { // Left click; craft once
@@ -160,14 +165,14 @@ public class ContainerEasyCrafting extends Container {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public void scrollTo(int currentScroll, List<EasyRecipe> rl) {
+	public void scrollTo(int currentScroll, List<EasyRecipe> renderList) {
 		int offset = currentScroll * 8;
 		for (int i = 0; i < 40; i++) {
-			if (i + offset >= rl.size() || i + offset < 0) {
+			if (i + offset >= renderList.size() || i + offset < 0) {
 				tile_entity.setInventorySlotContents(i, null);
 			} else {
-				ItemStack is = rl.get(i + offset).result;
-				tile_entity.setInventorySlotContents(i, is.copy());
+				ItemStack is = renderList.get(i + offset).getResult().toItemStack();
+				tile_entity.setInventorySlotContents(i, is);
 			}
 		}
 	}

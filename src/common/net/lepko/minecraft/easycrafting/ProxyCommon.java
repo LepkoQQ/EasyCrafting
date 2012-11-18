@@ -1,6 +1,6 @@
 package net.lepko.minecraft.easycrafting;
 
-import net.minecraft.src.InventoryPlayer;
+import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
 import net.minecraft.src.ItemStack;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Side;
@@ -21,7 +21,7 @@ public class ProxyCommon {
 		// Client only
 	}
 
-	public void sendEasyCraftingPacketToServer(ItemStack is, int slot_index, InventoryPlayer player_inventory, ItemStack inHand, int identifier, EasyRecipe r) {
+	public void sendEasyCraftingPacketToServer(ItemStack is, int identifier, EasyRecipe r) {
 		// Client only
 	}
 

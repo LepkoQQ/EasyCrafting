@@ -1,7 +1,9 @@
-package net.lepko.minecraft.easycrafting;
+package net.lepko.minecraft.easycrafting.block;
 
 import java.util.Random;
 
+import net.lepko.minecraft.easycrafting.ModEasyCrafting;
+import net.lepko.minecraft.easycrafting.ProxyCommon;
 import net.minecraft.src.BlockContainer;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityItem;
