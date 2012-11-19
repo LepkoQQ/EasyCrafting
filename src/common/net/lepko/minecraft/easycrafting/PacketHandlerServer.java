@@ -33,57 +33,44 @@ public class PacketHandlerServer implements IPacketHandler {
 		DataInputStream data = new DataInputStream(new ByteArrayInputStream(packet.data));
 		EntityPlayer sender = (EntityPlayer) player;
 
-		int identifier;
-
-		ItemStack result;
-		ItemStack[] ingredients;
-
 		try {
-			//Fetch what mouse button was pressed (left- or right-click)
-			identifier = data.readInt();
+			//Fetch the data for the itemstack in the player's hand
+			int id = data.readInt();
+			int metaID = data.readInt();
+			int stackSize = data.readInt();
+			
+			ItemStack inHand = new ItemStack(id, stackSize, metaID);
+			sender.inventory.setItemStack(inHand);
 
-			if (identifier == 1 || identifier == 2) {
-				//Fetch recipe result itemstack (id, metaid, size)
-				int id = data.readInt();
-				int damage = data.readInt();
-				int stackSize = data.readInt();
+			//Fetch the data for each changed inventory slot
+			int numOfSlotsChanged = data.readInt();
+			if(Version.DEBUG) {
+				System.out.println("Datapacket, slots: " + numOfSlotsChanged);
+			}
+			
+			int[] changedSlots = new int[numOfSlotsChanged];
+			ItemStack[] slotContents = new ItemStack[numOfSlotsChanged];
 
-				result = new ItemStack(id, stackSize, damage);
+			for (int i = 0; i < numOfSlotsChanged; i++) {
+				int _id = data.readInt();
+				int _damage = data.readInt();
+				int _stackSize = data.readInt();
+				changedSlots[i] = data.readInt();
 
-				int ingSize = data.readInt();
-
-				//Fetch all ingredients
-				ingredients = new ItemStack[ingSize];
-
-				for (int i = 0; i < ingSize; i++) {
-					int _id = data.readInt();
-					int _damage = data.readInt();
-					int _stackSize = data.readInt();
-
-					ingredients[i] = new ItemStack(_id, _stackSize, _damage);
+				//Determine if it is an empty slot or itemstack change.
+				if ((_id == 0 && _damage == 0) || (_stackSize == 0)) {
+					//Empty slot, make null.
+					sender.inventory.setInventorySlotContents(changedSlots[i],null);
+				} else {
+					slotContents[i] = new ItemStack(_id, _stackSize, _damage);
+					//Update the relevant slot in the inventory
+					sender.inventory.setInventorySlotContents(changedSlots[i],slotContents[i]);
 				}
-
-				ItemStack inHand = sender.inventory.getItemStack();
-				EasyRecipe recipe = Recipes.getValidRecipe(result, ingredients);
-
-				//Tell server to determine recipe outcome (update of serverside copy of inventory)
-				if (recipe != null) {
-					if ((inHand == null && result.stackSize == recipe.result.stackSize) || (inHand != null && (inHand.stackSize + recipe.result.stackSize) == result.stackSize)) {
-						if (identifier == 1) {
-							if (Recipes.takeIngredients(ingredients, sender.inventory, 0)) {
-								sender.inventory.setItemStack(result);
-							}
-						} else if (identifier == 2) {
-							int maxTimes = Recipes.calculateCraftingMultiplierUntilMaxStack(recipe.result, inHand);
-							int timesCrafted = Recipes.takeIngredientsMaxStack(ingredients, sender.inventory, maxTimes, 0);
-							if (timesCrafted > 0) {
-								result.stackSize += (timesCrafted - 1) * recipe.result.stackSize;
-								sender.inventory.setItemStack(result);
-							}
-						}
-					}
+				if(Version.DEBUG) {
+					System.out.println("Datapacket, InvChange: " + changedSlots[i] + " to " + slotContents[i]);
 				}
 			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

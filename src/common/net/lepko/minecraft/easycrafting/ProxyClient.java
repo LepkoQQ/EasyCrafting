@@ -60,33 +60,39 @@ public class ProxyClient extends ProxyCommon {
 	 * @return N/A
 	 */
 	@Override
-	public void sendEasyCraftingPacketToServer(ItemStack is, int slot_index, InventoryPlayer player_inventory, ItemStack inHand, int identifier, EasyRecipe r) {
+	public void sendEasyCraftingPacketToServer(ItemStack[] updatedStacks, int[] slotIndexes, ItemStack inHandStack) {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		DataOutputStream data = new DataOutputStream(bytes);
 
 		try {
-			//Data for the recipe that was made
-			data.writeInt(identifier);
-			data.writeInt(is.itemID);
-			data.writeInt(is.getItemDamage());
-			data.writeInt(is.stackSize);
+			//TODO: Allow craft table inventory to be used as well
+		
+			//Start off with send the data for whatever is in the player's hand
+			data.writeInt(inHandStack.itemID);
+			data.writeInt(inHandStack.getItemDamage());
+			data.writeInt(inHandStack.stackSize);
 
+			//We pass over a list of all the slots that were changed, and what the new content of those slots are.
 			int count = 0;
-			for (int j = 0; j < r.ingredients.length; j++) {
-				if (r.ingredients[j] != null) {
-					count++;
-				}
-			}
+			count = updatedStacks.length;
 
 			//Ingredient count
 			data.writeInt(count);
 
 			//Data for the ingredients
-			for (int i = 0; i < r.ingredients.length; i++) {
-				if (r.ingredients[i] != null) {
-					data.writeInt(r.ingredients[i].itemID);
-					data.writeInt(r.ingredients[i].getItemDamage());
-					data.writeInt(r.ingredients[i].stackSize);
+			for (int i = 0; i < updatedStacks.length; i++) {
+				if (updatedStacks[i] != null) {
+					//Not an emppty slot, so update with itemstack data
+					data.writeInt(updatedStacks[i].itemID);
+					data.writeInt(updatedStacks[i].getItemDamage());
+					data.writeInt(updatedStacks[i].stackSize);
+					data.writeInt(slotIndexes[i]);
+				} else {
+					//Empty slot, so send empty stack of air
+					data.writeInt(0); //ID
+					data.writeInt(0); //MetaID
+					data.writeInt(0); //Stacksize
+					data.writeInt(slotIndexes[i]);
 				}
 			}
 		} catch (IOException e) {

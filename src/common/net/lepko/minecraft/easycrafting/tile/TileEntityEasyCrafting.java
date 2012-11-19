@@ -18,6 +18,7 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
      * @see net.lepko.minecraft.easycrafting.ContainerEasyCrafting
 	 */
 	private ItemStack[] inventory;
+	public RecipesManager recipesManager;
 
 	/**
 	 * Creates an instance of this class
@@ -27,6 +28,7 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
 	 */
 	public TileEntityEasyCrafting() {
 		this.inventory = new ItemStack[40 + 18]; // 40 = 5*8 crafting slots, 18 = 2*9 inventory slots
+		this.recipesManager = new RecipesManager();
 	}
 
 	/**

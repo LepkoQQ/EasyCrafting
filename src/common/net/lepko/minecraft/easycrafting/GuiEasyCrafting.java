@@ -54,6 +54,8 @@ public class GuiEasyCrafting extends GuiContainer {
 	private String[] tabDescriptions = { "Available Recipes", "Search Recipes" };
 	/** Search tab, the text used as the search criteria */
 	private GuiTextField searchField;
+	/** The easycraft table tile entity linked to this gui. */
+	protected TileEntityEasyCrafting tileEntity;
 
 	/**
 	 * Creates an instance of this class.
@@ -64,6 +66,8 @@ public class GuiEasyCrafting extends GuiContainer {
 	 */
 	public GuiEasyCrafting(InventoryPlayer player_inventory, TileEntityEasyCrafting tile_entity) {
 		super(new ContainerEasyCrafting(tile_entity, player_inventory));
+		
+		this.tileEntity = tile_entity;
 
 		if (this.inventorySlots != null && this.inventorySlots instanceof ContainerEasyCrafting) {
 			((ContainerEasyCrafting) this.inventorySlots).gui = this;
@@ -292,6 +296,42 @@ public class GuiEasyCrafting extends GuiContainer {
 				this.drawCreativeTabHoveringText(tabDescriptions[i], mouseX, mouseY);
 			}
 		}
+		
+		//Handle slot hover text
+		for (int slotCounter = 0; slotCounter < 40; ++slotCounter)
+        {
+            Slot currentSlot = (Slot)this.inventorySlots.inventorySlots.get(slotCounter);
+
+            if (this.isMouseOverSlot(currentSlot, mouseX, mouseY))
+            {
+				EasyRecipe currentRecipe = renderRecipeInSlot(slotCounter);
+				if (currentRecipe != null) {
+					String tooltip = currentRecipe.tooltipString();
+				
+					// GL11.glDisable(GL11.GL_LIGHTING);
+					// GL11.glDisable(GL11.GL_DEPTH_TEST);
+					// fontRenderer.drawString(tooltip, mouseX + 1, mouseY + 1, 0x404040);
+					// this.drawGradientRect(mouseX, mouseY, mouseX + 128, mouseY + 64, -2130706433, -2130706433);
+					// GL11.glEnable(GL11.GL_LIGHTING);
+					// GL11.glEnable(GL11.GL_DEPTH_TEST);
+				}
+            }
+        }
+	}
+	
+	/**
+	 * Gets the recipe in the render slot specified.
+	 *
+	 * @param  	slotIndex	The position of the recipe to find
+	 * @return 				The easyrecipe in the specified slot.
+	 */
+	public EasyRecipe renderRecipeInSlot(int slotIndex) {
+		int offset = this.currentScroll * 8;
+		if ( (slotIndex + offset < renderList.size()) && (slotIndex + offset >= 0) ) {
+			return renderList.get(slotIndex + offset);
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -332,6 +372,23 @@ public class GuiEasyCrafting extends GuiContainer {
 		int tabY = this.guiTop + (tabIndex * (height + 1));
 		return x > tabX && x < tabX + width && y > tabY && y < tabY + height;
 	}
+	
+	/**
+	 * Checks if the given x/y coordinates are within the boundaries of the given slot.
+	 *
+	 * @param  checkSlot	The slot to check the boundaries of.
+	 * @param  x			The x coordinate to check.
+	 * @param  y			The y coordinate to check.
+	 * @return 				True if the coordinates are within the slot boundaries, false if not.
+	 */
+    private boolean isMouseOverSlot(Slot checkSlot, int x, int y)
+    {
+		int width = 16;
+		int height = 16;
+        x -= this.guiLeft;
+        y -= this.guiTop;
+        return x >= checkSlot.xDisplayPosition - 1 && x < checkSlot.xDisplayPosition + width + 1 && y >= checkSlot.yDisplayPosition - 1 && y < checkSlot.yDisplayPosition + height + 1;
+    }
 
 	/**
 	 * Properly sets the variables for switching between the tabs
@@ -382,7 +439,7 @@ public class GuiEasyCrafting extends GuiContainer {
 	 */
 	private void updateSearch() {
 		if (selectedTabIndex == TABINDEX_SEARCH) {
-			ArrayList<EasyRecipe> all = (ArrayList<EasyRecipe>) Recipes.getAllRecipes();
+			ArrayList<EasyRecipe> all = this.tileEntity.recipesManager.getAllowedRecipes();
 			ArrayList<EasyRecipe> list = new ArrayList<EasyRecipe>();
 			String query = this.searchField.getText().toLowerCase();
 
@@ -412,7 +469,7 @@ public class GuiEasyCrafting extends GuiContainer {
 	 */
 	public void refreshCraftingOutput() {
 		EntityPlayer player = (EntityPlayer) this.mc.thePlayer;
-		craftableList = Recipes.getCraftableRecipes(player.inventory);
+		craftableList = this.tileEntity.recipesManager.getCraftableRecipes(player.inventory);
 		if (selectedTabIndex == TABINDEX_CRAFTING) {
 			renderList = craftableList;
 		} else if (selectedTabIndex == TABINDEX_SEARCH) {

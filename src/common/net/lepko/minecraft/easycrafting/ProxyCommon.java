@@ -9,7 +9,7 @@ import cpw.mods.fml.common.SidedProxy;
 /**
  * @author      Lepko <http://lepko.net>
  * 
- * This class defines a single EasyRecipe.
+ * This class handles the proxy code common to both client and server.
  */
 public class ProxyCommon {
 
@@ -28,7 +28,7 @@ public class ProxyCommon {
 		// Client only
 	}
 
-	public void sendEasyCraftingPacketToServer(ItemStack is, int slot_index, InventoryPlayer player_inventory, ItemStack inHand, int identifier, EasyRecipe r) {
+	public void sendEasyCraftingPacketToServer(ItemStack[] updatedStacks, int[] slotIndexes, ItemStack inHandStack) {
 		// Client only
 	}
 

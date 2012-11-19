@@ -1,5 +1,6 @@
 package net.lepko.minecraft.easycrafting;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.src.Container;
@@ -155,7 +156,7 @@ public class ContainerEasyCrafting extends Container {
 	 *
 	 * This method also informs the server to make the change in the player's inventory. 
 	 *
-	 * @see		net.lepko.minecraft.easycrafting.Recipes
+	 * @see		net.lepko.minecraft.easycrafting.RecipesManager
 	 *
 	 * @param  	slot_index		The slot that was clicked on
 	 * @param  	mouse_button	What mouse button was clicked (left-click, right-click, etc.)
@@ -183,6 +184,9 @@ public class ContainerEasyCrafting extends Container {
 		}
 
 		InventoryPlayer player_inventory = player.inventory;
+		InventoryPlayer tmpInventory = new InventoryPlayer(null);
+
+		tmpInventory.copyInventory(player_inventory);
 
 		ItemStack stack_in_hand = player_inventory.getItemStack();
 		ItemStack stack_in_hand_to_send = stack_in_hand != null ? stack_in_hand.copy() : null;
@@ -209,22 +213,53 @@ public class ContainerEasyCrafting extends Container {
 		if (return_stack != null && this.gui != null) {
 			int ident = mouse_button == 0 ? 1 : 2;
 
-			EasyRecipe r = Recipes.getValidRecipe(this.gui, slot_index, stack_in_hand_to_send, return_stack);
+			EasyRecipe r = this.tile_entity.recipesManager.getValidRecipe(this.gui, slot_index, stack_in_hand_to_send, return_stack);
 
 			if (r != null) {
-				//Inform the server to give the player the result of the recipe, and remove the ingredients from the player's inventory.
-				ProxyCommon.proxy.sendEasyCraftingPacketToServer(return_stack, slot_index, player.inventory, stack_in_hand_to_send, ident, r);
-
 				if (ident == 2) { // Right click; craft until max stack
-					int maxTimes = Recipes.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand_to_send);
-					int timesCrafted = Recipes.hasIngredientsMaxStack(r.ingredients, player_inventory, maxTimes, 0);
+					int maxTimes = this.tile_entity.recipesManager.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand_to_send);
+					int timesCrafted = this.tile_entity.recipesManager.hasIngredientsMaxStack(r.ingredients, player_inventory, maxTimes, 0);
 					if (timesCrafted > 0) {
+						int stacksMade = this.tile_entity.recipesManager.takeIngredientsMaxStack(r.ingredients, player_inventory, timesCrafted, 0);
 						return_stack.stackSize += (timesCrafted - 1) * r.result.stackSize;
 						player.inventory.setItemStack(return_stack);
 					}
 				} else { // Left click; craft once
+					this.tile_entity.recipesManager.takeIngredients(r.ingredients, player_inventory, 0);
 					player.inventory.setItemStack(return_stack);
 				}
+				
+				//Determine the delta change between the original inventory contents, and what it is now.
+				List<Integer> slotsChanged = new ArrayList<Integer>();
+				ItemStack[] allContents = new ItemStack[tmpInventory.mainInventory.length];
+				
+				//We do this by checking if the new inventory (player.inventory) has different contents than the old one (tmpInventory).
+				for (int invPos = 0; invPos < tmpInventory.mainInventory.length; invPos++) {
+					allContents[invPos] = player.inventory.getStackInSlot(invPos);
+					ItemStack newInv = player.inventory.getStackInSlot(invPos);
+					ItemStack oldInv = tmpInventory.getStackInSlot(invPos);
+					if(Version.DEBUG) {
+						System.out.println("Change check: " + newInv + " <- " + oldInv);
+					}
+					if(oldInv != null && newInv != null) {
+						if(!oldInv.areItemStacksEqual(oldInv,newInv)){
+							slotsChanged.add(invPos);
+						}
+					} else if ( (oldInv == null && newInv != null) || (oldInv != null && newInv == null) ) {
+						slotsChanged.add(invPos);
+					}
+				}
+				
+				int[] slotsChangedArr = new int[slotsChanged.size()];
+				ItemStack[] newContents = new ItemStack[slotsChanged.size()];
+				for(int i = 0; i < slotsChangedArr.length; i++) {
+					slotsChangedArr[i] = slotsChanged.get(i);
+					newContents[i] = allContents[slotsChanged.get(i)];
+				}
+				
+				//Inform the server to give the player the result of the recipe, and remove the ingredients from the player's inventory.
+				ProxyCommon.proxy.sendEasyCraftingPacketToServer(newContents,slotsChangedArr,return_stack);
+				//ItemStack[] updatedStacks, int[] slotIndexes, ItemStack inHandStack
 			}
 		}
 
