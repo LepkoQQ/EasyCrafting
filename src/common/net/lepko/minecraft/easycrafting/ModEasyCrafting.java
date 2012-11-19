@@ -17,27 +17,43 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
+/**
+ * @author      Lepko <http://lepko.net>
+ * 
+ * The main mod setup class.
+ */
 @Mod(modid = "Lepko-EasyCrafting", name = Version.MOD_NAME, version = Version.VERSION)
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, clientPacketHandlerSpec = @SidedPacketHandler(channels = { "EasyCrafting" }, packetHandler = PacketHandlerClient.class), serverPacketHandlerSpec = @SidedPacketHandler(channels = { "EasyCrafting" }, packetHandler = PacketHandlerServer.class))
 public class ModEasyCrafting {
 
+	/** The instance of this mod */
 	@Instance("Lepko-EasyCrafting")
 	public static ModEasyCrafting instance = new ModEasyCrafting();
 
 	// Blocks
+	/** The easycraft table block */
 	public static Block blockEasyCraftingTable;
 
 	// Gui Handler
+	/** The easycraft gui handler */
 	private GuiHandler guiHandler = new GuiHandler();
 
 	// Config values
+	/** The id for the easycraft table block */
 	public int blockEasyCraftingTableID;
+	/** Should the recipe for making the easycraft table use redstone? */
 	public boolean useRedstoneRecipe;
+	/** Should this mod check for updates when loading the world? */
 	public boolean checkForUpdates;
+	/** How many multistep (intermediate) recipe levels are allowed. */
 	public int allowMultiStepRecipes;
 
-	//
-
+	/**
+	 * Grabs all the configuration for the mod out of the config file.
+	 *
+	 * @param  event	The pre-init event. Used to get the config file.
+	 * @return N/A
+	 */
 	@PreInit
 	public void preload(FMLPreInitializationEvent event) {
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
@@ -51,6 +67,12 @@ public class ModEasyCrafting {
 		config.save();
 	}
 
+	/**
+	 * Creates all the required instances and does the mod setup.
+	 *
+	 * @param  event	Unused; Parent requirement.
+	 * @return N/A
+	 */
 	@Init
 	public void load(FMLInitializationEvent event) {
 		// Update check
