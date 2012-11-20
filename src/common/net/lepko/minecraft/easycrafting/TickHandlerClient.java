@@ -32,7 +32,7 @@ public class TickHandlerClient implements ITickHandler {
 	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
 		if (updateEasyCraftingOutput && count <= 0 && type.equals(EnumSet.of(TickType.CLIENT))) {
 			GuiScreen gs = FMLClientHandler.instance().getClient().currentScreen;
-			if (gs instanceof GuiEasyCrafting) {
+			if (gs != null && gs instanceof GuiEasyCrafting) {
 				GuiEasyCrafting gec = (GuiEasyCrafting) gs;
 				gec.refreshCraftingOutput();
 				updateEasyCraftingOutput = false;
@@ -53,6 +53,6 @@ public class TickHandlerClient implements ITickHandler {
 
 	@Override
 	public String getLabel() {
-		return null;
+		return VersionHelper.MOD_ID + "-" + this.getClass().getSimpleName();
 	}
 }

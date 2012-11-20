@@ -31,8 +31,8 @@ public class ModEasyCrafting {
 
 	@PreInit
 	public void preload(FMLPreInitializationEvent event) {
-		// Load config values from file
-		EasyConfig.loadConfig(event.getSuggestedConfigurationFile());
+		// Load settings from file
+		EasyConfig.loadConfig(event.getModConfigurationDirectory());
 		// Check for updates
 		VersionHelper.performCheck();
 	}
@@ -40,7 +40,7 @@ public class ModEasyCrafting {
 	@Init
 	public void load(FMLInitializationEvent event) {
 		// Add Blocks
-		blockEasyCraftingTable = new BlockEasyCraftingTable(EasyConfig.BLOCK_EASY_CRAFTING_ID);
+		blockEasyCraftingTable = new BlockEasyCraftingTable(EasyConfig.BLOCK_ID_EASY_CRAFTING_TABLE.getIntegerValue());
 		GameRegistry.registerBlock(blockEasyCraftingTable);
 		LanguageRegistry.addName(blockEasyCraftingTable, "Easy Crafting Table");
 
@@ -48,10 +48,11 @@ public class ModEasyCrafting {
 		GameRegistry.registerTileEntity(TileEntityEasyCrafting.class, "tileEntityEasyCrafting");
 
 		// Add recipes
-		if (EasyConfig.RECIPE_ITEMS) {
+		if (!EasyConfig.RECIPE_CUSTOM_ITEMS.getBooleanValue()) {
 			GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), new Object[] { Block.workbench, Item.book, Item.redstone });
 		} else {
-			GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), new Object[] { Block.workbench, Item.book });
+			// TODO: implement custom recipe items
+			// GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), new Object[] { Block.workbench, Item.book });
 		}
 
 		// Textures

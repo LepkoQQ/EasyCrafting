@@ -1,11 +1,11 @@
 package net.lepko.minecraft.easycrafting.helpers;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 
 import net.lepko.minecraft.easycrafting.Proxy;
-
 import cpw.mods.fml.common.Loader;
 
 public class VersionHelper {
@@ -18,7 +18,7 @@ public class VersionHelper {
 	public static final String MOD_NAME = "Easy Crafting";
 	public static final String MOD_ID = "Lepko-EasyCrafting";
 
-	private static final String UPDATE_URL = "http://lepko.net/external/easycrafting/updatex.txt";
+	private static final String UPDATE_URL = "https://dl.dropbox.com/u/15280793/easycraft-release/update.csv";
 
 	private static String[] updateInfo;
 	private static UpdateStatus updateStatus;
@@ -29,9 +29,9 @@ public class VersionHelper {
 		}
 		EasyLog.log("Update check -" + updateStatus + "- Using version " + VERSION + " for " + Loader.instance().getMCVersionString());
 		if (updateStatus.equals(UpdateStatus.OUTDATED)) {
-			EasyLog.log("Available version " + updateInfo[1] + ". Consider updating!");
+			EasyLog.log("Available version " + updateInfo[1].trim() + ". Consider updating!");
 		}
-		if (updateInfo != null && updateInfo.length >= 3 && !updateInfo[2].trim().equalsIgnoreCase("x")) {
+		if (updateInfo != null && updateInfo.length >= 3 && !updateInfo[2].trim().equalsIgnoreCase("null")) {
 			EasyLog.log(updateInfo[2].trim());
 		}
 	}
@@ -42,9 +42,9 @@ public class VersionHelper {
 		}
 		if (updateStatus.equals(UpdateStatus.OUTDATED)) {
 			Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + "Using version " + VERSION + " for " + Loader.instance().getMCVersionString());
-			Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + "Available version " + updateInfo[1] + ". " + ChatFormat.AQUA + "Consider updating!");
+			Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + "Available version " + updateInfo[1].trim() + ". " + ChatFormat.AQUA + "Consider updating!");
 		}
-		if (updateInfo != null && updateInfo.length >= 3 && !updateInfo[2].trim().equalsIgnoreCase("x")) {
+		if (updateInfo != null && updateInfo.length >= 3 && !updateInfo[2].trim().equalsIgnoreCase("null")) {
 			Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + updateInfo[2].trim());
 		}
 	}
@@ -89,30 +89,36 @@ public class VersionHelper {
 	}
 
 	private static UpdateStatus updateCheck() {
-		if (EasyConfig.UPDATE_CHECK) {
+		if (EasyConfig.UPDATE_CHECK.getBooleanValue()) {
 			String mcversion = Loader.instance().getMCVersionString().split(" ")[1];
 			String newVersionString = "";
+
+			BufferedReader in = null;
 			try {
-				URL url = new URL(UPDATE_URL);
-				BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+				in = new BufferedReader(new InputStreamReader(new URL(UPDATE_URL).openStream()));
 
 				while ((newVersionString = in.readLine()) != null) {
-					if (newVersionString.trim().split(":")[0].equals(mcversion)) {
+					if (newVersionString.split(",")[0].trim().equals(mcversion)) {
 						break;
 					}
 					newVersionString = "";
 				}
-
-				in.close();
 			} catch (Exception e) {
 				return UpdateStatus.FAILED;
+			} finally {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) {
+					}
+				}
 			}
 
 			if (newVersionString.trim().isEmpty()) {
 				return UpdateStatus.FAILED;
 			}
 
-			updateInfo = newVersionString.trim().split(":");
+			updateInfo = newVersionString.split(",");
 
 			if (updateInfo.length < 3) {
 				return UpdateStatus.FAILED;

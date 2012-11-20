@@ -61,7 +61,7 @@ public class InventoryHelper {
 	}
 
 	public static int checkIngredients(EasyRecipe recipe, InventoryPlayer inventory, boolean takeIngredients, int maxTimes, int recursionCount) {
-		if (recursionCount >= EasyConfig.RECIPE_RECURSION) {
+		if (recursionCount >= EasyConfig.RECIPE_RECURSION.getIntegerValue()) {
 			// TODO: implement recursion in this new method
 			return 0;
 		}

@@ -10,6 +10,7 @@ import net.minecraft.src.ItemStack;
 import net.minecraft.src.Packet250CustomPayload;
 import net.minecraftforge.client.MinecraftForgeClient;
 import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.registry.TickRegistry;
 
@@ -21,6 +22,9 @@ public class ProxyClient extends Proxy {
 
 		// Register Client Tick Handler
 		TickRegistry.registerTickHandler(new TickHandlerClient(), Side.CLIENT);
+
+		// Register Client Key Handler
+		KeyBindingRegistry.registerKeyBinding(new KeyPressHandler());
 	}
 
 	@Override
