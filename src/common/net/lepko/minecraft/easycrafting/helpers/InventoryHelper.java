@@ -12,7 +12,8 @@ import net.minecraft.src.ItemStack;
 public class InventoryHelper {
 
 	/**
-	 * Check if an inventory contains the items from the supplied EasyItemStack. Doesn't work on split stacks. Inventory must have a stack big enough to take from.
+	 * Check if an inventory contains the items from the supplied EasyItemStack. Doesn't work on split stacks. Inventory must have a stack big enough
+	 * to take from.
 	 * 
 	 * @param inventory
 	 *            IInventory to check
@@ -61,7 +62,7 @@ public class InventoryHelper {
 	}
 
 	public static int checkIngredients(EasyRecipe recipe, InventoryPlayer inventory, boolean takeIngredients, int maxTimes, int recursionCount) {
-		if (recursionCount >= EasyConfig.RECIPE_RECURSION.getIntegerValue()) {
+		if (recursionCount >= EasyConfig.instance().recipeRecursion.getInt(0)) {
 			// TODO: implement recursion in this new method
 			return 0;
 		}

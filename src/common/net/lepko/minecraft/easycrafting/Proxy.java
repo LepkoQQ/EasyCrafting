@@ -14,7 +14,7 @@ public class Proxy {
 
 	public static String blocksTextureFile = "/net/lepko/minecraft/easycrafting/textures/blocks.png";
 
-	public void registerClientSideSpecific() {
+	public void onLoad() {
 		// Client only
 	}
 

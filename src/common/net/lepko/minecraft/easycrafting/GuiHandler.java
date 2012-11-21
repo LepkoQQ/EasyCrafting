@@ -3,7 +3,6 @@ package net.lepko.minecraft.easycrafting;
 import net.lepko.minecraft.easycrafting.block.ContainerEasyCrafting;
 import net.lepko.minecraft.easycrafting.block.GuiEasyCrafting;
 import net.lepko.minecraft.easycrafting.block.TileEntityEasyCrafting;
-import net.lepko.minecraft.easycrafting.gui.GuiOptionsScreen;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
@@ -32,7 +31,7 @@ public class GuiHandler implements IGuiHandler {
 				return new GuiEasyCrafting(player.inventory, (TileEntityEasyCrafting) tile_entity);
 			}
 		} else if (id == 1) {
-			return new GuiOptionsScreen();
+			// return new GuiOptionsScreen();
 		}
 		return null;
 	}

@@ -3,6 +3,7 @@ package net.lepko.minecraft.easycrafting;
 import net.lepko.minecraft.easycrafting.block.BlockEasyCraftingTable;
 import net.lepko.minecraft.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.minecraft.easycrafting.helpers.EasyConfig;
+import net.lepko.minecraft.easycrafting.helpers.EasyLog;
 import net.lepko.minecraft.easycrafting.helpers.VersionHelper;
 import net.minecraft.src.Block;
 import net.minecraft.src.Item;
@@ -31,34 +32,23 @@ public class ModEasyCrafting {
 
 	@PreInit
 	public void preload(FMLPreInitializationEvent event) {
-		// Load settings from file
-		EasyConfig.loadConfig(event.getModConfigurationDirectory());
-		// Check for updates
+		EasyLog.log("Loading " + VersionHelper.MOD_NAME + " version " + VersionHelper.VERSION + ".");
+		EasyConfig.initialize(event.getSuggestedConfigurationFile());
 		VersionHelper.performCheck();
 	}
 
 	@Init
 	public void load(FMLInitializationEvent event) {
-		// Add Blocks
-		blockEasyCraftingTable = new BlockEasyCraftingTable(EasyConfig.BLOCK_ID_EASY_CRAFTING_TABLE.getIntegerValue());
-		GameRegistry.registerBlock(blockEasyCraftingTable);
+		blockEasyCraftingTable = new BlockEasyCraftingTable(EasyConfig.instance().easyCraftingTableID.getInt());
 		LanguageRegistry.addName(blockEasyCraftingTable, "Easy Crafting Table");
 
-		// TileEntities
+		GameRegistry.registerBlock(blockEasyCraftingTable);
 		GameRegistry.registerTileEntity(TileEntityEasyCrafting.class, "tileEntityEasyCrafting");
+		GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), new Object[] { Block.workbench, Item.book, Item.redstone });
+		// TODO: implement custom recipe items
 
-		// Add recipes
-		if (!EasyConfig.RECIPE_CUSTOM_ITEMS.getBooleanValue()) {
-			GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), new Object[] { Block.workbench, Item.book, Item.redstone });
-		} else {
-			// TODO: implement custom recipe items
-			// GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), new Object[] { Block.workbench, Item.book });
-		}
+		Proxy.proxy.onLoad();
 
-		// Textures
-		Proxy.proxy.registerClientSideSpecific();
-
-		// Gui
 		NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
 	}
 }

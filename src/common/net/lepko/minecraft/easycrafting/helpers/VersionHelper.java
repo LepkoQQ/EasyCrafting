@@ -89,7 +89,7 @@ public class VersionHelper {
 	}
 
 	private static UpdateStatus updateCheck() {
-		if (EasyConfig.UPDATE_CHECK.getBooleanValue()) {
+		if (EasyConfig.instance().checkForUpdates.getBoolean(true)) {
 			String mcversion = Loader.instance().getMCVersionString().split(" ")[1];
 			String newVersionString = "";
 
