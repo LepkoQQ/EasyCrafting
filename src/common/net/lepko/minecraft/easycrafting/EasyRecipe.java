@@ -20,6 +20,8 @@ public class EasyRecipe {
 	public boolean usesOreDict;
 	/** What categories does this recipe belong to? */
 	public ArrayList<Integer> categories;
+	//TODO: Add crafting time. (Time in ticks it takes to craft the recipe.)
+	//TODO: Complete recipe categories.
 
 	/**
 	 * Creates an instance of the class.
@@ -29,9 +31,7 @@ public class EasyRecipe {
 	 * @return N/A
 	 */
 	public EasyRecipe(ItemStack recipeOutput, ItemStack[] ingredients) {
-		this.result = recipeOutput;
-		this.ingredients = ingredients;
-		this.usesOreDict = false;
+		this(recipeOutput, ingredients, false);
 	}
 	
 	/**
@@ -39,10 +39,23 @@ public class EasyRecipe {
 	 *
 	 * @param  recipeOutput		What itemstack this recipe should create if crafted.
 	 * @param  ingredients		What itemstacks this recipe requires as ingredients.
-	 * @param  oreDictNames		The strings to use as keys for the ore dictionary lookups.
+	 * @param  pUsesOreDict		Does this recipe use the ore dictionary?
 	 * @return N/A
 	 */
 	public EasyRecipe(ItemStack recipeOutput, ItemStack[] ingredients, boolean pUsesOreDict) {
+		this(recipeOutput, (Object[]) ingredients, pUsesOreDict);
+	}
+	
+	
+	/**
+	 * Creates an instance of the class.
+	 *
+	 * @param  recipeOutput		What itemstack this recipe should create if crafted.
+	 * @param  ingredients		What itemstacks this recipe requires as ingredients.
+	 * @param  pUsesOreDict		The strings to use as keys for the ore dictionary lookups.
+	 * @return N/A
+	 */
+	public EasyRecipe(ItemStack recipeOutput, Object[] ingredients, boolean pUsesOreDict) {
 		this.result = recipeOutput;
 		this.ingredients = ingredients;
 		this.usesOreDict = pUsesOreDict;
@@ -138,10 +151,25 @@ public class EasyRecipe {
 		String tooltip = this.result.getItemName();
 		
 		for (int i = 0; i < this.ingredients.length; i++) {
-			ItemStack thisIngredient = (ItemStack) this.ingredients[i];
-			if (thisIngredient != null) {
-				tooltip += "\n" + thisIngredient.stackSize + "x" + thisIngredient.getItemName();
+			ArrayList<ItemStack> toFindIngredient = null;
+			if (this.ingredients[i] instanceof ArrayList) {
+				toFindIngredient = (ArrayList) this.ingredients[i];
+			} else {
+				// Assume it is of instance ItemStack
+				toFindIngredient = new ArrayList<ItemStack>();
+				toFindIngredient.add( (ItemStack) this.ingredients[i] );
 			}
+			String tempTip = "";
+			for (int ingCount = 0; ingCount < toFindIngredient.size(); ingCount++) {
+				ItemStack thisIngredient = toFindIngredient.get(ingCount);
+				if (thisIngredient != null) {
+					tempTip += thisIngredient.stackSize + "x" + thisIngredient.getItemName();
+				}
+				if(ingCount < (toFindIngredient.size() -1)) {
+					tempTip += " OR ";
+				}
+			}
+			tooltip += "\n" + tempTip;
 		}
 		return tooltip;
 	}

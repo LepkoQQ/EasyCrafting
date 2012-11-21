@@ -79,7 +79,6 @@ public class RecipesManager {
 		for (int i = 0; i < recipeList.size(); i++) {
 			this.addAllowedRecipe(recipeList.get(i));
 		}
-		//TODO: Add in checking of allowed/disallowed categories, and return false if some of the recipes in the specified list were rejected based on categories.
 		return true;
 	}
 
@@ -173,6 +172,7 @@ public class RecipesManager {
 		List<Integer> foundSlots = new ArrayList<Integer>();
 		ArrayList<ItemStack> toFindIngredient = null;
 		//For ore dictionary, we must allow a single ingredient to be a list (for oredict compatibility)
+		//Meaning, it is still just one ingredient in the recipe, but any of the items in the list will suffice
 		if (ingredient instanceof ArrayList) {
 			toFindIngredient = (ArrayList) ingredient;
 		} else {
@@ -286,26 +286,36 @@ public class RecipesManager {
 					//with the ingredients we need.
 					if ((recursionCount + 1) < ModEasyCrafting.instance.allowMultiStepRecipes) {
 						//Find a valid recipe that outputs the ingredients we need.
-						ArrayList<EasyRecipe> rList = getValidRecipe(ingredients[i]);
-						if (!rList.isEmpty()) {
-							for (int l = 0; l < rList.size(); l++) {
-								EasyRecipe ingRecipe = rList.get(l);
-								InventoryPlayer tmp3 = new InventoryPlayer(null);
-								tmp3.copyInventory(tmp);
-								//The "addItemStackToInventory" function needs a valid player, else the creativemode check does a null exception
-								tmp3.player = player_inventory.player;
-								if (takeIngredients(ingRecipe.ingredients, tmp3, recursionCount + 1)) {
-									//If the ingredients are present, check that there is space to stick the recipe result in the resulting inventory
-									//Note: Given the way that addItemStackToInventory works, there exists a bug in creaive mode when you have a full inventory.
-									//      Hence the fancy footwork checking creative mode and empty slots.
-									if ((tmp3.addItemStackToInventory(ingRecipe.result.copy()) && !tmp3.player.capabilities.isCreativeMode) || (tmp3.getFirstEmptyStack() > 0 && tmp3.player.capabilities.isCreativeMode)) {
-										// Update the working inventory and try to take the same ingredient again.
-										tmp.copyInventory(tmp3);
-										i--;
-										continue ingLoop;
-									} else {
-										if(Version.DEBUG) {
-											System.out.println("!!!Insufficient inventory space: " + ingredients[i] + " ; " + ingRecipe.ingredients);
+						ArrayList<ItemStack> toFindIngredient = null;
+						if (ingredients[i] instanceof ArrayList) {
+							toFindIngredient = (ArrayList) ingredients[i];
+						} else {
+							// Assume it is of instance ItemStack
+							toFindIngredient = new ArrayList<ItemStack>();
+							toFindIngredient.add( (ItemStack) ingredients[i] );
+						}
+						for (int ingCount = 0; ingCount < toFindIngredient.size(); ingCount++) {
+							ArrayList<EasyRecipe> rList = getValidRecipe((ItemStack) toFindIngredient.get(ingCount));
+							if (!rList.isEmpty()) {
+								for (int l = 0; l < rList.size(); l++) {
+									EasyRecipe ingRecipe = rList.get(l);
+									InventoryPlayer tmp3 = new InventoryPlayer(null);
+									tmp3.copyInventory(tmp);
+									//The "addItemStackToInventory" function needs a valid player, else the creativemode check does a null exception
+									tmp3.player = player_inventory.player;
+									if (takeIngredients(ingRecipe.ingredients, tmp3, recursionCount + 1)) {
+										//If the ingredients are present, check that there is space to stick the recipe result in the resulting inventory
+										//Note: Given the way that addItemStackToInventory works, there exists a bug in creaive mode when you have a full inventory.
+										//      Hence the fancy footwork checking creative mode and empty slots.
+										if ((tmp3.addItemStackToInventory(ingRecipe.result.copy()) && !tmp3.player.capabilities.isCreativeMode) || (tmp3.getFirstEmptyStack() > 0 && tmp3.player.capabilities.isCreativeMode)) {
+											// Update the working inventory and try to take the same ingredient again.
+											tmp.copyInventory(tmp3);
+											i--;
+											continue ingLoop;
+										} else {
+											if(Version.DEBUG) {
+												System.out.println("!!!Insufficient inventory space: " + ingredients[i] + " ; " + ingRecipe.ingredients);
+											}
 										}
 									}
 								}

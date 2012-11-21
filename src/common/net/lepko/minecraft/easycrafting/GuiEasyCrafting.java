@@ -307,6 +307,8 @@ public class GuiEasyCrafting extends GuiContainer {
 				EasyRecipe currentRecipe = renderRecipeInSlot(slotCounter);
 				if (currentRecipe != null) {
 					String tooltip = currentRecipe.tooltipString();
+					//TODO: Fix tooltip display. Do tooltip display as a grid of itemstacks.
+					//TODO: Allow multiple levels of tooltip display.
 				
 					// GL11.glDisable(GL11.GL_LIGHTING);
 					// GL11.glDisable(GL11.GL_DEPTH_TEST);

@@ -18,7 +18,7 @@ public class Version {
 	/** Where to check for new versions */
 	private static final String UPDATE_URL = "http://lepko.net/external/easycrafting/update.txt";
 	/** Is this a debug version? */
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 
 	/** Version that is available */
 	private static String newVersionString = "";

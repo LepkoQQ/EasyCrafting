@@ -2,6 +2,8 @@ package net.lepko.minecraft.easycrafting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.Field; 
+import java.lang.reflect.Method; 
 
 import net.minecraft.src.CraftingManager;
 import net.minecraft.src.IRecipe;
@@ -45,7 +47,7 @@ public class RecipeConverter {
 				if(Version.DEBUG) {
 					System.out.println("Processing recipe " + i + ": " + r + "  outputting: " + r.getRecipeOutput());
 				}
-				ItemStack[] ingredients = null;
+				Object[] ingredients = null;
 				if (r instanceof ShapedRecipes) {
 					ingredients = ReflectionHelper.<ItemStack[], ShapedRecipes> getPrivateValue(ShapedRecipes.class, (ShapedRecipes) r, "recipeItems");
 				} else if (r instanceof ShapelessRecipes) {
@@ -53,13 +55,48 @@ public class RecipeConverter {
 					ingredients = tmp.toArray(new ItemStack[0]);
 				} else if (r instanceof ShapedOreRecipe) {
 					//Makes use of the forge ore dictionary
-					ShapedOreRecipe tempRecipe = (ShapedOreRecipe) temp_recipes.get(i);
 					usesOreDict = true;
-					continue;
-					//Object[] ingredientList = tempRecipe.input;
-					//if(Version.DEBUG) {
-					//	System.out.println("Oredict Test: " + ingredientList[0]);
-					//}
+					Object[] recipeInput;
+					
+					//Do the whole private variable hack thing.
+					try {
+						recipeInput = hackShapedOreRecipe(temp_recipes.get(i));
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+						continue;
+					}
+					
+					for (int ingCounter = 0; ingCounter < recipeInput.length; ingCounter++) {
+						if(Version.DEBUG) {
+							System.out.println("Hack return value: " + recipeInput[ingCounter]);
+						}
+					}
+					ingredients = recipeInput;
+
+				}  else if (r instanceof ShapelessOreRecipe) {
+					//Makes use of the forge ore dictionary
+					usesOreDict = true;
+					ArrayList recipeInput;
+					
+					//Do the whole private variable hack thing.
+					try {
+						recipeInput = hackShapelessOreRecipe(temp_recipes.get(i));
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+						continue;
+					}
+					
+					Object[] returnVar = new Object[recipeInput.size()];
+					for (int ingCounter = 0; ingCounter < recipeInput.size(); ingCounter++) {
+						returnVar[ingCounter] = recipeInput.get(ingCounter);
+						if(Version.DEBUG) {
+							System.out.println("Hack return value: " + recipeInput.get(ingCounter));
+						}
+					}
+					ingredients = returnVar;
+
 				} else { 
 					// It's a special recipe (map extending, armor dyeing, ...) - ignore
 					skipped++;
@@ -76,15 +113,18 @@ public class RecipeConverter {
 					continue;
 				}
 				//The reason this debug output is interesting, is because apparently there are recipes that have
-				//itemstacks with sizes not equal to 0. I assume this is never a problem since nobody uses stacksize
+				//itemstacks with sizes not equal to 1. I assume this is never a problem since nobody uses stacksize
 				//when checking crafting recipes, until I tried to. So this debug code helps to spot the "odd-ones" so
 				//we can decide how to handle it, if we go the itemstack.stacksize route again.
 				if(Version.DEBUG) {
 					for(int ingCounter = 0; ingCounter < ingredients.length; ingCounter++) {
 						System.out.println(ingCounter + " of " + ingredients.length + " : " + ingredients[ingCounter]);
-						if(ingredients[ingCounter] != null) {
-							if(ingredients[ingCounter].stackSize != 1) {
-								System.out.println("!!!WARNING!!! Stacksize:" + ingredients[ingCounter].stackSize);
+						if (!(ingredients[ingCounter] instanceof ArrayList)) {
+							ItemStack tmpIngredient = (ItemStack) ingredients[ingCounter];
+							if(tmpIngredient != null) {
+								if(tmpIngredient.stackSize != 1) {
+									System.out.println("!!!WARNING!!! Stacksize:" + tmpIngredient.stackSize);
+								}
 							}
 						}
 					}
@@ -92,7 +132,7 @@ public class RecipeConverter {
 				if(usesOreDict) {
 					finalList.add(new EasyRecipe(r.getRecipeOutput(), ingredients, true));
 				} else {
-					finalList.add(new EasyRecipe(r.getRecipeOutput(), ingredients));
+					finalList.add(new EasyRecipe(r.getRecipeOutput(), ingredients, false));
 				}
 			}
 			convertedStandardCraftingManagerRecipes = finalList;
@@ -102,5 +142,29 @@ public class RecipeConverter {
 			}
 		}
 		return convertedStandardCraftingManagerRecipes;
+	}
+	
+	public static Object[] hackShapedOreRecipe(Object theRecipeToHack) throws IllegalAccessException, IllegalArgumentException {
+		ShapedOreRecipe temp = (ShapedOreRecipe) theRecipeToHack;
+	
+		Class shapedOreClass = temp.getClass();
+		//  Print all the field names & values
+		Field fields[] = shapedOreClass.getDeclaredFields();
+		fields[3].setAccessible(true); 
+
+		Object[] recipeInput = (Object[]) fields[3].get(theRecipeToHack);
+		return recipeInput;
+	}
+
+	public static ArrayList hackShapelessOreRecipe(Object theRecipeToHack) throws IllegalAccessException, IllegalArgumentException {
+		ShapelessOreRecipe temp = (ShapelessOreRecipe) theRecipeToHack;
+	
+		Class shapelessOreClass = temp.getClass();
+		//  Print all the field names & values
+		Field fields[] = shapelessOreClass.getDeclaredFields();
+		fields[1].setAccessible(true); 
+
+		ArrayList recipeInput = (ArrayList) fields[1].get(theRecipeToHack);
+		return recipeInput;
 	}
 }
