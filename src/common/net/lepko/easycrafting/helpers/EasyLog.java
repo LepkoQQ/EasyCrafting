@@ -1,4 +1,4 @@
-package net.lepko.minecraft.easycrafting.helpers;
+package net.lepko.easycrafting.helpers;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,14 +14,14 @@ public class EasyLog {
 	}
 
 	public static void log(String msg) {
-		logger.log(Level.INFO, msg);
+		logger.log(Level.INFO, msg + " == T:" + Thread.currentThread().getName());
 	}
 
 	public static void warning(String msg) {
-		logger.log(Level.WARNING, msg);
+		logger.log(Level.WARNING, msg + " == T:" + Thread.currentThread().getName());
 	}
 
 	public static void severe(String msg) {
-		logger.log(Level.SEVERE, msg);
+		logger.log(Level.SEVERE, msg + " == T:" + Thread.currentThread().getName());
 	}
 }

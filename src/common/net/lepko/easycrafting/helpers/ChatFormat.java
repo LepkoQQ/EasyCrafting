@@ -1,4 +1,4 @@
-package net.lepko.minecraft.easycrafting.helpers;
+package net.lepko.easycrafting.helpers;
 
 public enum ChatFormat {
 

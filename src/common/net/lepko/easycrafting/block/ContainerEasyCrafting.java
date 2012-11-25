@@ -1,12 +1,10 @@
-package net.lepko.minecraft.easycrafting.block;
+package net.lepko.easycrafting.block;
 
 import java.util.List;
 
-import net.lepko.minecraft.easycrafting.Proxy;
-import net.lepko.minecraft.easycrafting.Recipes;
-import net.lepko.minecraft.easycrafting.SlotEasyCraftingOutput;
-import net.lepko.minecraft.easycrafting.SlotInterceptor;
-import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.easycrafting.helpers.RecipeHelper;
+import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.src.Container;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.InventoryPlayer;
@@ -142,14 +140,14 @@ public class ContainerEasyCrafting extends Container {
 		if (return_stack != null && this.gui != null) {
 			int ident = mouse_button == 0 ? 1 : 2;
 
-			EasyRecipe r = Recipes.getValidRecipe(this.gui, slot_index, stack_in_hand_to_send, return_stack);
+			EasyRecipe r = RecipeHelper.getValidRecipe(this.gui, slot_index, stack_in_hand_to_send, return_stack);
 
 			if (r != null) {
 				Proxy.proxy.sendEasyCraftingPacketToServer(return_stack, ident, r);
 
 				if (ident == 2) { // Right click; craft until max stack
-					int maxTimes = Recipes.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand_to_send);
-					int timesCrafted = Recipes.hasIngredientsMaxStack(r, player_inventory, maxTimes, 0);
+					int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand_to_send);
+					int timesCrafted = RecipeHelper.hasIngredientsMaxStack(r, player_inventory, maxTimes, 0);
 					if (timesCrafted > 0) {
 						return_stack.stackSize += (timesCrafted - 1) * r.getResult().getSize();
 						player.inventory.setItemStack(return_stack);

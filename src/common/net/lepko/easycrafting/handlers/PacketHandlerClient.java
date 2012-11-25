@@ -1,4 +1,4 @@
-package net.lepko.minecraft.easycrafting;
+package net.lepko.easycrafting.handlers;
 
 import net.minecraft.src.INetworkManager;
 import net.minecraft.src.Packet250CustomPayload;

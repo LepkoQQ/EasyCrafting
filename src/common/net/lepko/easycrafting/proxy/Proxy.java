@@ -1,7 +1,7 @@
-package net.lepko.minecraft.easycrafting;
+package net.lepko.easycrafting.proxy;
 
-import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
-import net.lepko.minecraft.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.easycrafting.helpers.EasyLog;
 import net.minecraft.src.ItemStack;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Side;
@@ -9,10 +9,10 @@ import cpw.mods.fml.common.SidedProxy;
 
 public class Proxy {
 
-	@SidedProxy(clientSide = "net.lepko.minecraft.easycrafting.ProxyClient", serverSide = "net.lepko.minecraft.easycrafting.ProxyCommon")
+	@SidedProxy(clientSide = "net.lepko.easycrafting.proxy.ProxyClient", serverSide = "net.lepko.easycrafting.proxy.Proxy")
 	public static Proxy proxy;
 
-	public static String blocksTextureFile = "/net/lepko/minecraft/easycrafting/textures/blocks.png";
+	public static String blocksTextureFile = "/net/lepko/easycrafting/textures/blocks.png";
 
 	public void onLoad() {
 		// Client only

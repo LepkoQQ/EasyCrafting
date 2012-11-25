@@ -1,10 +1,11 @@
-package net.lepko.minecraft.easycrafting.easyobjects;
+package net.lepko.easycrafting.easyobjects;
 
 import ic2.api.ElectricItem;
 import ic2.api.IElectricItem;
 
 import java.util.List;
 
+import net.lepko.easycrafting.helpers.EasyLog;
 import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 
@@ -64,22 +65,6 @@ public class EasyItemStack {
 			charge = ElectricItem.discharge(is, 0x7fffffff, 0x7fffffff, true, true);
 		}
 		return new EasyItemStack(is.itemID, is.getItemDamage(), is.stackSize, charge);
-	}
-
-	public boolean canTakeFrom(ItemStack is) {
-		if (is == null) {
-			return false;
-		}
-		if (id != is.itemID) {
-			return false;
-		}
-		if (damage != -1 && damage != is.getItemDamage() && !(Item.itemsList[id] instanceof IElectricItem)) {
-			return false;
-		}
-		if (size > is.stackSize) {
-			return false;
-		}
-		return true;
 	}
 
 	@Override

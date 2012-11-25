@@ -1,12 +1,13 @@
-package net.lepko.minecraft.easycrafting.block;
+package net.lepko.easycrafting.block;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.lepko.minecraft.easycrafting.ModEasyCrafting;
-import net.lepko.minecraft.easycrafting.Recipes;
-import net.lepko.minecraft.easycrafting.TickHandlerClient;
-import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.easycrafting.ModEasyCrafting;
+import net.lepko.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.easycrafting.handlers.TickHandlerClient;
+import net.lepko.easycrafting.helpers.ChatFormat;
+import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.GuiContainer;
 import net.minecraft.src.GuiTextField;
@@ -21,6 +22,8 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import com.google.common.collect.ImmutableList;
+
 public class GuiEasyCrafting extends GuiContainer {
 
 	private static final int TABINDEX_CRAFTING = 0;
@@ -31,8 +34,8 @@ public class GuiEasyCrafting extends GuiContainer {
 	public int currentScroll = 0;
 	private int maxScroll = 0;
 	private float scrollbarOffset = 0;
-	public ArrayList<EasyRecipe> renderList = new ArrayList<EasyRecipe>();
-	public ArrayList<EasyRecipe> craftableList = new ArrayList<EasyRecipe>();
+	public ImmutableList<EasyRecipe> renderList;
+	public ImmutableList<EasyRecipe> craftableList;
 	private boolean[] canCraftCache;
 	private boolean wasClicking = false;
 	private boolean isScrolling = false;
@@ -70,16 +73,23 @@ public class GuiEasyCrafting extends GuiContainer {
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int i, int j) {
+		int offsetX = 0;
 		if (selectedTabIndex != TABINDEX_SEARCH) {
 			fontRenderer.drawString("Easy Crafting Table", 8, 6, 0x404040);
+			offsetX = 159;
 		} else {
 			fontRenderer.drawString("Search:", 8, 6, 0x404040);
+			offsetX = 70;
+		}
+
+		if (RecipeHelper.lock.isLocked()) {
+			fontRenderer.drawString(ChatFormat.MAGIC + "x", offsetX, 6, 0x404040);
 		}
 	}
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-		int texture = mc.renderEngine.getTexture("/net/lepko/minecraft/easycrafting/textures/easycraftinggui.png");
+		int texture = mc.renderEngine.getTexture("/net/lepko/easycrafting/textures/easycraftinggui.png");
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderHelper.enableGUIStandardItemLighting();
 		this.mc.renderEngine.bindTexture(texture);
@@ -90,7 +100,7 @@ public class GuiEasyCrafting extends GuiContainer {
 		int x = (width - xSize) / 2;
 		int y = (height - ySize) / 2;
 		this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
-		// Search field
+		// Search field and output slot backgrounds
 		if (selectedTabIndex == TABINDEX_SEARCH) {
 			int xSearchTex = xSize - 90 - 7;
 			this.drawTexturedModalRect(this.guiLeft + xSearchTex, y + 4, xSearchTex, 256 - 12, 90, 12);
@@ -102,6 +112,10 @@ public class GuiEasyCrafting extends GuiContainer {
 					renderSlotBackColor(this.inventorySlots.getSlot(k), this.canCraftCache[k + offset]);
 				}
 			}
+		}
+		// Storage slots background
+		for (int l = 0; l < 18; l++) {
+			renderSlotBackColor(this.inventorySlots.getSlot(l + 40), false);
 		}
 		// Scrollbar
 		this.mc.renderEngine.bindTexture(texture);
@@ -144,7 +158,7 @@ public class GuiEasyCrafting extends GuiContainer {
 		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 		ItemStack iconItemStack = tabIcons[i];
 		itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.renderEngine, iconItemStack, x, y);
-		itemRenderer.renderItemOverlayIntoGUI(this.fontRenderer, this.mc.renderEngine, iconItemStack, x, y);
+		// itemRenderer.renderItemOverlayIntoGUI(this.fontRenderer, this.mc.renderEngine, iconItemStack, x, y);
 		GL11.glDisable(GL11.GL_LIGHTING);
 		itemRenderer.zLevel = 0.0F;
 		this.zLevel = 0.0F;
@@ -154,7 +168,7 @@ public class GuiEasyCrafting extends GuiContainer {
 	protected void keyTyped(char par1, int par2) {
 		if (selectedTabIndex != TABINDEX_SEARCH) {
 			if (Keyboard.isKeyDown(this.mc.gameSettings.keyBindChat.keyCode)) {
-				this.switchToTab(1);
+				this.switchToTab(TABINDEX_SEARCH);
 			} else {
 				super.keyTyped(par1, par2);
 			}
@@ -265,7 +279,7 @@ public class GuiEasyCrafting extends GuiContainer {
 
 	private void updateSearch() {
 		if (selectedTabIndex == TABINDEX_SEARCH) {
-			ArrayList<EasyRecipe> all = (ArrayList<EasyRecipe>) Recipes.getAllRecipes();
+			ImmutableList<EasyRecipe> all = RecipeHelper.getAllRecipes();
 			ArrayList<EasyRecipe> list = new ArrayList<EasyRecipe>();
 			String query = this.searchField.getText().toLowerCase();
 
@@ -280,7 +294,7 @@ public class GuiEasyCrafting extends GuiContainer {
 				}
 			}
 
-			this.renderList = list;
+			this.renderList = ImmutableList.copyOf(list);
 		}
 		this.currentScroll = 0;
 		this.scrollbarOffset = 0.0F;
@@ -289,7 +303,7 @@ public class GuiEasyCrafting extends GuiContainer {
 
 	public void refreshCraftingOutput() {
 		EntityPlayer player = (EntityPlayer) this.mc.thePlayer;
-		craftableList = Recipes.getCraftableRecipes(player.inventory);
+		craftableList = RecipeHelper.instance().getCraftableRecipes();
 		if (selectedTabIndex == TABINDEX_CRAFTING) {
 			renderList = craftableList;
 		} else if (selectedTabIndex == TABINDEX_SEARCH) {

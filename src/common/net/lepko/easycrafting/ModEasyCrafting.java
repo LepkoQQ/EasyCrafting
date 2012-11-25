@@ -1,10 +1,14 @@
-package net.lepko.minecraft.easycrafting;
+package net.lepko.easycrafting;
 
-import net.lepko.minecraft.easycrafting.block.BlockEasyCraftingTable;
-import net.lepko.minecraft.easycrafting.block.TileEntityEasyCrafting;
-import net.lepko.minecraft.easycrafting.helpers.EasyConfig;
-import net.lepko.minecraft.easycrafting.helpers.EasyLog;
-import net.lepko.minecraft.easycrafting.helpers.VersionHelper;
+import net.lepko.easycrafting.block.BlockEasyCraftingTable;
+import net.lepko.easycrafting.block.TileEntityEasyCrafting;
+import net.lepko.easycrafting.handlers.GuiHandler;
+import net.lepko.easycrafting.handlers.PacketHandlerClient;
+import net.lepko.easycrafting.handlers.PacketHandlerServer;
+import net.lepko.easycrafting.helpers.EasyConfig;
+import net.lepko.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.helpers.VersionHelper;
+import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.src.Block;
 import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;

@@ -1,5 +1,6 @@
-package net.lepko.minecraft.easycrafting;
+package net.lepko.easycrafting.block;
 
+import net.lepko.easycrafting.handlers.TickHandlerClient;
 import net.minecraft.src.IInventory;
 import net.minecraft.src.Slot;
 

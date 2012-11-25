@@ -1,12 +1,12 @@
-package net.lepko.minecraft.easycrafting;
+package net.lepko.easycrafting.handlers;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import net.lepko.minecraft.easycrafting.easyobjects.EasyItemStack;
-import net.lepko.minecraft.easycrafting.easyobjects.EasyRecipe;
-import net.lepko.minecraft.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.easyobjects.EasyItemStack;
+import net.lepko.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.INetworkManager;
 import net.minecraft.src.ItemStack;
@@ -24,37 +24,50 @@ public class PacketHandlerServer implements IPacketHandler {
 		int identifier;
 
 		EasyItemStack result;
+		ItemStack[] ingredients;
 
 		try {
 			identifier = data.readInt();
 
-			if (identifier == 1 + 8 || identifier == 2 + 8) {
-				identifier -= 8;
-				// TODO: constant here and where the packet is sent
+			if (identifier == 1 || identifier == 2) {
 
 				int id = data.readInt();
 				int damage = data.readInt();
 				int stackSize = data.readInt();
 
+				ItemStack inHand = sender.inventory.getItemStack();
+				if (inHand != null && inHand.itemID == id && inHand.getItemDamage() == damage && inHand.stackSize < stackSize) {
+					stackSize -= inHand.stackSize;
+				}
+
 				result = new EasyItemStack(id, damage, stackSize);
 
 				int ingSize = data.readInt();
-				int hashCode = data.readInt();
 
-				ItemStack inHand = sender.inventory.getItemStack();
-				EasyRecipe recipe = Recipes.getValidRecipe(hashCode);
+				ingredients = new ItemStack[ingSize];
+				for (int i = 0; i < ingSize; i++) {
+					int _id = data.readInt();
+					int _damage = data.readInt();
+					int _stackSize = data.readInt();
+
+					ingredients[i] = new ItemStack(_id, _stackSize, _damage);
+				}
+
+				EasyRecipe recipe = RecipeHelper.getValidRecipe(result, ingredients);
 
 				if (recipe != null) {
 					if ((inHand == null && result.getSize() == recipe.getResult().getSize()) || (inHand != null && (inHand.stackSize + recipe.getResult().getSize()) == result.getSize())) {
 						if (identifier == 1) {
-							if (Recipes.takeIngredients(recipe, sender.inventory, 0)) {
+							if (RecipeHelper.takeIngredients(recipe, sender.inventory, 0)) {
 								ItemStack is = recipe.getResult().toItemStack();
-								is.stackSize = result.getSize();
+								if (inHand != null) {
+									is.stackSize += inHand.stackSize;
+								}
 								sender.inventory.setItemStack(is);
 							}
 						} else if (identifier == 2) {
-							int maxTimes = Recipes.calculateCraftingMultiplierUntilMaxStack(recipe.getResult().toItemStack(), inHand);
-							int timesCrafted = Recipes.takeIngredientsMaxStack(recipe, sender.inventory, maxTimes, 0);
+							int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(recipe.getResult().toItemStack(), inHand);
+							int timesCrafted = RecipeHelper.takeIngredientsMaxStack(recipe, sender.inventory, maxTimes, 0);
 							if (timesCrafted > 0) {
 								int size = result.getSize() + (timesCrafted - 1) * recipe.getResult().getSize();
 								ItemStack is = recipe.getResult().toItemStack();
@@ -63,8 +76,6 @@ public class PacketHandlerServer implements IPacketHandler {
 							}
 						}
 					}
-
-					EasyLog.log("Server: recieved recipe hashcode: " + recipe.hashCode());
 				}
 			}
 		} catch (IOException e) {

@@ -1,11 +1,11 @@
-package net.lepko.minecraft.easycrafting.helpers;
+package net.lepko.easycrafting.helpers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-import net.lepko.minecraft.easycrafting.Proxy;
+import net.lepko.easycrafting.proxy.Proxy;
 import cpw.mods.fml.common.Loader;
 
 public class VersionHelper {
