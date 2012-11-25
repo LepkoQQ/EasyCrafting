@@ -2,6 +2,8 @@ package net.lepko.easycrafting.helpers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -79,6 +81,30 @@ public class RecipeHelper implements Runnable {
 			}
 			tmp.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
 		}
+
+		Collections.sort(tmp, new Comparator<EasyRecipe>() {
+			@Override
+			public int compare(EasyRecipe o1, EasyRecipe o2) {
+				if (o1.getResult().getID() > o2.getResult().getID()) {
+					return 1;
+				} else if (o1.getResult().getID() < o2.getResult().getID()) {
+					return -1;
+				}
+
+				if (o1.getResult().getDamage() > o2.getResult().getDamage()) {
+					return 1;
+				} else if (o1.getResult().getDamage() < o2.getResult().getDamage()) {
+					return -1;
+				}
+
+				if (o1.getResult().getSize() > o2.getResult().getSize()) {
+					return 1;
+				} else if (o1.getResult().getSize() < o2.getResult().getSize()) {
+					return -1;
+				}
+				return 0;
+			}
+		});
 
 		allRecipes = ImmutableList.copyOf(tmp);
 		EasyLog.log(String.format("Returning %d available recipes! ---- Total time: %.8f", allRecipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));

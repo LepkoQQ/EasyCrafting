@@ -158,7 +158,6 @@ public class GuiEasyCrafting extends GuiContainer {
 		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 		ItemStack iconItemStack = tabIcons[i];
 		itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.renderEngine, iconItemStack, x, y);
-		// itemRenderer.renderItemOverlayIntoGUI(this.fontRenderer, this.mc.renderEngine, iconItemStack, x, y);
 		GL11.glDisable(GL11.GL_LIGHTING);
 		itemRenderer.zLevel = 0.0F;
 		this.zLevel = 0.0F;
@@ -224,6 +223,8 @@ public class GuiEasyCrafting extends GuiContainer {
 				this.drawCreativeTabHoveringText(tabDescriptions[i], mouseX, mouseY);
 			}
 		}
+
+		RenderHelper.enableStandardItemLighting();
 	}
 
 	@Override
@@ -267,8 +268,6 @@ public class GuiEasyCrafting extends GuiContainer {
 	}
 
 	public void renderSlotBackColor(Slot slot, boolean canCraft) {
-		ItemStack item = slot.getStack();
-
 		int x = this.guiLeft + slot.xDisplayPosition;
 		int y = this.guiTop + slot.yDisplayPosition;
 		int w = 16;

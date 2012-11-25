@@ -48,8 +48,22 @@ public class ModEasyCrafting {
 
 		GameRegistry.registerBlock(blockEasyCraftingTable);
 		GameRegistry.registerTileEntity(TileEntityEasyCrafting.class, "tileEntityEasyCrafting");
-		GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), new Object[] { Block.workbench, Item.book, Item.redstone });
-		// TODO: implement custom recipe items
+
+		// Recipe from config
+		String recipeItems = EasyConfig.instance().customRecipeItems.value;
+		String[] items = recipeItems.split(",");
+		Object[] array = new Object[items.length];
+		for (int i = 0; i < items.length; i++) {
+			try {
+				array[i] = new ItemStack(Integer.parseInt(items[i]), 1, -1);
+			} catch (NumberFormatException nfe) {
+				EasyLog.warning("customRecipeItems: '" + recipeItems + "' is not valid; Using default!");
+				array = new Object[] { Block.workbench, Item.book, Item.redstone };
+				break;
+			}
+		}
+		GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), array);
+		//
 
 		Proxy.proxy.onLoad();
 
