@@ -44,23 +44,24 @@ public class ProxyClient extends Proxy {
 		DataOutputStream data = new DataOutputStream(bytes);
 
 		try {
-			data.writeInt(identifier);
-			data.writeInt(is.itemID);
+			data.writeByte(identifier);
+			data.writeShort(is.itemID);
 			data.writeInt(is.getItemDamage());
-			data.writeInt(is.stackSize);
+			data.writeByte(is.stackSize);
 
-			data.writeInt(r.getIngredientsSize());
+			data.writeByte(r.getIngredientsSize());
 
 			for (int i = 0; i < r.getIngredientsSize(); i++) {
 				if (r.getIngredient(i) instanceof EasyItemStack) {
 					EasyItemStack eis = (EasyItemStack) r.getIngredient(i);
-					data.writeInt(eis.getID());
+					data.writeShort(eis.getID());
 					data.writeInt(eis.getDamage());
-					data.writeInt(eis.getSize());
+					data.writeByte(eis.getSize());
 				} else if (r.getIngredient(i) instanceof List) {
+					// TODO: when updating forge use the new oredict method of obtaining oreID
+					data.writeShort(-1);
 					data.writeInt(-1);
-					data.writeInt(-1);
-					data.writeInt(-1);
+					data.writeByte(-1);
 				}
 			}
 		} catch (IOException e) {

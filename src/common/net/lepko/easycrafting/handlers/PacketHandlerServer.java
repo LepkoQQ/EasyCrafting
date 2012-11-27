@@ -27,13 +27,13 @@ public class PacketHandlerServer implements IPacketHandler {
 		ItemStack[] ingredients;
 
 		try {
-			identifier = data.readInt();
+			identifier = data.readByte();
 
 			if (identifier == 1 || identifier == 2) {
 
-				int id = data.readInt();
+				int id = data.readShort();
 				int damage = data.readInt();
-				int stackSize = data.readInt();
+				int stackSize = data.readByte();
 
 				ItemStack inHand = sender.inventory.getItemStack();
 				if (inHand != null && inHand.itemID == id && inHand.getItemDamage() == damage && inHand.stackSize < stackSize) {
@@ -42,19 +42,20 @@ public class PacketHandlerServer implements IPacketHandler {
 
 				result = new EasyItemStack(id, damage, stackSize);
 
-				int ingSize = data.readInt();
+				int ingSize = data.readByte();
 
 				ingredients = new ItemStack[ingSize];
 				for (int i = 0; i < ingSize; i++) {
-					int _id = data.readInt();
+					int _id = data.readShort();
 					int _damage = data.readInt();
-					int _stackSize = data.readInt();
+					int _stackSize = data.readByte();
 
 					ingredients[i] = new ItemStack(_id, _stackSize, _damage);
 				}
 
 				EasyRecipe recipe = RecipeHelper.getValidRecipe(result, ingredients);
 
+				//TODO: fix inhand detect
 				if (recipe != null) {
 					if ((inHand == null && result.getSize() == recipe.getResult().getSize()) || (inHand != null && (inHand.stackSize + recipe.getResult().getSize()) == result.getSize())) {
 						if (identifier == 1) {
