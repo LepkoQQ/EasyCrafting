@@ -101,6 +101,10 @@ public class ContainerEasyCrafting extends Container {
 			return null;
 		}
 
+		if (this.gui == null) {
+			return null;
+		}
+
 		if ((mouse_button != 0 && mouse_button != 1) || (modifier != 0 && modifier != 1)) {
 			return null;
 		}
@@ -115,51 +119,45 @@ public class ContainerEasyCrafting extends Container {
 			return null;
 		}
 
-		InventoryPlayer player_inventory = player.inventory;
+		ItemStack stack_in_hand = player.inventory.getItemStack();
 
-		ItemStack stack_in_hand = player_inventory.getItemStack();
-		ItemStack stack_in_hand_to_send = stack_in_hand != null ? stack_in_hand.copy() : null;
 		ItemStack return_stack = null;
+		int return_size = 0;
 
 		// TODO: Shift clicking to transfer stack to inventory
 
 		if (stack_in_hand == null) {
 			return_stack = stack_in_slot.copy();
-			clicked_slot.onPickupFromSlot(player, return_stack);
-		} else {
-			if (stack_in_slot.itemID == stack_in_hand.itemID && stack_in_hand.getMaxStackSize() > 1 && (!stack_in_slot.getHasSubtypes() || stack_in_slot.getItemDamage() == stack_in_hand.getItemDamage()) && ItemStack.areItemStackTagsEqual(stack_in_slot, stack_in_hand)) {
-				int numberOfItemsToMove = stack_in_slot.stackSize;
-				if (numberOfItemsToMove > 0 && numberOfItemsToMove + stack_in_hand.stackSize <= stack_in_hand.getMaxStackSize()) {
-					stack_in_hand.stackSize += numberOfItemsToMove;
-					return_stack = stack_in_hand.copy();
-					clicked_slot.onPickupFromSlot(player, player_inventory.getItemStack());
-				}
-			}
+			return_size = stack_in_slot.stackSize;
+		} else if (stack_in_slot.itemID == stack_in_hand.itemID && stack_in_hand.getMaxStackSize() >= (stack_in_slot.stackSize + stack_in_hand.stackSize) && (!stack_in_slot.getHasSubtypes() || stack_in_slot.getItemDamage() == stack_in_hand.getItemDamage()) && ItemStack.areItemStackTagsEqual(stack_in_slot, stack_in_hand)) {
+			return_stack = stack_in_slot.copy();
+			return_size = stack_in_slot.stackSize + stack_in_hand.stackSize;
 		}
 
-		if (return_stack != null && this.gui != null) {
-			int ident = mouse_button == 0 ? 1 : 2;
+		if (return_stack != null) {
+			EasyRecipe recipe = RecipeHelper.getValidRecipe(this.gui, slot_index, return_stack);
+			if (recipe != null) {
+				int identifier = mouse_button == 0 ? 1 : 2;
 
-			EasyRecipe r = RecipeHelper.getValidRecipe(this.gui, slot_index, stack_in_hand_to_send, return_stack);
+				Proxy.proxy.sendEasyCraftingPacketToServer(identifier, recipe);
 
-			if (r != null) {
-				Proxy.proxy.sendEasyCraftingPacketToServer(return_stack, ident, r);
-
-				if (ident == 2) { // Right click; craft until max stack
-					int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand_to_send);
-					int timesCrafted = RecipeHelper.hasIngredientsMaxStack(r, player_inventory, maxTimes, 0);
+				if (identifier == 2) { // Right click; craft until max stack
+					int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand);
+					int timesCrafted = RecipeHelper.hasIngredientsMaxStack(recipe, player.inventory, maxTimes, 0);
 					if (timesCrafted > 0) {
-						return_stack.stackSize += (timesCrafted - 1) * r.getResult().getSize();
+						return_stack.stackSize = return_size + (timesCrafted - 1) * stack_in_slot.stackSize;
 						player.inventory.setItemStack(return_stack);
+						return return_stack;
 					}
 				} else { // Left click; craft once
+					return_stack.stackSize = return_size;
 					player.inventory.setItemStack(return_stack);
+					return return_stack;
 				}
 			}
 		}
 
-		clicked_slot.onSlotChanged();
-		return return_stack;
+		return null;
 	}
 
 	@SideOnly(Side.CLIENT)

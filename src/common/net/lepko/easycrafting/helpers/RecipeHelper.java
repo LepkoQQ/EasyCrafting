@@ -280,21 +280,14 @@ public class RecipeHelper implements Runnable {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public static EasyRecipe getValidRecipe(GuiEasyCrafting gui, int slot_index, ItemStack inHand, ItemStack is) {
-		// TODO: Refactor and optimize (remove inHand size from result stack, etc.)
-		int i = slot_index + (gui.currentScroll * 8);
-		ImmutableList<EasyRecipe> rl = gui.renderList;
-		if (i < rl.size() && rl.get(i) != null) {
-			EasyRecipe r = rl.get(i);
-			if (r.getResult().equalsItemStack(is, true) && gui.craftableList.contains(r)) {
-				if (inHand == null && r.getResult().getSize() == is.stackSize) {
-					return r;
-				} else if (inHand != null && (inHand.stackSize + r.getResult().getSize()) == is.stackSize) {
-					return r;
-				}
+	public static EasyRecipe getValidRecipe(GuiEasyCrafting gui, int slot_index, ItemStack result) {
+		int recipe_index = slot_index + (gui.currentScroll * 8);
+		if (recipe_index >= 0 && gui.renderList != null && recipe_index < gui.renderList.size()) {
+			EasyRecipe r = gui.renderList.get(recipe_index);
+			if (r.getResult().equalsItemStack(result) && gui.craftableList.contains(r)) {
+				return r;
 			}
 		}
-		//
 		return null;
 	}
 }

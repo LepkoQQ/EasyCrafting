@@ -3,11 +3,11 @@ package net.lepko.easycrafting.easyobjects;
 import ic2.api.ElectricItem;
 import ic2.api.IElectricItem;
 
-import java.util.List;
+import java.util.ArrayList;
 
-import net.lepko.easycrafting.helpers.EasyLog;
 import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
+import net.minecraft.src.NBTTagCompound;
 
 public class EasyItemStack {
 
@@ -15,6 +15,7 @@ public class EasyItemStack {
 	private int damage;
 	private int size;
 	private int charge;
+	private NBTTagCompound stackTagCompound;
 
 	public EasyItemStack(int id, int damage, int size, int charge) {
 		this.id = id;
@@ -53,6 +54,7 @@ public class EasyItemStack {
 
 	public ItemStack toItemStack() {
 		ItemStack is = new ItemStack(id, size, damage);
+		is.setTagCompound(stackTagCompound);
 		if (is.getItem() instanceof IElectricItem && charge > 0) {
 			ElectricItem.charge(is, charge, 0x7fffffff, true, false);
 		}
@@ -64,17 +66,25 @@ public class EasyItemStack {
 		if (is.getItem() instanceof IElectricItem) {
 			charge = ElectricItem.discharge(is, 0x7fffffff, 0x7fffffff, true, true);
 		}
-		return new EasyItemStack(is.itemID, is.getItemDamage(), is.stackSize, charge);
+		EasyItemStack eis = new EasyItemStack(is.itemID, is.getItemDamage(), is.stackSize, charge);
+		eis.stackTagCompound = is.getTagCompound();
+		return eis;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + id;
-		result = prime * result + damage;
-		result = prime * result + size;
-		return result;
+	public static boolean areStackTagsEqual(EasyItemStack is0, ItemStack is1) {
+		if (is0 == null && is1 == null) {
+			return true;
+		} else {
+			if (is0 != null && is1 != null) {
+				if (is0.stackTagCompound == null && is1.stackTagCompound != null) {
+					return false;
+				} else {
+					return is0.stackTagCompound == null || is0.stackTagCompound.equals(is1.stackTagCompound);
+				}
+			} else {
+				return false;
+			}
+		}
 	}
 
 	@Override
@@ -121,7 +131,7 @@ public class EasyItemStack {
 		if (id != is.itemID) {
 			return false;
 		}
-		if (damage != is.getItemDamage() && damage != -1 && is.getItemDamage() != -1 && !(Item.itemsList[id] instanceof IElectricItem)) {
+		if (damage != is.getItemDamage() && damage != -1 && is.getItemDamage() != -1 && is.getHasSubtypes() && !(Item.itemsList[id] instanceof IElectricItem)) {
 			return false;
 		}
 		if (!ignoreSize && size != is.stackSize) {
@@ -130,7 +140,7 @@ public class EasyItemStack {
 		return true;
 	}
 
-	public void setCharge(List<ItemStack> usedIngredients) {
+	public void setCharge(ArrayList<ItemStack> usedIngredients) {
 		int outputCharge = 0;
 
 		if (usedIngredients != null) {

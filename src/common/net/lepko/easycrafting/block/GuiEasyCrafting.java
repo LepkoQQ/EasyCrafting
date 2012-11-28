@@ -30,6 +30,7 @@ public class GuiEasyCrafting extends GuiContainer {
 	private static final int TABINDEX_SEARCH = 1;
 
 	private static int selectedTabIndex = TABINDEX_CRAFTING;
+	private static String lastSearch = "";
 
 	public int currentScroll = 0;
 	private int maxScroll = 0;
@@ -256,7 +257,7 @@ public class GuiEasyCrafting extends GuiContainer {
 				this.searchField.setVisible(true);
 				this.searchField.setCanLoseFocus(false);
 				this.searchField.setFocused(true);
-				this.searchField.setText("");
+				this.searchField.setText(lastSearch);
 			} else {
 				this.searchField.setVisible(false);
 				this.searchField.setCanLoseFocus(true);
@@ -280,13 +281,13 @@ public class GuiEasyCrafting extends GuiContainer {
 		if (selectedTabIndex == TABINDEX_SEARCH) {
 			ImmutableList<EasyRecipe> all = RecipeHelper.getAllRecipes();
 			ArrayList<EasyRecipe> list = new ArrayList<EasyRecipe>();
-			String query = this.searchField.getText().toLowerCase();
+			lastSearch = this.searchField.getText().toLowerCase();
 
 			recipeLoop: for (int i = 0; i < all.size(); i++) {
 				EasyRecipe r = all.get(i);
 				List<String> itemProps = r.getResult().toItemStack().getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
 				for (int j = 0; j < itemProps.size(); j++) {
-					if (itemProps.get(j).toLowerCase().contains(query)) {
+					if (itemProps.get(j).toLowerCase().contains(lastSearch)) {
 						list.add(r);
 						continue recipeLoop;
 					}

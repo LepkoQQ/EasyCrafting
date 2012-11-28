@@ -21,13 +21,8 @@ public class PacketHandlerServer implements IPacketHandler {
 		DataInputStream data = new DataInputStream(new ByteArrayInputStream(packet.data));
 		EntityPlayer sender = (EntityPlayer) player;
 
-		int identifier;
-
-		EasyItemStack result;
-		ItemStack[] ingredients;
-
 		try {
-			identifier = data.readByte();
+			int identifier = data.readByte();
 
 			if (identifier == 1 || identifier == 2) {
 
@@ -35,16 +30,11 @@ public class PacketHandlerServer implements IPacketHandler {
 				int damage = data.readInt();
 				int stackSize = data.readByte();
 
-				ItemStack inHand = sender.inventory.getItemStack();
-				if (inHand != null && inHand.itemID == id && inHand.getItemDamage() == damage && inHand.stackSize < stackSize) {
-					stackSize -= inHand.stackSize;
-				}
-
-				result = new EasyItemStack(id, damage, stackSize);
+				EasyItemStack result = new EasyItemStack(id, damage, stackSize);
 
 				int ingSize = data.readByte();
 
-				ingredients = new ItemStack[ingSize];
+				ItemStack[] ingredients = new ItemStack[ingSize];
 				for (int i = 0; i < ingSize; i++) {
 					int _id = data.readShort();
 					int _damage = data.readInt();
@@ -55,25 +45,31 @@ public class PacketHandlerServer implements IPacketHandler {
 
 				EasyRecipe recipe = RecipeHelper.getValidRecipe(result, ingredients);
 
-				//TODO: fix inhand detect
 				if (recipe != null) {
-					if ((inHand == null && result.getSize() == recipe.getResult().getSize()) || (inHand != null && (inHand.stackSize + recipe.getResult().getSize()) == result.getSize())) {
+					ItemStack stack_in_hand = sender.inventory.getItemStack();
+					ItemStack return_stack = null;
+					int return_size = 0;
+
+					if (stack_in_hand == null) {
+						return_stack = recipe.getResult().toItemStack();
+						return_size = recipe.getResult().getSize();
+					} else if (recipe.getResult().equalsItemStack(stack_in_hand, true) && stack_in_hand.getMaxStackSize() >= (recipe.getResult().getSize() + stack_in_hand.stackSize) && EasyItemStack.areStackTagsEqual(recipe.getResult(), stack_in_hand)) {
+						return_stack = recipe.getResult().toItemStack();
+						return_size = recipe.getResult().getSize() + stack_in_hand.stackSize;
+					}
+
+					if (return_stack != null) {
 						if (identifier == 1) {
 							if (RecipeHelper.takeIngredients(recipe, sender.inventory, 0)) {
-								ItemStack is = recipe.getResult().toItemStack();
-								if (inHand != null) {
-									is.stackSize += inHand.stackSize;
-								}
-								sender.inventory.setItemStack(is);
+								return_stack.stackSize = return_size;
+								sender.inventory.setItemStack(return_stack);
 							}
 						} else if (identifier == 2) {
-							int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(recipe.getResult().toItemStack(), inHand);
+							int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, stack_in_hand);
 							int timesCrafted = RecipeHelper.takeIngredientsMaxStack(recipe, sender.inventory, maxTimes, 0);
 							if (timesCrafted > 0) {
-								int size = result.getSize() + (timesCrafted - 1) * recipe.getResult().getSize();
-								ItemStack is = recipe.getResult().toItemStack();
-								is.stackSize = size;
-								sender.inventory.setItemStack(is);
+								return_stack.stackSize = return_size + (timesCrafted - 1) * recipe.getResult().getSize();
+								sender.inventory.setItemStack(return_stack);
 							}
 						}
 					}

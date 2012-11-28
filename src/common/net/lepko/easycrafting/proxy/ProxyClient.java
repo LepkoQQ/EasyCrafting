@@ -9,10 +9,8 @@ import net.lepko.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.handlers.TickHandlerClient;
 import net.lepko.easycrafting.helpers.EasyLog;
-import net.minecraft.src.ItemStack;
 import net.minecraft.src.Packet250CustomPayload;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.registry.TickRegistry;
@@ -39,15 +37,16 @@ public class ProxyClient extends Proxy {
 	}
 
 	@Override
-	public void sendEasyCraftingPacketToServer(ItemStack is, int identifier, EasyRecipe r) {
+	public void sendEasyCraftingPacketToServer(int identifier, EasyRecipe r) {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		DataOutputStream data = new DataOutputStream(bytes);
 
 		try {
 			data.writeByte(identifier);
-			data.writeShort(is.itemID);
-			data.writeInt(is.getItemDamage());
-			data.writeByte(is.stackSize);
+
+			data.writeShort(r.getResult().getID());
+			data.writeInt(r.getResult().getDamage());
+			data.writeByte(r.getResult().getSize());
 
 			data.writeByte(r.getIngredientsSize());
 
