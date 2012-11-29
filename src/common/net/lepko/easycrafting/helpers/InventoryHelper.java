@@ -140,7 +140,7 @@ public class InventoryHelper {
 
 		recipe.getResult().setCharge(usedIngredients);
 
-		if (takeIngredients) {
+		if (takeIngredients && amountCrafted > 0) {
 			inventory.copyInventory(tmp2);
 		}
 		return amountCrafted;
