@@ -14,11 +14,11 @@ public class VersionHelper {
 		LATEST, OUTDATED, FAILED, DISABLED
 	}
 
-	public static final String VERSION = "1.1.0";
+	public static final String VERSION = "1.1.1";
 	public static final String MOD_NAME = "Easy Crafting";
 	public static final String MOD_ID = "Lepko-EasyCrafting";
 
-	private static final String UPDATE_URL = "https://dl.dropbox.com/u/15280793/easycraft-release/update.csv";
+	private static final String UPDATE_URL = "http://mods.lepko.net/archive/easycrafting/update.csv";
 
 	private static String[] updateInfo;
 	private static UpdateStatus updateStatus;
