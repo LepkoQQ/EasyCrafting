@@ -162,13 +162,15 @@ public class ContainerEasyCrafting extends Container {
 
 	@SideOnly(Side.CLIENT)
 	public void scrollTo(int currentScroll, List<EasyRecipe> renderList) {
-		int offset = currentScroll * 8;
-		for (int i = 0; i < 40; i++) {
-			if (i + offset >= renderList.size() || i + offset < 0) {
-				tile_entity.setInventorySlotContents(i, null);
-			} else {
-				ItemStack is = renderList.get(i + offset).getResult().toItemStack();
-				tile_entity.setInventorySlotContents(i, is);
+		if (renderList != null) {
+			int offset = currentScroll * 8;
+			for (int i = 0; i < 40; i++) {
+				if (i + offset >= renderList.size() || i + offset < 0) {
+					tile_entity.setInventorySlotContents(i, null);
+				} else {
+					ItemStack is = renderList.get(i + offset).getResult().toItemStack();
+					tile_entity.setInventorySlotContents(i, is);
+				}
 			}
 		}
 	}
