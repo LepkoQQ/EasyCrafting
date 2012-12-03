@@ -2,6 +2,7 @@ package net.lepko.easycrafting.proxy;
 
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.helpers.RecipeHelper;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.SidedProxy;
@@ -14,7 +15,8 @@ public class Proxy {
 	public static String blocksTextureFile = "/net/lepko/easycrafting/textures/blocks.png";
 
 	public void onLoad() {
-		// Client only
+		// Server doesn't run a tick handler or a worker thread so set recipes here
+		RecipeHelper.instance().setAllRecipes();
 	}
 
 	public void printMessageToChat(String msg) {

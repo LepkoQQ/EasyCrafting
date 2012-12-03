@@ -34,7 +34,7 @@ public class RecipeHelper implements Runnable {
 	private boolean displayed = true;
 	private boolean requested = false;
 
-	private void setAllRecipes() {
+	public void setAllRecipes() {
 		long beforeTime = System.nanoTime();
 
 		List mcRecipes = CraftingManager.getInstance().getRecipeList();
@@ -177,23 +177,21 @@ public class RecipeHelper implements Runnable {
 
 	public static RecipeHelper instance() {
 		if (instance == null) {
-			if (!Proxy.proxy.isClient()) {
-				EasyLog.severe("RecipeHelper instance is only ment to run on a client!");
-				throw new RuntimeException("RecipeHelper instance tried to run on a server!");
-			}
 			instance = new RecipeHelper();
 		}
-		if (workerThread == null || !workerThread.isAlive()) {
-			workerThread = new Thread(instance, "EasyCrafting-WorkerThread");
-			workerThread.setDaemon(true);
-			workerThread.start();
-			EasyLog.log("Started Worker Thread");
-		}
-		if (!lock.isHeldByCurrentThread()) {
-			EasyLog.warning("Trying to access RecipeHelper instance without acquiring a thread lock!");
-		}
-		if (lock.getHoldCount() > 1) {
-			EasyLog.warning("Current thread holds more than one lock!");
+		if (Proxy.proxy.isClient()) {
+			if (workerThread == null || !workerThread.isAlive()) {
+				workerThread = new Thread(instance, "EasyCrafting-WorkerThread");
+				workerThread.setDaemon(true);
+				workerThread.start();
+				EasyLog.log("Started Worker Thread");
+			}
+			if (!lock.isHeldByCurrentThread()) {
+				EasyLog.warning("Trying to access RecipeHelper instance without acquiring a thread lock!");
+			}
+			if (lock.getHoldCount() > 1) {
+				EasyLog.warning("Current thread holds more than one lock!");
+			}
 		}
 		return instance;
 	}
