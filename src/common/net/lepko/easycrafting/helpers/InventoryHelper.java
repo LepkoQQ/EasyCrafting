@@ -1,6 +1,7 @@
 package net.lepko.easycrafting.helpers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.lepko.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
@@ -27,6 +28,26 @@ public class InventoryHelper {
 		for (int i = 0; i < invSize; i++) {
 			if (eis.equalsItemStack(inventory.getStackInSlot(i), true)) {
 				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Check if an inventory contains any of the items in the supplied list of ItemStacks
+	 * 
+	 * @param inventory
+	 *            IInventory to check
+	 * @param ingredients
+	 *            A list of ItemStacks
+	 * @return slot index of the first item found, -1 if none found
+	 */
+	public static int isAnyItemInInventory(IInventory inventory, List<ItemStack> ingredients) {
+		for (int i = 0; i < ingredients.size(); i++) {
+			EasyItemStack eis = EasyItemStack.fromItemStack(ingredients.get(i));
+			int slot = isItemInInventory(inventory, eis);
+			if (slot != -1) {
+				return slot;
 			}
 		}
 		return -1;

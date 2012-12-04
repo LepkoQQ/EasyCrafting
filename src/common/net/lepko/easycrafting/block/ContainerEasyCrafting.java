@@ -36,7 +36,7 @@ public class ContainerEasyCrafting extends Container {
 		// Table inventory slots
 		for (int i = 0; i < 2; ++i) {
 			for (int j = 0; j < 9; ++j) {
-				this.addSlotToContainer(new SlotInterceptor(tile_entity, count++, 8 + j * 18, 18 + i * 18 + offset2));
+				this.addSlotToContainer(new Slot(tile_entity, count++, 8 + j * 18, 18 + i * 18 + offset2));
 			}
 		}
 

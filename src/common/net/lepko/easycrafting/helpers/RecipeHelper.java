@@ -115,12 +115,8 @@ public class RecipeHelper implements Runnable {
 
 		InventoryPlayer player_inventory = FMLClientHandler.instance().getClient().thePlayer.inventory;
 
-		ArrayList<EasyRecipe> tmp = new ArrayList<EasyRecipe>();
-		for (int i = 0; i < allRecipes.size(); i++) {
-			if (hasIngredients(allRecipes.get(i), player_inventory, 0)) {
-				tmp.add(allRecipes.get(i));
-			}
-		}
+		int maxRecursion = EasyConfig.instance().recipeRecursion.getInt(5);
+		ArrayList<EasyRecipe> tmp = RecipeHelperNew.getCraftableRecipes(player_inventory, maxRecursion, getAllRecipes());
 
 		craftableRecipes = tmp;
 		EasyLog.log(String.format("Returning %d craftable out of %d available recipes! ---- Total time: %.8f", craftableRecipes.size(), allRecipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
