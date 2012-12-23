@@ -5,12 +5,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 import net.lepko.easycrafting.block.GuiEasyCrafting;
 import net.lepko.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
-import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.src.CraftingManager;
 import net.minecraft.src.IRecipe;
 import net.minecraft.src.InventoryPlayer;
@@ -22,19 +20,25 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import com.google.common.collect.ImmutableList;
 
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 
-public class RecipeHelper implements Runnable {
+public class RecipeHelper {
 
-	private static ImmutableList<EasyRecipe> allRecipes;
-	private ArrayList<EasyRecipe> craftableRecipes = new ArrayList<EasyRecipe>();
-	private boolean displayed = true;
-	private boolean requested = false;
+	private static ImmutableList<EasyRecipe> allRecipes = ImmutableList.of();
 
-	public void setAllRecipes() {
+	/**
+	 * Get a list of all recipes that are scanned and available. If recipes are not yet scanned it will return an empty list.
+	 */
+	public static ImmutableList<EasyRecipe> getAllRecipes() {
+		return allRecipes;
+	}
+
+	/**
+	 * Scan, convert, sort and store the recognised recipes. To access the recipes use {@link #getAllRecipes()}.
+	 */
+	public static void scanRecipes() {
 		long beforeTime = System.nanoTime();
 
 		List mcRecipes = CraftingManager.getInstance().getRecipeList();
@@ -82,165 +86,211 @@ public class RecipeHelper implements Runnable {
 			tmp.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
 		}
 
-		Collections.sort(tmp, new Comparator<EasyRecipe>() {
-			@Override
-			public int compare(EasyRecipe o1, EasyRecipe o2) {
-				if (o1.getResult().getID() > o2.getResult().getID()) {
-					return 1;
-				} else if (o1.getResult().getID() < o2.getResult().getID()) {
-					return -1;
-				}
-
-				if (o1.getResult().getDamage() > o2.getResult().getDamage()) {
-					return 1;
-				} else if (o1.getResult().getDamage() < o2.getResult().getDamage()) {
-					return -1;
-				}
-
-				if (o1.getResult().getSize() > o2.getResult().getSize()) {
-					return 1;
-				} else if (o1.getResult().getSize() < o2.getResult().getSize()) {
-					return -1;
-				}
-				return 0;
-			}
-		});
+		Collections.sort(tmp, new RecipeComparator());
 
 		allRecipes = ImmutableList.copyOf(tmp);
 		EasyLog.log(String.format("Returning %d available recipes! ---- Total time: %.8f", allRecipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
 	}
 
-	private void setCraftableRecipes() {
-		long beforeTime = System.nanoTime();
+	/**
+	 * Returns a list of recipes that can be crafted using ingredients from the specified inventory.
+	 * 
+	 * @param inventory - inventory to check with
+	 * @param maxRecursion - how deep to recurse when trying to craft
+	 * @param recipesToCheck - a list of recipes to be checked
+	 */
+	public static ArrayList<EasyRecipe> getCraftableRecipes(InventoryPlayer inventory, int maxRecursion, List<EasyRecipe> recipesToCheck) {
+		ArrayList<EasyRecipe> tmpCraftable = new ArrayList<EasyRecipe>();
+		ArrayList<EasyRecipe> tmpAll = new ArrayList<EasyRecipe>(recipesToCheck);
 
-		InventoryPlayer player_inventory = FMLClientHandler.instance().getClient().thePlayer.inventory;
-
-		int maxRecursion = EasyConfig.instance().recipeRecursion.getInt(5);
-		ArrayList<EasyRecipe> tmp = RecipeHelperNew.getCraftableRecipes(player_inventory, maxRecursion, getAllRecipes());
-
-		craftableRecipes = tmp;
-		EasyLog.log(String.format("Returning %d craftable out of %d available recipes! ---- Total time: %.8f", craftableRecipes.size(), allRecipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
-	}
-
-	@Override
-	public void run() {
-		lock.lock();
-		try {
-			setAllRecipes();
-		} finally {
-			lock.unlock();
+		for (EasyRecipe er : tmpAll) {
+			if (canCraft(er, inventory)) {
+				tmpCraftable.add(er);
+			}
 		}
+		tmpAll.removeAll(tmpCraftable);
 
-		while (true) {
-			if (requested) {
-				lock.lock();
-				try {
-					setCraftableRecipes();
-					requested = false;
-					displayed = false;
-				} finally {
-					lock.unlock();
+		if (!tmpCraftable.isEmpty()) {
+			for (int recursion = 0; recursion < maxRecursion; recursion++) {
+				if (tmpAll.isEmpty()) {
+					break;
+				}
+
+				ImmutableList<EasyRecipe> immutableCraftable = ImmutableList.copyOf(tmpCraftable);
+				for (EasyRecipe er : tmpAll) {
+					if (canCraft(er, inventory, immutableCraftable, maxRecursion)) {
+						tmpCraftable.add(er);
+					}
+				}
+				tmpAll.removeAll(tmpCraftable);
+
+				if (immutableCraftable.size() == tmpCraftable.size()) {
+					break;
 				}
 			}
 
-			try {
-				Thread.sleep(75L);
-			} catch (InterruptedException e) {
+		}
+		return tmpCraftable;
+	}
+
+	/**
+	 * Check if a recipe can be crafted with the ingredients from the inventory.
+	 * 
+	 * @param recipe - recipe to check
+	 * @param inventory - inventory to use the ingredients from
+	 * 
+	 * @see #canCraft(EasyRecipe, InventoryPlayer, ImmutableList, boolean, int)
+	 */
+	public static boolean canCraft(EasyRecipe recipe, InventoryPlayer inventory) {
+		return canCraft(recipe, inventory, null, false, 1, 0) > 0;
+	}
+
+	/**
+	 * Check if a recipe can be crafted with the ingredients from the inventory. If an ingredient is missing try to craft it from a list of recipes.
+	 * 
+	 * @param recipe - recipe to check
+	 * @param inventory - inventory to use the ingredients from
+	 * @param recipesToCheck - a list of recipes to try and craft from if an ingredient is missing
+	 * @param recursion - how deep to recurse while trying to craft an ingredient (must be nonnegative)
+	 * 
+	 * @see #canCraft(EasyRecipe, InventoryPlayer, ImmutableList, boolean, int)
+	 */
+	public static boolean canCraft(EasyRecipe recipe, InventoryPlayer inventory, ImmutableList<EasyRecipe> recipesToCheck, int recursion) {
+		return canCraft(recipe, inventory, recipesToCheck, false, 1, recursion) > 0;
+	}
+
+	/**
+	 * Check if a recipe can be crafted with the ingredients from the inventory. If an ingredient is missing try to craft it from a list of recipes.
+	 * 
+	 * @param recipe - recipe to check
+	 * @param inventory - inventory to use the ingredients from
+	 * @param recipesToCheck - a list of recipes to try and craft from if an ingredient is missing
+	 * @param take - whether or not to take the ingredients from the inventory
+	 * @param recursion - how deep to recurse while trying to craft an ingredient (must be nonnegative)
+	 */
+	public static int canCraft(EasyRecipe recipe, InventoryPlayer inventory, ImmutableList<EasyRecipe> recipesToCheck, boolean take, int maxTimes, int recursion) {
+		if (recursion < 0) {
+			return 0;
+		}
+
+		recipe.getResult().setCharge(null);
+
+		InventoryPlayer tmp = new InventoryPlayer(inventory.player);
+		InventoryPlayer tmp2 = new InventoryPlayer(inventory.player);
+		tmp.copyInventory(inventory);
+
+		ArrayList<ItemStack> usedIngredients = new ArrayList<ItemStack>();
+
+		int timesCrafted = 0;
+		timesLoop: while (timesCrafted < maxTimes) {
+
+			iiLoop: for (int ii = 0; ii < recipe.getIngredientsSize(); ii++) {
+				if (recipe.getIngredient(ii) instanceof EasyItemStack) {
+					EasyItemStack ingredient = (EasyItemStack) recipe.getIngredient(ii);
+					int inventoryIndex = InventoryHelper.isItemInInventory(tmp, ingredient);
+					if (inventoryIndex != -1 && InventoryHelper.consumeItemForCrafting(tmp, inventoryIndex, usedIngredients)) {
+						continue iiLoop;
+					}
+					//
+					if (recipesToCheck != null && (recursion - 1) >= 0) {
+						ArrayList<EasyRecipe> list = getRecipesForItemFromList(ingredient, recipesToCheck);
+						for (EasyRecipe er : list) {
+							if (canCraft(er, tmp, recipesToCheck, true, 1, (recursion - 1)) > 0) {
+								ItemStack is = er.getResult().toItemStack();
+								is.stackSize--;
+								if (is.stackSize > 0 && !tmp.addItemStackToInventory(is)) {
+									break timesLoop;
+								}
+								ItemStack usedItemStack = is.copy();
+								usedItemStack.stackSize = 1;
+								usedIngredients.add(usedItemStack);
+								continue iiLoop;
+							}
+						}
+					}
+					//
+					break timesLoop;
+				} else if (recipe.getIngredient(ii) instanceof ArrayList) {
+					ArrayList<ItemStack> ingredients = (ArrayList<ItemStack>) recipe.getIngredient(ii);
+					int inventoryIndex = InventoryHelper.isItemInInventory(tmp, ingredients);
+					if (inventoryIndex != -1 && InventoryHelper.consumeItemForCrafting(tmp, inventoryIndex, usedIngredients)) {
+						continue iiLoop;
+					}
+					//
+					if (recipesToCheck != null && (recursion - 1) >= 0) {
+						ArrayList<EasyRecipe> list = getRecipesForItemFromList(ingredients, recipesToCheck);
+						for (EasyRecipe er : list) {
+							if (canCraft(er, tmp, recipesToCheck, true, 1, (recursion - 1)) > 0) {
+								ItemStack is = er.getResult().toItemStack();
+								is.stackSize--;
+								if (is.stackSize > 0 && !tmp.addItemStackToInventory(is)) {
+									break timesLoop;
+								}
+								ItemStack usedItemStack = is.copy();
+								usedItemStack.stackSize = 1;
+								usedIngredients.add(usedItemStack);
+								continue iiLoop;
+							}
+						}
+					}
+					//
+					break timesLoop;
+				}
+			}
+
+			timesCrafted++;
+			tmp2.copyInventory(tmp);
+		}
+
+		// TODO: charge
+		// recipe.getResult().setCharge(usedIngredients);
+
+		if (take && timesCrafted > 0) {
+			inventory.copyInventory(tmp2);
+		}
+		return timesCrafted;
+	}
+
+	/**
+	 * Get a list of recipes that can be used to craft a specified item/block.
+	 * 
+	 * @param ingredient - the item/block we want to craft
+	 * @param recipesToCheck - a list of recipes to be checked
+	 */
+	private static ArrayList<EasyRecipe> getRecipesForItemFromList(EasyItemStack ingredient, ImmutableList<EasyRecipe> recipesToCheck) {
+		ArrayList<EasyRecipe> returnList = new ArrayList<EasyRecipe>();
+		for (EasyRecipe er : recipesToCheck) {
+			if (er.getResult().equals(ingredient, true)) {
+				returnList.add(er);
 			}
 		}
+		return returnList;
 	}
 
-	public void requestNewRecipeList() {
-		this.requested = true;
-	}
-
-	public void setDisplayed() {
-		this.displayed = true;
-	}
-
-	public ImmutableList<EasyRecipe> getCraftableRecipes() {
-		return ImmutableList.copyOf(craftableRecipes);
-	}
-
-	public boolean refreshDisplay() {
-		return !displayed && !requested;
-	}
-
-	// Static
-	private static RecipeHelper instance;
-	private static Thread workerThread;
-	public static ReentrantLock lock = new ReentrantLock();
-
-	public static RecipeHelper instance() {
-		if (instance == null) {
-			instance = new RecipeHelper();
+	/**
+	 * Same as {@link #getRecipesForItemFromList(EasyItemStack, ImmutableList)} but for any of the items contained in the list.
+	 * 
+	 * @param ingredients - a list itemstacks
+	 * @param recipesToCheck - a list of recipes to be checked
+	 */
+	private static ArrayList<EasyRecipe> getRecipesForItemFromList(ArrayList<ItemStack> ingredients, ImmutableList<EasyRecipe> recipesToCheck) {
+		ArrayList<EasyRecipe> returnList = new ArrayList<EasyRecipe>();
+		for (ItemStack is : ingredients) {
+			returnList.addAll(getRecipesForItemFromList(EasyItemStack.fromItemStack(is), recipesToCheck));
 		}
-		if (Proxy.proxy.isClient()) {
-			if (workerThread == null || !workerThread.isAlive()) {
-				workerThread = new Thread(instance, "EasyCrafting-WorkerThread");
-				workerThread.setDaemon(true);
-				workerThread.start();
-				EasyLog.log("Started Worker Thread");
-			}
-			if (!lock.isHeldByCurrentThread()) {
-				EasyLog.warning("Trying to access RecipeHelper instance without acquiring a thread lock!");
-			}
-			if (lock.getHoldCount() > 1) {
-				EasyLog.warning("Current thread holds more than one lock!");
-			}
-		}
-		return instance;
+		return returnList;
 	}
 
-	public static boolean hasIngredients(EasyRecipe recipe, InventoryPlayer player_inventory, int recursionCount) {
-		return InventoryHelper.checkIngredients(recipe, player_inventory, false, 1, recursionCount) == 0 ? false : true;
-	}
-
-	public static boolean takeIngredients(EasyRecipe recipe, InventoryPlayer player_inventory, int recursionCount) {
-		return InventoryHelper.checkIngredients(recipe, player_inventory, true, 1, recursionCount) == 0 ? false : true;
-	}
-
-	public static int hasIngredientsMaxStack(EasyRecipe recipe, InventoryPlayer player_inventory, int maxTimes, int recursionCount) {
-		return InventoryHelper.checkIngredients(recipe, player_inventory, false, maxTimes, recursionCount);
-	}
-
-	public static int takeIngredientsMaxStack(EasyRecipe recipe, InventoryPlayer player_inventory, int maxTimes, int recursionCount) {
-		return InventoryHelper.checkIngredients(recipe, player_inventory, true, maxTimes, recursionCount);
-	}
-
-	public static ImmutableList<EasyRecipe> getAllRecipes() {
-		if (allRecipes == null) {
-			EasyLog.warning("Tried to get allRecipes before they were set; Returning empty list!");
-			return ImmutableList.of();
-		} else {
-			return allRecipes;
-		}
-	}
-
-	public static ArrayList<EasyRecipe> getValidRecipes(EasyItemStack result) {
-		ArrayList<EasyRecipe> list = new ArrayList<EasyRecipe>();
-		ImmutableList<EasyRecipe> all = getAllRecipes();
-		for (int i = 0; i < all.size(); i++) {
-			EasyRecipe r = all.get(i);
-			if (r.getResult().equals(result, true)) {
-				list.add(r);
-			}
-		}
-		return list;
-	}
-
-	public static ArrayList<EasyRecipe> getValidRecipes(ArrayList<ItemStack> possibleIngredients) {
-		ArrayList<EasyRecipe> list = new ArrayList<EasyRecipe>();
-		for (int i = 0; i < possibleIngredients.size(); i++) {
-			list.addAll(getValidRecipes(EasyItemStack.fromItemStack(possibleIngredients.get(i))));
-		}
-		return list;
-	}
-
+	/**
+	 * Get the recipe that matches provided result and ingredients.
+	 * 
+	 * @param result
+	 * @param ingredients
+	 * @return the mached EasyRecipe instance, null if none of the recipes match
+	 */
 	public static EasyRecipe getValidRecipe(EasyItemStack result, ItemStack[] ingredients) {
 		ImmutableList<EasyRecipe> all = getAllRecipes();
-		allLoop: for (int i = 0; i < all.size(); i++) {
-			EasyRecipe r = all.get(i);
+		allLoop: for (EasyRecipe r : all) {
 			if (r.getResult().equals(result) && r.getIngredientsSize() == ingredients.length) {
 				for (int j = 0; j < r.getIngredientsSize(); j++) {
 					if (r.getIngredient(j) instanceof EasyItemStack) {
@@ -250,6 +300,7 @@ public class RecipeHelper implements Runnable {
 						}
 					} else if (r.getIngredient(j) instanceof ArrayList) {
 						if (ingredients[j].itemID != -1) {
+							// TODO: check against oredict
 							continue allLoop;
 						}
 					}
@@ -260,6 +311,12 @@ public class RecipeHelper implements Runnable {
 		return null;
 	}
 
+	/**
+	 * How many times can we fit the resulting itemstack in players hand.
+	 * 
+	 * @param result itemstack we are trying to fit
+	 * @param inHand itemstack currently in hand
+	 */
 	public static int calculateCraftingMultiplierUntilMaxStack(ItemStack result, ItemStack inHand) {
 		// TODO: there has to be a better way to calculate this
 		int maxTimes = (int) ((double) result.getMaxStackSize() / (double) result.stackSize);
@@ -269,12 +326,15 @@ public class RecipeHelper implements Runnable {
 				maxTimes -= (int) (((double) (inHand.stackSize - diff) / (double) result.stackSize) + 1);
 			}
 		}
-		//
 		return maxTimes;
 	}
 
+	/**
+	 * Get the recipe from the gui index position.
+	 */
 	@SideOnly(Side.CLIENT)
 	public static EasyRecipe getValidRecipe(GuiEasyCrafting gui, int slot_index, ItemStack result) {
+		// TODO: find a better way
 		int recipe_index = slot_index + (gui.currentScroll * 8);
 		if (recipe_index >= 0 && gui.renderList != null && recipe_index < gui.renderList.size()) {
 			EasyRecipe r = gui.renderList.get(recipe_index);
@@ -283,5 +343,33 @@ public class RecipeHelper implements Runnable {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Compare recipes by their results (id, damage, stack size).
+	 */
+	public static class RecipeComparator implements Comparator<EasyRecipe> {
+
+		@Override
+		public int compare(EasyRecipe o1, EasyRecipe o2) {
+			if (o1.getResult().getID() > o2.getResult().getID()) {
+				return 1;
+			} else if (o1.getResult().getID() < o2.getResult().getID()) {
+				return -1;
+			}
+
+			if (o1.getResult().getDamage() > o2.getResult().getDamage()) {
+				return 1;
+			} else if (o1.getResult().getDamage() < o2.getResult().getDamage()) {
+				return -1;
+			}
+
+			if (o1.getResult().getSize() > o2.getResult().getSize()) {
+				return 1;
+			} else if (o1.getResult().getSize() < o2.getResult().getSize()) {
+				return -1;
+			}
+			return 0;
+		}
 	}
 }

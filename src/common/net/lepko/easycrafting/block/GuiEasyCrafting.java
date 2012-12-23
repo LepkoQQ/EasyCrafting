@@ -8,6 +8,7 @@ import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.handlers.TickHandlerClient;
 import net.lepko.easycrafting.helpers.ChatFormat;
 import net.lepko.easycrafting.helpers.RecipeHelper;
+import net.lepko.easycrafting.helpers.RecipeWorker;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.GuiContainer;
 import net.minecraft.src.GuiTextField;
@@ -83,7 +84,7 @@ public class GuiEasyCrafting extends GuiContainer {
 			offsetX = 70;
 		}
 
-		if (RecipeHelper.lock.isLocked()) {
+		if (RecipeWorker.lock.isLocked()) {
 			fontRenderer.drawString(ChatFormat.MAGIC + "x", offsetX, 6, 0x404040);
 		}
 	}
@@ -303,7 +304,7 @@ public class GuiEasyCrafting extends GuiContainer {
 
 	public void refreshCraftingOutput() {
 		EntityPlayer player = (EntityPlayer) this.mc.thePlayer;
-		craftableList = RecipeHelper.instance().getCraftableRecipes();
+		craftableList = RecipeWorker.instance().getCraftableRecipes();
 		if (selectedTabIndex == TABINDEX_CRAFTING) {
 			renderList = craftableList;
 		} else if (selectedTabIndex == TABINDEX_SEARCH) {

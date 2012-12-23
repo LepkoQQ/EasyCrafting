@@ -3,7 +3,7 @@ package net.lepko.easycrafting.handlers;
 import java.util.EnumSet;
 
 import net.lepko.easycrafting.block.GuiEasyCrafting;
-import net.lepko.easycrafting.helpers.RecipeHelper;
+import net.lepko.easycrafting.helpers.RecipeWorker;
 import net.lepko.easycrafting.helpers.VersionHelper;
 import net.minecraft.client.Minecraft;
 import cpw.mods.fml.client.FMLClientHandler;
@@ -33,12 +33,12 @@ public class TickHandlerClient implements ITickHandler {
 	@Override
 	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
 		if (updateEasyCraftingOutput && count <= 0 && type.equals(EnumSet.of(TickType.CLIENT))) {
-			if (RecipeHelper.lock.tryLock()) {
+			if (RecipeWorker.lock.tryLock()) {
 				try {
-					RecipeHelper.instance().requestNewRecipeList();
+					RecipeWorker.instance().requestNewRecipeList();
 					updateEasyCraftingOutput = false;
 				} finally {
-					RecipeHelper.lock.unlock();
+					RecipeWorker.lock.unlock();
 				}
 			}
 			if (showUpdateInChat) {
@@ -49,17 +49,17 @@ public class TickHandlerClient implements ITickHandler {
 			count--;
 		}
 
-		if (RecipeHelper.lock.tryLock()) {
+		if (RecipeWorker.lock.tryLock()) {
 			try {
-				if (mc.theWorld != null && RecipeHelper.instance().refreshDisplay()) {
+				if (mc.theWorld != null && RecipeWorker.instance().refreshDisplay()) {
 					if (mc.currentScreen != null && mc.currentScreen instanceof GuiEasyCrafting) {
 						GuiEasyCrafting gec = (GuiEasyCrafting) mc.currentScreen;
 						gec.refreshCraftingOutput();
-						RecipeHelper.instance().setDisplayed();
+						RecipeWorker.instance().setDisplayed();
 					}
 				}
 			} finally {
-				RecipeHelper.lock.unlock();
+				RecipeWorker.lock.unlock();
 			}
 		}
 	}

@@ -7,6 +7,7 @@ import net.lepko.easycrafting.handlers.PacketHandlerClient;
 import net.lepko.easycrafting.handlers.PacketHandlerServer;
 import net.lepko.easycrafting.helpers.EasyConfig;
 import net.lepko.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.src.Block;
@@ -15,8 +16,10 @@ import net.minecraft.src.ItemStack;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
@@ -68,5 +71,10 @@ public class ModEasyCrafting {
 		Proxy.proxy.onLoad();
 
 		NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
+	}
+
+	@PostInit
+	public void postload(FMLPostInitializationEvent event) {
+		RecipeHelper.scanRecipes();
 	}
 }

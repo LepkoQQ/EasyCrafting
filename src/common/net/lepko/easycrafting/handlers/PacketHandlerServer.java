@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import net.lepko.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.easycrafting.helpers.EasyConfig;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.INetworkManager;
@@ -60,13 +61,13 @@ public class PacketHandlerServer implements IPacketHandler {
 
 					if (return_stack != null) {
 						if (identifier == 1) {
-							if (RecipeHelper.takeIngredients(recipe, sender.inventory, 0)) {
+							if (RecipeHelper.canCraft(recipe, sender.inventory, RecipeHelper.getAllRecipes(), true, 1, EasyConfig.instance().recipeRecursion.getInt(5)) > 0) {
 								return_stack.stackSize = return_size;
 								sender.inventory.setItemStack(return_stack);
 							}
 						} else if (identifier == 2) {
 							int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, stack_in_hand);
-							int timesCrafted = RecipeHelper.takeIngredientsMaxStack(recipe, sender.inventory, maxTimes, 0);
+							int timesCrafted = RecipeHelper.canCraft(recipe, sender.inventory, RecipeHelper.getAllRecipes(), true, maxTimes, EasyConfig.instance().recipeRecursion.getInt(5));
 							if (timesCrafted > 0) {
 								return_stack.stackSize = return_size + (timesCrafted - 1) * recipe.getResult().getSize();
 								sender.inventory.setItemStack(return_stack);
