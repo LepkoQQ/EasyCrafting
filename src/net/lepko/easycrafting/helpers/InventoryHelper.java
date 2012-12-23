@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.lepko.easycrafting.easyobjects.EasyItemStack;
-import net.minecraft.src.IInventory;
-import net.minecraft.src.InventoryPlayer;
-import net.minecraft.src.ItemStack;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 
 public class InventoryHelper {
 

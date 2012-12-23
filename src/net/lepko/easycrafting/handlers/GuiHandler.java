@@ -3,9 +3,9 @@ package net.lepko.easycrafting.handlers;
 import net.lepko.easycrafting.block.ContainerEasyCrafting;
 import net.lepko.easycrafting.block.GuiEasyCrafting;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.TileEntity;
-import net.minecraft.src.World;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
 
 public class GuiHandler implements IGuiHandler {

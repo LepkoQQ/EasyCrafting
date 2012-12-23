@@ -3,7 +3,7 @@ package net.lepko.easycrafting.easyobjects;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import net.minecraft.src.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class EasyRecipe {

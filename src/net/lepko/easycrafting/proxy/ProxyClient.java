@@ -9,11 +9,11 @@ import net.lepko.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.handlers.TickHandlerClient;
 import net.lepko.easycrafting.helpers.EasyLog;
-import net.minecraft.src.Packet250CustomPayload;
+import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraftforge.client.MinecraftForgeClient;
 import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 public class ProxyClient extends Proxy {
 

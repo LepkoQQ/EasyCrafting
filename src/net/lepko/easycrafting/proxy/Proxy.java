@@ -3,8 +3,8 @@ package net.lepko.easycrafting.proxy;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.helpers.EasyLog;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.relauncher.Side;
 
 public class Proxy {
 

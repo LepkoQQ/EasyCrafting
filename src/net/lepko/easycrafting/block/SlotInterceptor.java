@@ -1,8 +1,8 @@
 package net.lepko.easycrafting.block;
 
 import net.lepko.easycrafting.handlers.TickHandlerClient;
-import net.minecraft.src.IInventory;
-import net.minecraft.src.Slot;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
 
 public class SlotInterceptor extends Slot {
 

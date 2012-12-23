@@ -4,15 +4,15 @@ import java.util.Random;
 
 import net.lepko.easycrafting.ModEasyCrafting;
 import net.lepko.easycrafting.proxy.Proxy;
-import net.minecraft.src.BlockContainer;
-import net.minecraft.src.CreativeTabs;
-import net.minecraft.src.EntityItem;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.ItemStack;
-import net.minecraft.src.Material;
-import net.minecraft.src.NBTTagCompound;
-import net.minecraft.src.TileEntity;
-import net.minecraft.src.World;
+import net.minecraft.block.BlockContainer;
+import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 public class BlockEasyCraftingTable extends BlockContainer {
 
@@ -94,7 +94,7 @@ public class BlockEasyCraftingTable extends BlockContainer {
                         var14.motionZ = (double) ((float) rand.nextGaussian() * var15);
 
                         if (var9.hasTagCompound()) {
-                            var14.item.setTagCompound((NBTTagCompound) var9.getTagCompound().copy());
+                            var14.func_92014_d().setTagCompound((NBTTagCompound) var9.getTagCompound().copy());
                         }
                     }
                 }

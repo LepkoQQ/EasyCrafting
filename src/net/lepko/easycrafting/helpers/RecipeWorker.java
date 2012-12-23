@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.helpers.RecipeHelper.RecipeComparator;
 import net.lepko.easycrafting.proxy.Proxy;
-import net.minecraft.src.InventoryPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 
 import com.google.common.collect.ImmutableList;
 
