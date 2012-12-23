@@ -31,50 +31,50 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, clientPacketHandlerSpec = @SidedPacketHandler(channels = { "EasyCrafting" }, packetHandler = PacketHandlerClient.class), serverPacketHandlerSpec = @SidedPacketHandler(channels = { "EasyCrafting" }, packetHandler = PacketHandlerServer.class))
 public class ModEasyCrafting {
 
-	@Instance(VersionHelper.MOD_ID)
-	public static ModEasyCrafting instance = new ModEasyCrafting();
+    @Instance(VersionHelper.MOD_ID)
+    public static ModEasyCrafting instance = new ModEasyCrafting();
 
-	// Blocks
-	public static Block blockEasyCraftingTable;
+    // Blocks
+    public static Block blockEasyCraftingTable;
 
-	@PreInit
-	public void preload(FMLPreInitializationEvent event) {
-		EasyLog.log("Loading " + VersionHelper.MOD_NAME + " version " + VersionHelper.VERSION + ".");
-		EasyConfig.initialize(event.getSuggestedConfigurationFile());
-		VersionHelper.performCheck();
-	}
+    @PreInit
+    public void preload(FMLPreInitializationEvent event) {
+        EasyLog.log("Loading " + VersionHelper.MOD_NAME + " version " + VersionHelper.VERSION + ".");
+        EasyConfig.initialize(event.getSuggestedConfigurationFile());
+        VersionHelper.performCheck();
+    }
 
-	@Init
-	public void load(FMLInitializationEvent event) {
-		blockEasyCraftingTable = new BlockEasyCraftingTable(EasyConfig.instance().easyCraftingTableID.getInt());
-		LanguageRegistry.addName(blockEasyCraftingTable, "Easy Crafting Table");
+    @Init
+    public void load(FMLInitializationEvent event) {
+        blockEasyCraftingTable = new BlockEasyCraftingTable(EasyConfig.instance().easyCraftingTableID.getInt());
+        LanguageRegistry.addName(blockEasyCraftingTable, "Easy Crafting Table");
 
-		GameRegistry.registerBlock(blockEasyCraftingTable);
-		GameRegistry.registerTileEntity(TileEntityEasyCrafting.class, "tileEntityEasyCrafting");
+        GameRegistry.registerBlock(blockEasyCraftingTable);
+        GameRegistry.registerTileEntity(TileEntityEasyCrafting.class, "tileEntityEasyCrafting");
 
-		// Recipe from config
-		String recipeItems = EasyConfig.instance().customRecipeItems.value;
-		String[] items = recipeItems.split(",");
-		Object[] array = new Object[items.length];
-		for (int i = 0; i < items.length; i++) {
-			try {
-				array[i] = new ItemStack(Integer.parseInt(items[i]), 1, -1);
-			} catch (NumberFormatException nfe) {
-				EasyLog.warning("customRecipeItems: '" + recipeItems + "' is not valid; Using default!");
-				array = new Object[] { Block.workbench, Item.book, Item.redstone };
-				break;
-			}
-		}
-		GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), array);
-		//
+        // Recipe from config
+        String recipeItems = EasyConfig.instance().customRecipeItems.value;
+        String[] items = recipeItems.split(",");
+        Object[] array = new Object[items.length];
+        for (int i = 0; i < items.length; i++) {
+            try {
+                array[i] = new ItemStack(Integer.parseInt(items[i]), 1, -1);
+            } catch (NumberFormatException nfe) {
+                EasyLog.warning("customRecipeItems: '" + recipeItems + "' is not valid; Using default!");
+                array = new Object[] { Block.workbench, Item.book, Item.redstone };
+                break;
+            }
+        }
+        GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), array);
+        //
 
-		Proxy.proxy.onLoad();
+        Proxy.proxy.onLoad();
 
-		NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
-	}
+        NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
+    }
 
-	@PostInit
-	public void postload(FMLPostInitializationEvent event) {
-		RecipeHelper.scanRecipes();
-	}
+    @PostInit
+    public void postload(FMLPostInitializationEvent event) {
+        RecipeHelper.scanRecipes();
+    }
 }
