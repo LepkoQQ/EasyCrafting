@@ -2,6 +2,7 @@ package net.lepko.easycrafting;
 
 import net.lepko.easycrafting.block.BlockEasyCraftingTable;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
+import net.lepko.easycrafting.handlers.EventHandler;
 import net.lepko.easycrafting.handlers.GuiHandler;
 import net.lepko.easycrafting.handlers.ModCompatibilityHandler;
 import net.lepko.easycrafting.handlers.PacketHandlerClient;
@@ -14,6 +15,7 @@ import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
@@ -72,11 +74,12 @@ public class ModEasyCrafting {
         Proxy.proxy.onLoad();
 
         NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
+        MinecraftForge.EVENT_BUS.register(new EventHandler());
     }
 
-    @PostInit
-    public void postload(FMLPostInitializationEvent event) {
-        RecipeHelper.scanRecipes();
-        ModCompatibilityHandler.load();
-    }
+//    @PostInit
+//    public void postload(FMLPostInitializationEvent event) {
+//        RecipeHelper.scanRecipes();
+//        ModCompatibilityHandler.load();
+//    }
 }
