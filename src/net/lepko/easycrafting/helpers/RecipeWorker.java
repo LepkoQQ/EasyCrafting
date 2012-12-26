@@ -29,7 +29,7 @@ public class RecipeWorker implements Runnable {
         Collections.sort(tmp, new RecipeComparator());
 
         craftableRecipes = tmp;
-        EasyLog.log(String.format("Returning %d craftable out of %d available recipes! ---- Total time: %.8f", craftableRecipes.size(), RecipeHelper.getAllRecipes().size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
+        EasyLog.log(String.format("%d/%d craftable | %.8f seconds", craftableRecipes.size(), RecipeHelper.getAllRecipes().size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
     }
 
     @Override

@@ -157,7 +157,6 @@ public class InventoryHelper {
         if (stack != null) {
             if (stack.getItem().hasContainerItem()) {
                 ItemStack containerStack = stack.getItem().getContainerItemStack(stack);
-                // TODO: damage Items that take damage when crafting with them
                 if (containerStack.isItemStackDamageable() && containerStack.getItemDamage() > containerStack.getMaxDamage()) {
                     containerStack = null;
                 }

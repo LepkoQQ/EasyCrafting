@@ -113,7 +113,7 @@ public class VersionHelper {
                     }
                 }
             }
-            
+
             if (newVersionString == null || newVersionString.trim().isEmpty()) {
                 return UpdateStatus.FAILED;
             }

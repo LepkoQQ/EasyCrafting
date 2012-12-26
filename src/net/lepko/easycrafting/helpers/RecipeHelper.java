@@ -68,12 +68,6 @@ public class RecipeHelper {
                 unknownRecipes.add(r);
                 continue;
             }
-//            if (r.getRecipeOutput().toString().contains("item.cart.tank")) {
-//                // TODO: check foresty and extra bees!
-//                skipped++;
-//                EasyLog.log(skipped + ": Skipped recipe with Tank Cart: " + r.getRecipeOutput());
-//                continue;
-//            }
             tmp.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
         }
 
@@ -119,7 +113,6 @@ public class RecipeHelper {
                     break;
                 }
             }
-
         }
         return tmpCraftable;
     }
