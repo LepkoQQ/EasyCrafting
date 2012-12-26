@@ -21,6 +21,10 @@ public class EasyLog {
         logger.log(Level.WARNING, msg + " == T:" + Thread.currentThread().getName());
     }
 
+    public static void warning(String msg, Throwable throwable) {
+        logger.log(Level.WARNING, msg + " == T:" + Thread.currentThread().getName(), throwable);
+    }
+
     public static void severe(String msg) {
         logger.log(Level.SEVERE, msg + " == T:" + Thread.currentThread().getName());
     }

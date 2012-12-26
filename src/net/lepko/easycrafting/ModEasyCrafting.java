@@ -3,6 +3,7 @@ package net.lepko.easycrafting;
 import net.lepko.easycrafting.block.BlockEasyCraftingTable;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.handlers.GuiHandler;
+import net.lepko.easycrafting.handlers.ModCompatibilityHandler;
 import net.lepko.easycrafting.handlers.PacketHandlerClient;
 import net.lepko.easycrafting.handlers.PacketHandlerServer;
 import net.lepko.easycrafting.helpers.EasyConfig;
@@ -49,7 +50,7 @@ public class ModEasyCrafting {
         blockEasyCraftingTable = new BlockEasyCraftingTable(EasyConfig.instance().easyCraftingTableID.getInt());
         LanguageRegistry.addName(blockEasyCraftingTable, "Easy Crafting Table");
 
-        GameRegistry.registerBlock(blockEasyCraftingTable);
+        GameRegistry.registerBlock(blockEasyCraftingTable, "blockEasyCraftingTable");
         GameRegistry.registerTileEntity(TileEntityEasyCrafting.class, "tileEntityEasyCrafting");
 
         // Recipe from config
@@ -76,5 +77,6 @@ public class ModEasyCrafting {
     @PostInit
     public void postload(FMLPostInitializationEvent event) {
         RecipeHelper.scanRecipes();
+        ModCompatibilityHandler.load();
     }
 }

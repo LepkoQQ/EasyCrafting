@@ -26,13 +26,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class RecipeHelper {
 
-    private static ImmutableList<EasyRecipe> allRecipes = ImmutableList.of();
+    public static ArrayList<EasyRecipe> allRecipes = new ArrayList<EasyRecipe>();
+    public static ArrayList<IRecipe> unknownRecipes = new ArrayList<IRecipe>();
 
     /**
      * Get a list of all recipes that are scanned and available. If recipes are not yet scanned it will return an empty list.
      */
     public static ImmutableList<EasyRecipe> getAllRecipes() {
-        return allRecipes;
+        return ImmutableList.copyOf(allRecipes);
     }
 
     /**
@@ -62,23 +63,13 @@ public class RecipeHelper {
                 List input = ReflectionHelper.<List, ShapelessOreRecipe> getPrivateValue(ShapelessOreRecipe.class, (ShapelessOreRecipe) r, 1);
                 ingredients = new ArrayList(input);
             } else {
-                String className = r.getClass().getName();
-                if (className.equals("ic2.common.AdvRecipe") || className.equals("ic2.common.AdvShapelessRecipe")) {
-                    try {
-                        Object[] input = (Object[]) Class.forName(className).getField("input").get(r);
-                        ingredients = new ArrayList(Arrays.asList(input));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    // It's a special recipe (map extending, armor dyeing, ...) - ignore
-                    // TODO: add IC2 and any other custom recipe classes
-                    skipped++;
-                    EasyLog.log(skipped + ": Skipped recipe: " + r);
-                    continue;
-                }
+                // It's a special recipe (map extending, armor dyeing, ...) - ignore
+                // Add to list for mod compatibility handling
+                unknownRecipes.add(r);
+                continue;
             }
             if (r.getRecipeOutput().toString().contains("item.cart.tank")) {
+                // TODO: check foresty and extra bees!
                 skipped++;
                 EasyLog.log(skipped + ": Skipped recipe with Tank Cart: " + r.getRecipeOutput());
                 continue;
@@ -86,10 +77,10 @@ public class RecipeHelper {
             tmp.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
         }
 
-        Collections.sort(tmp, new RecipeComparator());
+        allRecipes.addAll(tmp);
+        Collections.sort(allRecipes, new RecipeComparator());
 
-        allRecipes = ImmutableList.copyOf(tmp);
-        EasyLog.log(String.format("Returning %d available recipes! ---- Total time: %.8f", allRecipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
+        EasyLog.log(String.format("Scanned %d recipes in %.8f seconds", allRecipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
     }
 
     /**
@@ -242,8 +233,7 @@ public class RecipeHelper {
             tmp2.copyInventory(tmp);
         }
 
-        // TODO: charge
-        // recipe.getResult().setCharge(usedIngredients);
+        recipe.getResult().setCharge(usedIngredients);
 
         if (take && timesCrafted > 0) {
             inventory.copyInventory(tmp2);
