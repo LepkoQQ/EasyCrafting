@@ -3,8 +3,8 @@ package net.lepko.easycrafting.easyobjects;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
 
 public class EasyRecipe {
 
@@ -46,7 +46,7 @@ public class EasyRecipe {
             ingredients.set(index, eis);
             return eis;
         } else if (o instanceof String) {
-            ArrayList<ItemStack> list = OreDictionary.getOres((String) o);
+            ArrayList<ItemStack> list = RecipeHelper.resolveOreAndLiquidDictionaries((String) o);
             ingredients.set(index, list);
             return list;
         }

@@ -15,6 +15,9 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraftforge.liquids.LiquidContainerData;
+import net.minecraftforge.liquids.LiquidContainerRegistry;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -326,6 +329,41 @@ public class RecipeHelper {
             }
         }
         return null;
+    }
+
+    /**
+     *  
+     */
+    // TODO: javadoc
+    public static ArrayList<ItemStack> resolveOreAndLiquidDictionaries(String string) {
+        if (string.startsWith("liquid$")) {
+            ArrayList<ItemStack> result = new ArrayList<ItemStack>();
+
+            int separator = string.indexOf(':');
+            int id;
+            int meta = -1;
+
+            try {
+                if (separator > -1) {
+                    id = Integer.parseInt(string.substring(7, separator - 1));
+                    meta = Integer.parseInt(string.substring(separator + 1));
+                } else {
+                    id = Integer.parseInt(string.substring(7));
+                }
+            } catch (NumberFormatException e) {
+                EasyLog.warning("Execption while resolving liquid dictionary!", e);
+                return result;
+            }
+
+            for (LiquidContainerData data : LiquidContainerRegistry.getRegisteredLiquidContainerData()) {
+                if ((data.stillLiquid.itemID == id) && ((meta == -1) || (data.stillLiquid.itemMeta == meta))) {
+                    result.add(data.filled);
+                }
+            }
+
+            return result;
+        }
+        return OreDictionary.getOres(string);
     }
 
     /**
