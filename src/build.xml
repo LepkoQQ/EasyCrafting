@@ -29,6 +29,10 @@
 				<exclude name="build.xml"/>
 				<exclude name="mcmod.info"/>
 			</fileset>
+			<filterset>
+				<filter token="MC_VERSION" value="${mc.version}"/>
+				<filter token="MOD_VERSION" value="${project.version}"/>
+			</filterset>
 		</copy>
 		<!-- recompile -->
 		<exec dir="${mcp.dir}" executable="cmd" osfamily="windows">
@@ -41,10 +45,6 @@
 		<!-- copy classes -->
 		<copy todir="${classes.dir}">
 			<fileset dir="${mcp.dir}/reobf/minecraft"/>
-			<filterset>
-				<filter token="MC_VERSION" value="${mc.version}"/>
-				<filter token="MOD_VERSION" value="${project.version}"/>
-			</filterset>
 		</copy>
 		<!-- copy resources -->
 		<copy todir="${classes.dir}/${resrc.path}">
