@@ -14,7 +14,7 @@ public class VersionHelper {
         LATEST, OUTDATED, FAILED, DISABLED
     }
 
-    public static final String VERSION = "1.1.3";
+    public static final String VERSION = "@MOD_VERSION@";
     public static final String MOD_NAME = "Easy Crafting";
     public static final String MOD_ID = "Lepko-EasyCrafting";
 
