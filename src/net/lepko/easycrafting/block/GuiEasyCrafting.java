@@ -174,7 +174,7 @@ public class GuiEasyCrafting extends GuiContainer {
                 super.keyTyped(par1, par2);
             }
         } else {
-            if (!this.func_82319_a(par2)) {
+            if (!this.checkHotbarKeys(par2)) {
                 if (this.searchField.textboxKeyTyped(par1, par2)) {
                     updateSearch();
                 } else {
