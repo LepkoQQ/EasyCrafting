@@ -5,7 +5,7 @@ import ic2.api.IElectricItem;
 
 import java.util.ArrayList;
 
-import net.lepko.easycrafting.modcompat.ModCompatIC2;
+import net.lepko.easycrafting.modcompat.ModCompat;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -56,7 +56,7 @@ public class EasyItemStack {
     public ItemStack toItemStack() {
         ItemStack is = new ItemStack(id, size, damage);
         is.setTagCompound(stackTagCompound);
-        if (ModCompatIC2.isModLoaded && is.getItem() instanceof IElectricItem && charge > 0) {
+        if (ModCompat.isLoaded("IC2") && is.getItem() instanceof IElectricItem && charge > 0) {
             ElectricItem.discharge(is, 0x7fffffff, 0x7fffffff, true, false);
             ElectricItem.charge(is, charge, 0x7fffffff, true, false);
         }
@@ -65,7 +65,7 @@ public class EasyItemStack {
 
     public static EasyItemStack fromItemStack(ItemStack is) {
         int charge = 0;
-        if (ModCompatIC2.isModLoaded && is.getItem() instanceof IElectricItem) {
+        if (ModCompat.isLoaded("IC2") && is.getItem() instanceof IElectricItem) {
             charge = ElectricItem.discharge(is, 0x7fffffff, 0x7fffffff, true, true);
         }
         EasyItemStack eis = new EasyItemStack(is.itemID, is.getItemDamage(), is.stackSize, charge);
@@ -148,7 +148,7 @@ public class EasyItemStack {
         if (usedIngredients != null) {
             for (int i = 0; i < usedIngredients.size(); i++) {
                 ItemStack ingredient = usedIngredients.get(i);
-                if (ModCompatIC2.isModLoaded && ingredient.getItem() instanceof IElectricItem) {
+                if (ModCompat.isLoaded("IC2") && ingredient.getItem() instanceof IElectricItem) {
                     outputCharge += ElectricItem.discharge(ingredient, 0x7fffffff, 0x7fffffff, true, true);
                 }
             }

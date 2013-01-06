@@ -29,55 +29,19 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class RecipeHelper {
 
-    public static ArrayList<EasyRecipe> allRecipes = new ArrayList<EasyRecipe>();
-    public static ArrayList<IRecipe> unknownRecipes = new ArrayList<IRecipe>();
-
     /**
      * Get a list of all recipes that are scanned and available. If recipes are not yet scanned it will return an empty list.
      */
     public static ImmutableList<EasyRecipe> getAllRecipes() {
-        return ImmutableList.copyOf(allRecipes);
+        return ImmutableList.copyOf(RecipeManager.scannedRecipes);
     }
 
     /**
-     * Scan, convert, sort and store the recognised recipes. To access the recipes use {@link #getAllRecipes()}.
+     * Scan, convert, sort and store the recognized recipes. To access the recipes use {@link #getAllRecipes()}.
      */
     public static void scanRecipes() {
-        long beforeTime = System.nanoTime();
-
-        List mcRecipes = CraftingManager.getInstance().getRecipeList();
-        ArrayList<EasyRecipe> tmp = new ArrayList<EasyRecipe>();
-        int skipped = 0;
-
-        for (int i = 0; i < mcRecipes.size(); i++) {
-            IRecipe r = (IRecipe) mcRecipes.get(i);
-            ArrayList ingredients = null;
-            // TODO: in future versions of forge you don't have to use reflections anymore, fields are exposed
-            if (r instanceof ShapedRecipes) {
-                ItemStack[] input = ReflectionHelper.<ItemStack[], ShapedRecipes> getPrivateValue(ShapedRecipes.class, (ShapedRecipes) r, 2);
-                ingredients = new ArrayList(Arrays.asList(input));
-            } else if (r instanceof ShapelessRecipes) {
-                List input = ReflectionHelper.<List, ShapelessRecipes> getPrivateValue(ShapelessRecipes.class, (ShapelessRecipes) r, 1);
-                ingredients = new ArrayList(input);
-            } else if (r instanceof ShapedOreRecipe) {
-                Object[] input = ReflectionHelper.<Object[], ShapedOreRecipe> getPrivateValue(ShapedOreRecipe.class, (ShapedOreRecipe) r, 3);
-                ingredients = new ArrayList(Arrays.asList(input));
-            } else if (r instanceof ShapelessOreRecipe) {
-                List input = ReflectionHelper.<List, ShapelessOreRecipe> getPrivateValue(ShapelessOreRecipe.class, (ShapelessOreRecipe) r, 1);
-                ingredients = new ArrayList(input);
-            } else {
-                // It's a special recipe (map extending, armor dyeing, ...) - ignore
-                // Add to list for mod compatibility handling
-                unknownRecipes.add(r);
-                continue;
-            }
-            tmp.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
-        }
-
-        allRecipes.addAll(tmp);
-        Collections.sort(allRecipes, new RecipeComparator());
-
-        EasyLog.log(String.format("Scanned %d recipes in %.8f seconds", allRecipes.size(), ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
+        // TODO: replace this with new method
+        RecipeManager.scanRecipes(CraftingManager.getInstance().getRecipeList());
     }
 
     /**
@@ -256,7 +220,7 @@ public class RecipeHelper {
     /**
      * Same as {@link #getRecipesForItemFromList(EasyItemStack, ImmutableList)} but for any of the items contained in the list.
      * 
-     * @param ingredients - a list itemstacks
+     * @param ingredients - a list of itemstacks
      * @param recipesToCheck - a list of recipes to be checked
      */
     private static ArrayList<EasyRecipe> getRecipesForItemFromList(ArrayList<ItemStack> ingredients, ImmutableList<EasyRecipe> recipesToCheck) {
@@ -272,7 +236,7 @@ public class RecipeHelper {
      * 
      * @param result
      * @param ingredients
-     * @return the mached EasyRecipe instance, null if none of the recipes match
+     * @return the matched EasyRecipe instance, null if none of the recipes match
      */
     public static EasyRecipe getValidRecipe(EasyItemStack result, ItemStack[] ingredients) {
         ImmutableList<EasyRecipe> all = getAllRecipes();
@@ -392,5 +356,34 @@ public class RecipeHelper {
             }
             return 0;
         }
+    }
+
+    /**
+     * Get list of ingredients from the provided recipe.
+     * 
+     * @param recipe - object instance implementing IRecipe interface
+     * @return ArrayList of ingredients or null if not a valid recipe
+     */
+    public static ArrayList getIngredientList(IRecipe recipe) {
+        ArrayList ingredients = null;
+        // vanilla recipe classes
+        if (recipe instanceof ShapedRecipes) {
+            ingredients = new ArrayList(Arrays.asList(((ShapedRecipes) recipe).recipeItems));
+        } else if (recipe instanceof ShapelessRecipes) {
+            ingredients = new ArrayList(((ShapelessRecipes) recipe).recipeItems);
+        }
+        // ore dictionary classes
+        else if (recipe instanceof ShapedOreRecipe) {
+            Object[] input = ReflectionHelper.<Object[], ShapedOreRecipe> getPrivateValue(ShapedOreRecipe.class, (ShapedOreRecipe) recipe, 3);
+            ingredients = new ArrayList(Arrays.asList(input));
+        } else if (recipe instanceof ShapelessOreRecipe) {
+            List input = ReflectionHelper.<List, ShapelessOreRecipe> getPrivateValue(ShapelessOreRecipe.class, (ShapelessOreRecipe) recipe, 1);
+            ingredients = new ArrayList(input);
+        }
+        // remove all null elements
+        if (ingredients != null) {
+            ingredients.removeAll(Collections.singleton(null));
+        }
+        return ingredients;
     }
 }
