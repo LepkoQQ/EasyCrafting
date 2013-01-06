@@ -1,10 +1,6 @@
 package net.lepko.easycrafting.helpers;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import net.lepko.easycrafting.block.GuiEasyCrafting;
 import net.lepko.easycrafting.easyobjects.EasyItemStack;
@@ -32,6 +28,8 @@ public class RecipeHelper {
     public static ArrayList<EasyRecipe> allRecipes = new ArrayList<EasyRecipe>();
     public static ArrayList<IRecipe> unknownRecipes = new ArrayList<IRecipe>();
 
+    private static Timer timer = new Timer();
+
     /**
      * Get a list of all recipes that are scanned and available. If recipes are not yet scanned it will return an empty list.
      */
@@ -40,12 +38,28 @@ public class RecipeHelper {
     }
 
     /**
-     * Scan, convert, sort and store the recognised recipes. To access the recipes use {@link #getAllRecipes()}.
+     * Enqueue action to scan recipes after delay of 20 seconds.
      */
     public static void scanRecipes() {
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                RecipeHelper.delayedScanRecipes();
+            }
+        };
+        timer.schedule(task, 1000 * 20);
+    }
+
+    /**
+     * Scan, convert, sort and store the recognised recipes. To access the recipes use {@link #getAllRecipes()}.
+     */
+    private static void delayedScanRecipes() {
         long beforeTime = System.nanoTime();
 
-        List mcRecipes = CraftingManager.getInstance().getRecipeList();
+        List mcRecipes;
+        synchronized (CraftingManager.getInstance().getRecipeList()) {
+            mcRecipes = ImmutableList.copyOf(CraftingManager.getInstance().getRecipeList());
+        }
         ArrayList<EasyRecipe> tmp = new ArrayList<EasyRecipe>();
         int skipped = 0;
 
