@@ -4,11 +4,10 @@ import net.lepko.easycrafting.block.BlockEasyCraftingTable;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.handlers.EventHandler;
 import net.lepko.easycrafting.handlers.GuiHandler;
-import net.lepko.easycrafting.handlers.PacketHandlerClient;
-import net.lepko.easycrafting.handlers.PacketHandlerServer;
 import net.lepko.easycrafting.helpers.EasyConfig;
 import net.lepko.easycrafting.helpers.EasyLog;
 import net.lepko.easycrafting.helpers.VersionHelper;
+import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -21,13 +20,12 @@ import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 @Mod(modid = VersionHelper.MOD_ID, name = VersionHelper.MOD_NAME, version = VersionHelper.VERSION)
-@NetworkMod(clientSideRequired = true, serverSideRequired = true, clientPacketHandlerSpec = @SidedPacketHandler(channels = { "EasyCrafting" }, packetHandler = PacketHandlerClient.class), serverPacketHandlerSpec = @SidedPacketHandler(channels = { "EasyCrafting" }, packetHandler = PacketHandlerServer.class))
+@NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = { "EasyCrafting" }, packetHandler = PacketHandler.class)
 public class ModEasyCrafting {
 
     @Instance(VersionHelper.MOD_ID)
