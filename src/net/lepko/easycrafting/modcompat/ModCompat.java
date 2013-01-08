@@ -23,7 +23,7 @@ public abstract class ModCompat {
             log("Mod not found.");
             return;
         }
-        EasyLog.log("Mod found.");
+        log("Mod found.");
         isModLoaded = true;
     }
 
