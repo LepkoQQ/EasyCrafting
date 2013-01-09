@@ -1,12 +1,9 @@
 package net.lepko.easycrafting.proxy;
 
-import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.handlers.TickHandlerClient;
 import net.lepko.easycrafting.helpers.EasyLog;
-import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
 import net.minecraftforge.client.MinecraftForgeClient;
 import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 
@@ -29,11 +26,5 @@ public class ProxyClient extends Proxy {
                 EasyLog.log("[CHAT] " + msg);
             }
         }
-    }
-
-    @Override
-    public void sendEasyCraftingPacketToServer(int identifier, EasyRecipe r) {
-        // TODO: get this out of here
-        PacketDispatcher.sendPacketToServer(PacketDispatcher.getPacket("EasyCrafting", new PacketEasyCrafting(r, (identifier == 2)).getBytes()));
     }
 }

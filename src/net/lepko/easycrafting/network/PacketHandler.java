@@ -9,6 +9,7 @@ import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import cpw.mods.fml.common.network.IPacketHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
 public class PacketHandler implements IPacketHandler {
@@ -21,13 +22,13 @@ public class PacketHandler implements IPacketHandler {
         int id = bis.read();
         DataInputStream dis = new DataInputStream(bis);
 
-        EasyPacket packet = getPacket(id);
+        EasyPacket packet = getPacketType(id);
 
         packet.read(dis);
         packet.run(player);
     }
 
-    private EasyPacket getPacket(int id) {
+    private EasyPacket getPacketType(int id) {
         switch (id) {
             case PACKETID_EASYCRAFTING:
                 return new PacketEasyCrafting();
@@ -35,5 +36,10 @@ public class PacketHandler implements IPacketHandler {
                 EasyLog.warning("Bad packet ID: " + id);
                 return null;
         }
+    }
+
+    public static void sendPacket(EasyPacket packet) {
+        Packet250CustomPayload p250 = PacketDispatcher.getPacket("EasyCrafting", packet.getBytes());
+        PacketDispatcher.sendPacketToServer(p250);
     }
 }

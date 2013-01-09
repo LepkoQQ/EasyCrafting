@@ -5,6 +5,9 @@ import java.util.List;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.helpers.EasyConfig;
 import net.lepko.easycrafting.helpers.RecipeHelper;
+import net.lepko.easycrafting.network.PacketHandler;
+import net.lepko.easycrafting.network.packet.EasyPacket;
+import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
 import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -138,11 +141,12 @@ public class ContainerEasyCrafting extends Container {
         if (return_stack != null) {
             EasyRecipe recipe = RecipeHelper.getValidRecipe(this.gui, slot_index, return_stack);
             if (recipe != null) {
-                int identifier = mouse_button == 0 ? 1 : 2;
+                boolean isRightClick = (mouse_button != 0);
 
-                Proxy.proxy.sendEasyCraftingPacketToServer(identifier, recipe);
+                EasyPacket packet = new PacketEasyCrafting(recipe, isRightClick);
+                PacketHandler.sendPacket(packet);
 
-                if (identifier == 2) { // Right click; craft until max stack
+                if (isRightClick) { // Right click; craft until max stack
                     int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand);
                     int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, RecipeHelper.getAllRecipes(), false, maxTimes, EasyConfig.instance().recipeRecursion.getInt(5));
                     if (timesCrafted > 0) {
