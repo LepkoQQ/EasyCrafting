@@ -142,6 +142,7 @@ public class EasyItemStack {
         return true;
     }
 
+    // TODO: separate charge and usedIngredient methods
     public void setCharge(ArrayList<ItemStack> usedIngredients) {
         int outputCharge = 0;
 
@@ -155,5 +156,9 @@ public class EasyItemStack {
         }
 
         this.charge = outputCharge;
+        this.usedIngredients = usedIngredients;
     }
+
+    // TODO: move this to EasyRecipe?
+    public ArrayList<ItemStack> usedIngredients;
 }

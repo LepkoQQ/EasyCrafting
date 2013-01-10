@@ -226,6 +226,14 @@ public class GuiEasyCrafting extends GuiContainer {
             }
         }
 
+        for (int j = 0; j < 40; j++) {
+            Slot slot = this.inventorySlots.getSlot(j);
+            if (this.isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
+                // && Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)
+                this.drawIngredientTooltip(j, mouseX, mouseY);
+            }
+        }
+
         RenderHelper.enableStandardItemLighting();
     }
 
@@ -375,5 +383,81 @@ public class GuiEasyCrafting extends GuiContainer {
 
         ContainerEasyCrafting c = (ContainerEasyCrafting) this.inventorySlots;
         c.scrollTo(this.currentScroll, renderList);
+    }
+
+    protected void drawIngredientTooltip(int slotIndex, int mouseX, int mouseY) {
+
+        EasyRecipe recipe = null;
+
+        int recipe_index = slotIndex + (this.currentScroll * 8);
+        if (recipe_index >= 0 && this.renderList != null && recipe_index < this.renderList.size()) {
+            EasyRecipe r = this.renderList.get(recipe_index);
+            if (r.getResult().equalsItemStack(this.inventorySlots.getSlot(slotIndex).getStack())) {
+                recipe = r;
+            }
+        }
+
+        if (recipe == null) {
+            return;
+        }
+
+        ArrayList<ItemStack> ingredientList = recipe.getCompactIngredientList();
+
+        if (!ingredientList.isEmpty()) {
+            int width = 16;
+            int height = 16;
+            int xPos = mouseX - width - 12;
+            int yPos = mouseY - 4;
+
+            if (ingredientList.size() > 1) {
+                height += (ingredientList.size() - 1) * (height + 2);
+            }
+
+            if (this.guiTop + yPos + height + 6 > this.height) {
+                yPos = this.height - height - this.guiTop - 6;
+            }
+
+            int bgColor = 0xF0100010;
+            int borderColor = 0x505000FF;// red: 0x50FF0000;// green: 0x5000A700;// vanilla purple: 0x505000FF;
+            int borderColorDark = (borderColor & 0xFEFEFE) >> 1 | borderColor & 0xFF000000;
+
+            this.zLevel = 300.0F;
+            itemRenderer.zLevel = 300.0F;
+
+            RenderHelper.disableStandardItemLighting();
+            GL11.glDisable(GL11.GL_LIGHTING);
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+
+            this.drawGradientRect(xPos - 3, yPos - 4, xPos + width + 3, yPos - 3, bgColor, bgColor);
+            this.drawGradientRect(xPos - 3, yPos + height + 3, xPos + width + 3, yPos + height + 4, bgColor, bgColor);
+            this.drawGradientRect(xPos - 3, yPos - 3, xPos + width + 3, yPos + height + 3, bgColor, bgColor);
+            this.drawGradientRect(xPos - 4, yPos - 3, xPos - 3, yPos + height + 3, bgColor, bgColor);
+            this.drawGradientRect(xPos + width + 3, yPos - 3, xPos + width + 4, yPos + height + 3, bgColor, bgColor);
+
+            this.drawGradientRect(xPos - 3, yPos - 3 + 1, xPos - 3 + 1, yPos + height + 3 - 1, borderColor, borderColorDark);
+            this.drawGradientRect(xPos + width + 2, yPos - 3 + 1, xPos + width + 3, yPos + height + 3 - 1, borderColor, borderColorDark);
+            this.drawGradientRect(xPos - 3, yPos - 3, xPos + width + 3, yPos - 3 + 1, borderColor, borderColor);
+            this.drawGradientRect(xPos - 3, yPos + height + 2, xPos + width + 3, yPos + height + 3, borderColorDark, borderColorDark);
+
+            RenderHelper.enableGUIStandardItemLighting();
+            GL11.glEnable(GL11.GL_LIGHTING);
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+            GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+
+            for (ItemStack is : ingredientList) {
+                itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.renderEngine, is, xPos, yPos);
+                itemRenderer.renderItemOverlayIntoGUI(this.fontRenderer, this.mc.renderEngine, is, xPos, yPos);
+
+                yPos += 18;
+            }
+
+            GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glDisable(GL11.GL_LIGHTING);
+
+            this.zLevel = 0.0F;
+            itemRenderer.zLevel = 0.0F;
+        }
     }
 }

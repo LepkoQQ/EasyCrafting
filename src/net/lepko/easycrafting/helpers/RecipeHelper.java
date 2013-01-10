@@ -193,10 +193,11 @@ public class RecipeHelper {
             tmp2.copyInventory(tmp);
         }
 
-        recipe.getResult().setCharge(usedIngredients);
-
-        if (take && timesCrafted > 0) {
-            inventory.copyInventory(tmp2);
+        if (timesCrafted > 0) {
+            recipe.getResult().setCharge(usedIngredients);
+            if (take) {
+                inventory.copyInventory(tmp2);
+            }
         }
         return timesCrafted;
     }
@@ -296,9 +297,11 @@ public class RecipeHelper {
     }
 
     /**
-     *  
+     * Resolves the provided string to a list of itemstacks by querying the ore dictionary. Also handles liquid containers from IC2 recipes.
+     * 
+     * @param string - name of the ore dictionary entry to resolve
+     * @return a list of itemstacks registered under the provided name
      */
-    // TODO: javadoc
     public static ArrayList<ItemStack> resolveOreAndLiquidDictionaries(String string) {
         if (string.startsWith("liquid$")) {
             ArrayList<ItemStack> result = new ArrayList<ItemStack>();
