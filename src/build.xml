@@ -49,10 +49,6 @@
         <!-- copy resources -->
         <copy todir="${classes.dir}/${resrc.path}">
             <fileset dir="${src.dir}/${resrc.path}"/>
-            <filterset>
-                <filter token="MC_VERSION" value="${mc.version}"/>
-                <filter token="MOD_VERSION" value="${project.version}"/>
-            </filterset>
         </copy>
         <!-- copy mcmod.info file -->
         <copy tofile="${classes.dir}/mcmod.info" file="${src.dir}/mcmod.info">
