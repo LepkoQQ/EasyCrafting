@@ -12,7 +12,7 @@ import net.minecraft.item.crafting.IRecipe;
 
 public class ModCompatibilityHandler {
 
-    public static Map<String, ModCompat> mods = new HashMap<String, ModCompat>();
+    public static Map<String, ModCompat> modules = new HashMap<String, ModCompat>();
 
     public static void load() {
         EasyLog.log("[ModCompat] Loading mod compatibility modules.");
@@ -20,7 +20,7 @@ public class ModCompatibilityHandler {
         new ModCompatEE3();
         new ModCompatIC2();
 
-        for (Map.Entry<String, ModCompat> entry : mods.entrySet()) {
+        for (Map.Entry<String, ModCompat> entry : modules.entrySet()) {
             entry.getValue().load();
         }
 
@@ -28,7 +28,7 @@ public class ModCompatibilityHandler {
     }
 
     public static void scanRecipes(List<IRecipe> recipes) {
-        for (Map.Entry<String, ModCompat> entry : mods.entrySet()) {
+        for (Map.Entry<String, ModCompat> entry : modules.entrySet()) {
             if (entry.getValue().isModLoaded) {
                 entry.getValue().scanRecipes(recipes);
             }

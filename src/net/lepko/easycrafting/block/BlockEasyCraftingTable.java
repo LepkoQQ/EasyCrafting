@@ -3,6 +3,7 @@ package net.lepko.easycrafting.block;
 import java.util.Random;
 
 import net.lepko.easycrafting.ModEasyCrafting;
+import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -27,18 +28,18 @@ public class BlockEasyCraftingTable extends BlockContainer {
     @Override
     public int getBlockTextureFromSide(int side) {
         switch (side) {
-        case 0:
-            return 3;
-        case 1:
-            return 0;
-        case 2:
-        case 4:
-            return 1;
-        case 3:
-        case 5:
-            return 2;
-        default:
-            return 3;
+            case 0:
+                return 3;
+            case 1:
+                return 0;
+            case 2:
+            case 4:
+                return 1;
+            case 3:
+            case 5:
+                return 2;
+            default:
+                return 3;
         }
     }
 
@@ -55,6 +56,11 @@ public class BlockEasyCraftingTable extends BlockContainer {
             return false;
         }
 
+        if (!(tile_entity instanceof TileEntityEasyCrafting)) {
+            return false;
+        }
+
+        RecipeHelper.checkForNewRecipes();
         player.openGui(ModEasyCrafting.instance, 0, world, x, y, z);
         return true;
     }

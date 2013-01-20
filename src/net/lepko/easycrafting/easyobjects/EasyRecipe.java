@@ -103,7 +103,10 @@ public class EasyRecipe {
                     }
                 }
 
-                list.add(eis.toItemStack());
+                // Some recipes use larger stack sizes in their recipes
+                ItemStack is = eis.toItemStack();
+                is.stackSize = 1;
+                list.add(is);
             }
         } else {
             used: for (ItemStack is : result.usedIngredients) {

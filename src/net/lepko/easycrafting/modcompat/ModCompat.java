@@ -14,7 +14,7 @@ public abstract class ModCompat {
 
     public ModCompat(String modID) {
         this.modID = modID;
-        ModCompatibilityHandler.mods.put(modID, this);
+        ModCompatibilityHandler.modules.put(modID, this);
     }
 
     public void load() {
@@ -34,8 +34,8 @@ public abstract class ModCompat {
     }
 
     public static final boolean isLoaded(String modID) {
-        if (ModCompatibilityHandler.mods.get(modID) != null) {
-            return ModCompatibilityHandler.mods.get(modID).isModLoaded;
+        if (ModCompatibilityHandler.modules.get(modID) != null) {
+            return ModCompatibilityHandler.modules.get(modID).isModLoaded;
         }
         return false;
     }

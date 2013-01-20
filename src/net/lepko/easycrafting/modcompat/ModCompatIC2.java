@@ -8,7 +8,7 @@ import java.util.List;
 import net.lepko.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.helpers.EasyLog;
-import net.lepko.easycrafting.helpers.RecipeManager;
+import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.minecraft.item.crafting.IRecipe;
 
 public class ModCompatIC2 extends ModCompat {
@@ -28,7 +28,7 @@ public class ModCompatIC2 extends ModCompat {
                 if (className.equals("ic2.core.AdvRecipe") || className.equals("ic2.core.AdvShapelessRecipe")) {
                     Object[] input = (Object[]) Class.forName(className).getField("input").get(r);
                     ArrayList ingredients = new ArrayList(Arrays.asList(input));
-                    RecipeManager.scannedRecipes.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
+                    RecipeHelper.scannedRecipes.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
                     iterator.remove();
                 }
             }

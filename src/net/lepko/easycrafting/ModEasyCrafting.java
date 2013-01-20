@@ -4,8 +4,10 @@ import net.lepko.easycrafting.block.BlockEasyCraftingTable;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.handlers.EventHandler;
 import net.lepko.easycrafting.handlers.GuiHandler;
+import net.lepko.easycrafting.handlers.ModCompatibilityHandler;
 import net.lepko.easycrafting.helpers.EasyConfig;
 import net.lepko.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.proxy.Proxy;
@@ -16,8 +18,10 @@ import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -35,14 +39,14 @@ public class ModEasyCrafting {
     public static Block blockEasyCraftingTable;
 
     @PreInit
-    public void preload(FMLPreInitializationEvent event) {
+    public void preInit(FMLPreInitializationEvent event) {
         EasyLog.log("Loading " + VersionHelper.MOD_NAME + " version " + VersionHelper.VERSION + ".");
         EasyConfig.initialize(event.getSuggestedConfigurationFile());
         VersionHelper.performCheck();
     }
 
     @Init
-    public void load(FMLInitializationEvent event) {
+    public void init(FMLInitializationEvent event) {
         blockEasyCraftingTable = new BlockEasyCraftingTable(EasyConfig.instance().easyCraftingTableID.getInt());
         LanguageRegistry.addName(blockEasyCraftingTable, "Easy Crafting Table");
 
@@ -69,5 +73,11 @@ public class ModEasyCrafting {
 
         NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
         MinecraftForge.EVENT_BUS.register(new EventHandler());
+    }
+
+    @PostInit
+    public void postInit(FMLPostInitializationEvent event) {
+        ModCompatibilityHandler.load();
+        RecipeHelper.checkForNewRecipes();
     }
 }

@@ -1,10 +1,14 @@
-package net.lepko.easycrafting.block;
+package net.lepko.easycrafting.inventory;
 
 import java.util.List;
 
+import net.lepko.easycrafting.block.SlotEasyCraftingOutput;
+import net.lepko.easycrafting.block.SlotInterceptor;
+import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.helpers.EasyConfig;
 import net.lepko.easycrafting.helpers.RecipeHelper;
+import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.network.packet.EasyPacket;
 import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
@@ -19,7 +23,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class ContainerEasyCrafting extends Container {
     protected TileEntityEasyCrafting tile_entity;
-    protected GuiEasyCrafting gui;
+    public GuiEasyCrafting gui;
 
     public ContainerEasyCrafting(TileEntityEasyCrafting tile_entity, InventoryPlayer player_inventory) {
 

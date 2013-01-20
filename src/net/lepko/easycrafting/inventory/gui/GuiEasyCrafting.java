@@ -1,18 +1,20 @@
-package net.lepko.easycrafting.block;
+package net.lepko.easycrafting.inventory.gui;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.lepko.easycrafting.ModEasyCrafting;
+import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.handlers.TickHandlerClient;
 import net.lepko.easycrafting.helpers.ChatFormat;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.RecipeWorker;
+import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
@@ -273,7 +275,7 @@ public class GuiEasyCrafting extends GuiContainer {
                 this.searchField.setFocused(false);
             }
         }
-        this.selectedTabIndex = tabIndex;
+        GuiEasyCrafting.selectedTabIndex = tabIndex;
         updateSearch();
     }
 
@@ -283,7 +285,7 @@ public class GuiEasyCrafting extends GuiContainer {
         int w = 16;
         int h = 16;
         int color = canCraft ? 0x8000A000 : 0x80A00000;
-        this.drawRect(x, y, x + w, y + h, color);
+        Gui.drawRect(x, y, x + w, y + h, color);
     }
 
     private void updateSearch() {
@@ -311,7 +313,6 @@ public class GuiEasyCrafting extends GuiContainer {
     }
 
     public void refreshCraftingOutput() {
-        EntityPlayer player = (EntityPlayer) this.mc.thePlayer;
         craftableList = RecipeWorker.instance().getCraftableRecipes();
         if (selectedTabIndex == TABINDEX_CRAFTING) {
             renderList = craftableList;

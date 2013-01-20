@@ -12,8 +12,7 @@ public class EventHandler {
     public void onWorldLoad(WorldEvent.Load event) {
         if (isFirstWorldLoad) {
             isFirstWorldLoad = false;
-            ModCompatibilityHandler.load();
-            RecipeHelper.scanRecipes();
+            RecipeHelper.checkForNewRecipes();
         }
     }
 }
