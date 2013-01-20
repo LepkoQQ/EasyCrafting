@@ -5,8 +5,8 @@ import java.util.List;
 import net.lepko.easycrafting.block.SlotEasyCraftingOutput;
 import net.lepko.easycrafting.block.SlotInterceptor;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
+import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
-import net.lepko.easycrafting.helpers.EasyConfig;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
 import net.lepko.easycrafting.network.PacketHandler;
@@ -152,7 +152,7 @@ public class ContainerEasyCrafting extends Container {
 
                 if (isRightClick) { // Right click; craft until max stack
                     int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand);
-                    int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, RecipeHelper.getAllRecipes(), false, maxTimes, EasyConfig.instance().recipeRecursion.getInt(5));
+                    int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, RecipeHelper.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
                     if (timesCrafted > 0) {
                         return_stack.stackSize = return_size + (timesCrafted - 1) * stack_in_slot.stackSize;
                         player.inventory.setItemStack(return_stack);

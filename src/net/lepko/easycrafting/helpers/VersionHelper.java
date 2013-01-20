@@ -5,13 +5,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 
+import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.proxy.Proxy;
 import cpw.mods.fml.common.Loader;
 
 public class VersionHelper {
 
     private enum UpdateStatus {
-        LATEST, OUTDATED, FAILED, DISABLED
+        LATEST,
+        OUTDATED,
+        FAILED,
+        DISABLED
     }
 
     public static final String VERSION = "@MOD_VERSION@";
@@ -89,7 +93,7 @@ public class VersionHelper {
     }
 
     private static UpdateStatus updateCheck() {
-        if (EasyConfig.instance().checkForUpdates.getBoolean(true)) {
+        if (ConfigHandler.UPDATE_CHECK_ENABLED) {
             String mcversion = Loader.instance().getMCVersionString().split(" ")[1];
             String newVersionString = "";
 

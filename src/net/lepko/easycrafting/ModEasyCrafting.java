@@ -2,10 +2,10 @@ package net.lepko.easycrafting;
 
 import net.lepko.easycrafting.block.BlockEasyCraftingTable;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
+import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.handlers.EventHandler;
 import net.lepko.easycrafting.handlers.GuiHandler;
 import net.lepko.easycrafting.handlers.ModCompatibilityHandler;
-import net.lepko.easycrafting.helpers.EasyConfig;
 import net.lepko.easycrafting.helpers.EasyLog;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.VersionHelper;
@@ -41,20 +41,20 @@ public class ModEasyCrafting {
     @PreInit
     public void preInit(FMLPreInitializationEvent event) {
         EasyLog.log("Loading " + VersionHelper.MOD_NAME + " version " + VersionHelper.VERSION + ".");
-        EasyConfig.initialize(event.getSuggestedConfigurationFile());
+        ConfigHandler.initialize(event.getSuggestedConfigurationFile());
         VersionHelper.performCheck();
     }
 
     @Init
     public void init(FMLInitializationEvent event) {
-        blockEasyCraftingTable = new BlockEasyCraftingTable(EasyConfig.instance().easyCraftingTableID.getInt());
+        blockEasyCraftingTable = new BlockEasyCraftingTable(ConfigHandler.EASYCRAFTINGTABLE_ID);
         LanguageRegistry.addName(blockEasyCraftingTable, "Easy Crafting Table");
 
         GameRegistry.registerBlock(blockEasyCraftingTable, "blockEasyCraftingTable");
         GameRegistry.registerTileEntity(TileEntityEasyCrafting.class, "tileEntityEasyCrafting");
 
         // Recipe from config
-        String recipeItems = EasyConfig.instance().customRecipeItems.value;
+        String recipeItems = ConfigHandler.CUSTOM_RECIPE_INGREDIENTS;
         String[] items = recipeItems.split(",");
         Object[] array = new Object[items.length];
         for (int i = 0; i < items.length; i++) {

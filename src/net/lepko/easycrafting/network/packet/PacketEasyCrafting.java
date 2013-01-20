@@ -5,9 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
-import net.lepko.easycrafting.helpers.EasyConfig;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.minecraft.entity.player.EntityPlayer;
@@ -70,13 +70,13 @@ public class PacketEasyCrafting extends EasyPacket {
 
         if (return_stack != null) {
             if (!isRightClick) {
-                if (RecipeHelper.canCraft(recipe, sender.inventory, RecipeHelper.getAllRecipes(), true, 1, EasyConfig.instance().recipeRecursion.getInt(5)) > 0) {
+                if (RecipeHelper.canCraft(recipe, sender.inventory, RecipeHelper.getAllRecipes(), true, 1, ConfigHandler.MAX_RECURSION) > 0) {
                     return_stack.stackSize = return_size;
                     sender.inventory.setItemStack(return_stack);
                 }
             } else {
                 int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, stack_in_hand);
-                int timesCrafted = RecipeHelper.canCraft(recipe, sender.inventory, RecipeHelper.getAllRecipes(), true, maxTimes, EasyConfig.instance().recipeRecursion.getInt(5));
+                int timesCrafted = RecipeHelper.canCraft(recipe, sender.inventory, RecipeHelper.getAllRecipes(), true, maxTimes, ConfigHandler.MAX_RECURSION);
                 if (timesCrafted > 0) {
                     return_stack.stackSize = return_size + (timesCrafted - 1) * recipe.getResult().getSize();
                     sender.inventory.setItemStack(return_stack);
