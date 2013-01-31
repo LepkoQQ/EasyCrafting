@@ -71,6 +71,13 @@ public class RecipeHelper {
                 unknownRecipes.add(r);
                 continue;
             }
+            if (r.getRecipeOutput() == null) {
+                // CraftBukkit compatibility - armor dyes, map clone are ShapelessRecipes, with null output
+                unknownRecipes.add(r);
+                continue;
+            }
+
+
             tmp.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
         }
 
