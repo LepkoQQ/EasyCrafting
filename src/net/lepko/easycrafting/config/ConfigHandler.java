@@ -37,18 +37,10 @@ public class ConfigHandler {
         UPDATE_CHECK_ENABLED = config.get(Configuration.CATEGORY_GENERAL, "checkForUpdates", UPDATE_CHECK_ENABLED_DEFAULT, UPDATE_CHECK_ENABLED_COMMENT).getBoolean(UPDATE_CHECK_ENABLED_DEFAULT);
         MAX_RECURSION = config.get(Configuration.CATEGORY_GENERAL, "recipeRecursion", MAX_RECURSION_DEFAULT, MAX_RECURSION_COMMENT).getInt(MAX_RECURSION_DEFAULT);
 
-        CUSTOM_RECIPE_INGREDIENTS = config.get(Configuration.CATEGORY_GENERAL, "customRecipeItems", CUSTOM_RECIPE_INGREDIENTS_DEFAULT, CUSTOM_RECIPE_INGREDIENTS_COMMENT).value;
+        CUSTOM_RECIPE_INGREDIENTS = config.get(Configuration.CATEGORY_GENERAL, "customRecipeItems", CUSTOM_RECIPE_INGREDIENTS_DEFAULT, CUSTOM_RECIPE_INGREDIENTS_COMMENT).getString();
 
-        config.save();
-    }
-
-    public static void set(String category, String property, String value) {
-
-        if (config.categories.containsKey(category)) {
-            if (config.categories.get(category).containsKey(property)) {
-                config.categories.get(category).get(property).value = value;
-            }
+        if (config.hasChanged()) {
+            config.save();
         }
-        config.save();
     }
 }

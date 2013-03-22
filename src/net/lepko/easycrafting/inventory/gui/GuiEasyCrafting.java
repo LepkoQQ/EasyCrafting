@@ -93,14 +93,13 @@ public class GuiEasyCrafting extends GuiContainer {
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-        int texture = mc.renderEngine.getTexture("/net/lepko/easycrafting/textures/easycraftinggui.png");
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         RenderHelper.enableGUIStandardItemLighting();
-        this.mc.renderEngine.bindTexture(texture);
+        mc.renderEngine.bindTexture("/net/lepko/easycrafting/textures/easycraftinggui.png");
         // Tabs
         drawTabs();
         // Main GUI
-        this.mc.renderEngine.bindTexture(texture);
+        mc.renderEngine.bindTexture("/net/lepko/easycrafting/textures/easycraftinggui.png");
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
         this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
@@ -122,7 +121,7 @@ public class GuiEasyCrafting extends GuiContainer {
             renderSlotBackColor(this.inventorySlots.getSlot(l + 40), false);
         }
         // Scrollbar
-        this.mc.renderEngine.bindTexture(texture);
+        mc.renderEngine.bindTexture("/net/lepko/easycrafting/textures/easycraftinggui.png");
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         int xTex = this.maxScroll == 0 ? 12 : 0;
         this.drawTexturedModalRect(x + 156, y + 17 + (int) (this.scrollbarOffset * 73.0F), xTex, 240, 12, 16);
@@ -288,6 +287,7 @@ public class GuiEasyCrafting extends GuiContainer {
         Gui.drawRect(x, y, x + w, y + h, color);
     }
 
+    @SuppressWarnings("unchecked")
     private void updateSearch() {
         if (selectedTabIndex == TABINDEX_SEARCH) {
             ImmutableList<EasyRecipe> all = RecipeHelper.getAllRecipes();

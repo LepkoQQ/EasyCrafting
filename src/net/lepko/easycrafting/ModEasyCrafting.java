@@ -15,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
@@ -59,7 +60,7 @@ public class ModEasyCrafting {
         Object[] array = new Object[items.length];
         for (int i = 0; i < items.length; i++) {
             try {
-                array[i] = new ItemStack(Integer.parseInt(items[i]), 1, -1);
+                array[i] = new ItemStack(Integer.parseInt(items[i]), 1, OreDictionary.WILDCARD_VALUE);
             } catch (NumberFormatException nfe) {
                 EasyLog.warning("customRecipeItems: '" + recipeItems + "' is not valid; Using default!");
                 array = new Object[] { Block.workbench, Item.book, Item.redstone };

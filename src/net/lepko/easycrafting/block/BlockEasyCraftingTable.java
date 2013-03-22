@@ -2,50 +2,59 @@ package net.lepko.easycrafting.block;
 
 import java.util.Random;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import net.lepko.easycrafting.ModEasyCrafting;
 import net.lepko.easycrafting.helpers.RecipeHelper;
-import net.lepko.easycrafting.proxy.Proxy;
+import net.lepko.easycrafting.helpers.VersionHelper;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 
 public class BlockEasyCraftingTable extends BlockContainer {
 
+    private Icon[] icons = new Icon[4];
+
     public BlockEasyCraftingTable(int blockID) {
-        super(blockID, 0, Material.wood);
+        super(blockID, Material.wood);
         this.setHardness(2.5F);
         this.setStepSound(soundWoodFootstep);
-        this.setBlockName("easycraftingtable");
+        this.setUnlocalizedName("easycraftingtable");
         this.setCreativeTab(CreativeTabs.tabDecorations);
     }
 
     @Override
-    public int getBlockTextureFromSide(int side) {
-        switch (side) {
-            case 0:
-                return 3;
-            case 1:
-                return 0;
-            case 2:
-            case 4:
-                return 1;
-            case 3:
-            case 5:
-                return 2;
-            default:
-                return 3;
-        }
+    @SideOnly(Side.CLIENT)
+    public void registerIcons(IconRegister iconRegister) {
+        icons[0] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "easyCraftingTable_top");
+        icons[1] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "easyCraftingTable_bottom");
+        icons[2] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "easyCraftingTable_side1");
+        icons[3] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "easyCraftingTable_side2");
     }
 
     @Override
-    public String getTextureFile() {
-        return Proxy.blocksTextureFile;
+    @SideOnly(Side.CLIENT)
+    public Icon getBlockTextureFromSideAndMetadata(int side, int meta) {
+        switch (side) {
+            case 0:
+                return icons[1];
+            case 1:
+                return icons[0];
+            case 2:
+            case 3:
+                return icons[2];
+            default:
+                return icons[3];
+        }
     }
 
     @Override
@@ -100,7 +109,7 @@ public class BlockEasyCraftingTable extends BlockContainer {
                         var14.motionZ = (double) ((float) rand.nextGaussian() * var15);
 
                         if (var9.hasTagCompound()) {
-                            var14.func_92014_d().setTagCompound((NBTTagCompound) var9.getTagCompound().copy());
+                            var14.getEntityItem().setTagCompound((NBTTagCompound) var9.getTagCompound().copy());
                         }
                     }
                 }

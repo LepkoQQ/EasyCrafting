@@ -9,6 +9,7 @@ import net.lepko.easycrafting.modcompat.ModCompat;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class EasyItemStack {
 
@@ -113,7 +114,7 @@ public class EasyItemStack {
         if (id != other.id) {
             return false;
         }
-        if (damage != other.damage && damage != -1 && other.damage != -1 && !(Item.itemsList[id] instanceof IElectricItem)) {
+        if (damage != other.damage && damage != OreDictionary.WILDCARD_VALUE && other.damage != OreDictionary.WILDCARD_VALUE && !(Item.itemsList[id] instanceof IElectricItem)) {
             return false;
         }
         if (!ignoreSize && size != other.size) {
@@ -133,7 +134,7 @@ public class EasyItemStack {
         if (id != is.itemID) {
             return false;
         }
-        if (damage != is.getItemDamage() && damage != -1 && is.getItemDamage() != -1 && is.getHasSubtypes() && !(Item.itemsList[id] instanceof IElectricItem)) {
+        if (damage != is.getItemDamage() && damage != OreDictionary.WILDCARD_VALUE && is.getItemDamage() != OreDictionary.WILDCARD_VALUE && is.getHasSubtypes() && !(Item.itemsList[id] instanceof IElectricItem)) {
             return false;
         }
         if (!ignoreSize && size != is.stackSize) {
