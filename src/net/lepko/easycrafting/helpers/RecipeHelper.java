@@ -323,7 +323,7 @@ public class RecipeHelper {
         int recipe_index = slot_index + (gui.currentScroll * 8);
         if (recipe_index >= 0 && gui.renderList != null && recipe_index < gui.renderList.size()) {
             EasyRecipe r = gui.renderList.get(recipe_index);
-            if (r.getResult().equalsItemStack(result) && gui.craftableList.contains(r)) {
+            if (r.getResult().equalsItemStack(result) && gui.craftableList != null && gui.craftableList.contains(r)) {
                 return r;
             }
         }
