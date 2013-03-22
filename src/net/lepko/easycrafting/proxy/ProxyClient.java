@@ -2,7 +2,6 @@ package net.lepko.easycrafting.proxy;
 
 import net.lepko.easycrafting.handlers.TickHandlerClient;
 import net.lepko.easycrafting.helpers.EasyLog;
-import net.minecraftforge.client.MinecraftForgeClient;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -11,8 +10,6 @@ public class ProxyClient extends Proxy {
 
     @Override
     public void onLoad() {
-        MinecraftForgeClient.preloadTexture(blocksTextureFile);
-
         // Register Client Tick Handler
         TickRegistry.registerTickHandler(new TickHandlerClient(), Side.CLIENT);
     }

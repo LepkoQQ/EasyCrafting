@@ -10,6 +10,7 @@ import net.lepko.easycrafting.handlers.TickHandlerClient;
 import net.lepko.easycrafting.helpers.ChatFormat;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.RecipeWorker;
+import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
@@ -28,6 +29,8 @@ import org.lwjgl.opengl.GL12;
 import com.google.common.collect.ImmutableList;
 
 public class GuiEasyCrafting extends GuiContainer {
+
+    private static final String GUI_TEXTURE = "/mods/" + VersionHelper.MOD_ID + "/textures/gui/easycraftinggui.png";
 
     private static final int TABINDEX_CRAFTING = 0;
     private static final int TABINDEX_SEARCH = 1;
@@ -95,11 +98,11 @@ public class GuiEasyCrafting extends GuiContainer {
     protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         RenderHelper.enableGUIStandardItemLighting();
-        mc.renderEngine.bindTexture("/net/lepko/easycrafting/textures/easycraftinggui.png");
+        mc.renderEngine.bindTexture(GUI_TEXTURE);
         // Tabs
         drawTabs();
         // Main GUI
-        mc.renderEngine.bindTexture("/net/lepko/easycrafting/textures/easycraftinggui.png");
+        mc.renderEngine.bindTexture(GUI_TEXTURE);
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
         this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
@@ -121,7 +124,7 @@ public class GuiEasyCrafting extends GuiContainer {
             renderSlotBackColor(this.inventorySlots.getSlot(l + 40), false);
         }
         // Scrollbar
-        mc.renderEngine.bindTexture("/net/lepko/easycrafting/textures/easycraftinggui.png");
+        mc.renderEngine.bindTexture(GUI_TEXTURE);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         int xTex = this.maxScroll == 0 ? 12 : 0;
         this.drawTexturedModalRect(x + 156, y + 17 + (int) (this.scrollbarOffset * 73.0F), xTex, 240, 12, 16);

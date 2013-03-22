@@ -10,8 +10,6 @@ public class Proxy {
     @SidedProxy(clientSide = "net.lepko.easycrafting.proxy.ProxyClient", serverSide = "net.lepko.easycrafting.proxy.Proxy")
     public static Proxy proxy;
 
-    public static String blocksTextureFile = "/net/lepko/easycrafting/textures/blocks.png";
-
     public void onLoad() {
     }
 
