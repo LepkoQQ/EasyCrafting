@@ -1,7 +1,7 @@
 {
     "modinfoversion": 2,
     "modlist": [{
-        "modid": "Lepko-EasyCrafting",
+        "modid": "EasyCrafting",
         "name": "Easy Crafting",
         "description": "Easily craft items that you have the materials for with just a click of a button!",
         "version": "@MOD_VERSION@",

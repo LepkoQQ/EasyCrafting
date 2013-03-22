@@ -4,16 +4,17 @@
 
     <!-- properties -->
     <property name="src.dir" value="."/>
-    <property name="resrc.path" value="net/lepko/easycrafting/textures"/>
-    <property name="mcp.dir" value="../../../forge/mcp"/>
+	<property name="project.dir" value="../../../EasyCrafting"/>
+    <property name="mcp.dir" value="${project.dir}/forge/mcp"/>
     <property name="mcpsrc.dir" value="${mcp.dir}/src"/>
-    <property name="build.dir" value="../../../build"/>
+    <property name="build.dir" value="${project.dir}/build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
-    <property name="mcpsrc.dir" value="${mcp.dir}/src"/>
 
-    <property name="mc.version" value="1.4.7"/>
-    <property name="forge.version" value="6.6.0.497"/>
-    <property name="project.version" value="1.1.3"/>
+	<property name="res.path" value="mods/${ant.project.name}"/>
+
+	<property name="mc.version" value="1.5.1"/>
+    <property name="forge.version" value="7.7.0.602"/>
+    <property name="project.version" value="1.1.4"/>
 
     <!-- clean build dir -->
     <target name="clean">
@@ -40,19 +41,15 @@
         </exec>
         <!-- reobfuscate -->
         <exec dir="${mcp.dir}" executable="cmd" osfamily="windows">
-            <arg line="/c reobfuscate.bat"/>
+            <arg line="/c reobfuscate.bat --srgnames"/>
         </exec>
         <!-- copy classes -->
         <copy todir="${classes.dir}">
             <fileset dir="${mcp.dir}/reobf/minecraft"/>
         </copy>
         <!-- copy resources -->
-        <copy todir="${classes.dir}/${resrc.path}">
-            <fileset dir="${src.dir}/${resrc.path}"/>
-            <filterset>
-                <filter token="MC_VERSION" value="${mc.version}"/>
-                <filter token="MOD_VERSION" value="${project.version}"/>
-            </filterset>
+        <copy todir="${classes.dir}/${res.path}">
+            <fileset dir="${src.dir}/${res.path}"/>
         </copy>
         <!-- copy mcmod.info file -->
         <copy tofile="${classes.dir}/mcmod.info" file="${src.dir}/mcmod.info">
@@ -64,6 +61,7 @@
         <!-- delete my mod files from forge source directory -->
         <delete dir="${mcpsrc.dir}/minecraft/net/lepko"/>
         <delete dir="${mcpsrc.dir}/minecraft/ic2"/>
+    	<delete dir="${mcpsrc.dir}/minecraft/mods"/>
     </target>
 
     <!-- create jar -->

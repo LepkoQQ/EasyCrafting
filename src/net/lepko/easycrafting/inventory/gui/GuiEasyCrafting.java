@@ -1,18 +1,21 @@
-package net.lepko.easycrafting.block;
+package net.lepko.easycrafting.inventory.gui;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.lepko.easycrafting.ModEasyCrafting;
+import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.handlers.TickHandlerClient;
 import net.lepko.easycrafting.helpers.ChatFormat;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.RecipeWorker;
+import net.lepko.easycrafting.helpers.VersionHelper;
+import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
@@ -26,6 +29,8 @@ import org.lwjgl.opengl.GL12;
 import com.google.common.collect.ImmutableList;
 
 public class GuiEasyCrafting extends GuiContainer {
+
+    private static final String GUI_TEXTURE = "/mods/" + VersionHelper.MOD_ID + "/textures/gui/easycraftinggui.png";
 
     private static final int TABINDEX_CRAFTING = 0;
     private static final int TABINDEX_SEARCH = 1;
@@ -91,14 +96,13 @@ public class GuiEasyCrafting extends GuiContainer {
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-        int texture = mc.renderEngine.getTexture("/net/lepko/easycrafting/textures/easycraftinggui.png");
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         RenderHelper.enableGUIStandardItemLighting();
-        this.mc.renderEngine.bindTexture(texture);
+        mc.renderEngine.bindTexture(GUI_TEXTURE);
         // Tabs
         drawTabs();
         // Main GUI
-        this.mc.renderEngine.bindTexture(texture);
+        mc.renderEngine.bindTexture(GUI_TEXTURE);
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
         this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
@@ -120,7 +124,7 @@ public class GuiEasyCrafting extends GuiContainer {
             renderSlotBackColor(this.inventorySlots.getSlot(l + 40), false);
         }
         // Scrollbar
-        this.mc.renderEngine.bindTexture(texture);
+        mc.renderEngine.bindTexture(GUI_TEXTURE);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         int xTex = this.maxScroll == 0 ? 12 : 0;
         this.drawTexturedModalRect(x + 156, y + 17 + (int) (this.scrollbarOffset * 73.0F), xTex, 240, 12, 16);
@@ -226,6 +230,14 @@ public class GuiEasyCrafting extends GuiContainer {
             }
         }
 
+        for (int j = 0; j < 40; j++) {
+            Slot slot = this.inventorySlots.getSlot(j);
+            if (this.isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
+                // && Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)
+                this.drawIngredientTooltip(j, mouseX, mouseY);
+            }
+        }
+
         RenderHelper.enableStandardItemLighting();
     }
 
@@ -265,7 +277,7 @@ public class GuiEasyCrafting extends GuiContainer {
                 this.searchField.setFocused(false);
             }
         }
-        this.selectedTabIndex = tabIndex;
+        GuiEasyCrafting.selectedTabIndex = tabIndex;
         updateSearch();
     }
 
@@ -275,9 +287,10 @@ public class GuiEasyCrafting extends GuiContainer {
         int w = 16;
         int h = 16;
         int color = canCraft ? 0x8000A000 : 0x80A00000;
-        this.drawRect(x, y, x + w, y + h, color);
+        Gui.drawRect(x, y, x + w, y + h, color);
     }
 
+    @SuppressWarnings("unchecked")
     private void updateSearch() {
         if (selectedTabIndex == TABINDEX_SEARCH) {
             ImmutableList<EasyRecipe> all = RecipeHelper.getAllRecipes();
@@ -303,7 +316,6 @@ public class GuiEasyCrafting extends GuiContainer {
     }
 
     public void refreshCraftingOutput() {
-        EntityPlayer player = (EntityPlayer) this.mc.thePlayer;
         craftableList = RecipeWorker.instance().getCraftableRecipes();
         if (selectedTabIndex == TABINDEX_CRAFTING) {
             renderList = craftableList;
@@ -375,5 +387,81 @@ public class GuiEasyCrafting extends GuiContainer {
 
         ContainerEasyCrafting c = (ContainerEasyCrafting) this.inventorySlots;
         c.scrollTo(this.currentScroll, renderList);
+    }
+
+    protected void drawIngredientTooltip(int slotIndex, int mouseX, int mouseY) {
+
+        EasyRecipe recipe = null;
+
+        int recipe_index = slotIndex + (this.currentScroll * 8);
+        if (recipe_index >= 0 && this.renderList != null && recipe_index < this.renderList.size()) {
+            EasyRecipe r = this.renderList.get(recipe_index);
+            if (r.getResult().equalsItemStack(this.inventorySlots.getSlot(slotIndex).getStack())) {
+                recipe = r;
+            }
+        }
+
+        if (recipe == null) {
+            return;
+        }
+
+        ArrayList<ItemStack> ingredientList = recipe.getCompactIngredientList();
+
+        if (!ingredientList.isEmpty()) {
+            int width = 16;
+            int height = 16;
+            int xPos = mouseX - width - 12;
+            int yPos = mouseY - 4;
+
+            if (ingredientList.size() > 1) {
+                height += (ingredientList.size() - 1) * (height + 2);
+            }
+
+            if (this.guiTop + yPos + height + 6 > this.height) {
+                yPos = this.height - height - this.guiTop - 6;
+            }
+
+            int bgColor = 0xF0100010;
+            int borderColor = 0x505000FF;// red: 0x50FF0000;// green: 0x5000A700;// vanilla purple: 0x505000FF;
+            int borderColorDark = (borderColor & 0xFEFEFE) >> 1 | borderColor & 0xFF000000;
+
+            this.zLevel = 300.0F;
+            itemRenderer.zLevel = 300.0F;
+
+            RenderHelper.disableStandardItemLighting();
+            GL11.glDisable(GL11.GL_LIGHTING);
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+
+            this.drawGradientRect(xPos - 3, yPos - 4, xPos + width + 3, yPos - 3, bgColor, bgColor);
+            this.drawGradientRect(xPos - 3, yPos + height + 3, xPos + width + 3, yPos + height + 4, bgColor, bgColor);
+            this.drawGradientRect(xPos - 3, yPos - 3, xPos + width + 3, yPos + height + 3, bgColor, bgColor);
+            this.drawGradientRect(xPos - 4, yPos - 3, xPos - 3, yPos + height + 3, bgColor, bgColor);
+            this.drawGradientRect(xPos + width + 3, yPos - 3, xPos + width + 4, yPos + height + 3, bgColor, bgColor);
+
+            this.drawGradientRect(xPos - 3, yPos - 3 + 1, xPos - 3 + 1, yPos + height + 3 - 1, borderColor, borderColorDark);
+            this.drawGradientRect(xPos + width + 2, yPos - 3 + 1, xPos + width + 3, yPos + height + 3 - 1, borderColor, borderColorDark);
+            this.drawGradientRect(xPos - 3, yPos - 3, xPos + width + 3, yPos - 3 + 1, borderColor, borderColor);
+            this.drawGradientRect(xPos - 3, yPos + height + 2, xPos + width + 3, yPos + height + 3, borderColorDark, borderColorDark);
+
+            RenderHelper.enableGUIStandardItemLighting();
+            GL11.glEnable(GL11.GL_LIGHTING);
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+            GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+
+            for (ItemStack is : ingredientList) {
+                itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.renderEngine, is, xPos, yPos);
+                itemRenderer.renderItemOverlayIntoGUI(this.fontRenderer, this.mc.renderEngine, is, xPos, yPos);
+
+                yPos += 18;
+            }
+
+            GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glDisable(GL11.GL_LIGHTING);
+
+            this.zLevel = 0.0F;
+            itemRenderer.zLevel = 0.0F;
+        }
     }
 }

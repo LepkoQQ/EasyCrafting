@@ -1,8 +1,8 @@
 package net.lepko.easycrafting.handlers;
 
-import net.lepko.easycrafting.block.ContainerEasyCrafting;
-import net.lepko.easycrafting.block.GuiEasyCrafting;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
+import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
+import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;

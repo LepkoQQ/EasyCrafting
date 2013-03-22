@@ -111,4 +111,15 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
     public String getInvName() {
         return "TileEntityEasyCrafting";
     }
+
+    @Override
+    public boolean isInvNameLocalized() {
+        return false;
+    }
+
+    @Override
+    public boolean isStackValidForSlot(int i, ItemStack itemstack) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

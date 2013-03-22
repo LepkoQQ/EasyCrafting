@@ -3,6 +3,7 @@ package net.lepko.easycrafting.easyobjects;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import net.lepko.easycrafting.helpers.EasyLog;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.minecraft.item.ItemStack;
 
@@ -69,5 +70,59 @@ public class EasyRecipe {
      */
     public EasyItemStack getResult() {
         return result;
+    }
+
+    /**
+     * Get a list of ingredients with sized itemstacks instead of duplicate entries.
+     * 
+     * @return list of ingredients
+     */
+    public ArrayList<ItemStack> getCompactIngredientList() {
+
+        ArrayList<ItemStack> list = new ArrayList<ItemStack>();
+
+        if (result.usedIngredients == null) {
+            ingredients: for (int i = 0; i < ingredients.size(); i++) {
+                Object o = getIngredient(i);
+
+                EasyItemStack eis = null;
+                if (o instanceof EasyItemStack) {
+                    eis = (EasyItemStack) o;
+                } else if (o instanceof ArrayList) {
+                    // TODO: hmm...
+                    eis = EasyItemStack.fromItemStack(((ItemStack) ((ArrayList) o).get(0)));
+                } else {
+                    EasyLog.warning("Somthing went wrong @ getCompactIngredientList(); class = " + o.getClass().getName());
+                    return new ArrayList<ItemStack>();
+                }
+
+                for (ItemStack is2 : list) {
+                    if (eis.equalsItemStack(is2, true)) {
+                        is2.stackSize++;
+                        continue ingredients;
+                    }
+                }
+
+                // Some recipes use larger stack sizes in their recipes
+                ItemStack is = eis.toItemStack();
+                is.stackSize = 1;
+                list.add(is);
+            }
+        } else {
+            used: for (ItemStack is : result.usedIngredients) {
+                EasyItemStack eis = EasyItemStack.fromItemStack((ItemStack) is);
+
+                for (ItemStack is2 : list) {
+                    if (eis.equalsItemStack(is2, true)) {
+                        is2.stackSize++;
+                        continue used;
+                    }
+                }
+
+                list.add(eis.toItemStack());
+            }
+        }
+
+        return list;
     }
 }
