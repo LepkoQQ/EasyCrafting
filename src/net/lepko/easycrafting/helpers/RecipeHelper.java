@@ -57,7 +57,7 @@ public class RecipeHelper {
 
         for (IRecipe r : recipes) {
             ArrayList ingredients = RecipeHelper.getIngredientList(r);
-            if (ingredients != null) {
+            if (ingredients != null && r.getRecipeOutput() != null) {
                 tmp.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
             } else {
                 EasyLog.log("Unknown Recipe: " + r.getClass().getName());
