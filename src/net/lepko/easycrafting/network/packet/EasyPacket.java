@@ -18,7 +18,7 @@ public abstract class EasyPacket {
 
     public void read(DataInputStream data) {
         try {
-            this.readData(data);
+            readData(data);
         } catch (IOException e) {
             EasyLog.warning("Exception while reading packet: " + packetID + "!", e);
         }
@@ -30,7 +30,7 @@ public abstract class EasyPacket {
 
         try {
             dos.writeByte(packetID);
-            this.writeData(dos);
+            writeData(dos);
         } catch (IOException e) {
             EasyLog.warning("Exception while writing to packet: " + packetID + "!", e);
         }

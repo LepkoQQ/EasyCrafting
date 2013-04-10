@@ -156,7 +156,7 @@ public class EasyItemStack {
             }
         }
 
-        this.charge = outputCharge;
+        charge = outputCharge;
         this.usedIngredients = usedIngredients;
     }
 

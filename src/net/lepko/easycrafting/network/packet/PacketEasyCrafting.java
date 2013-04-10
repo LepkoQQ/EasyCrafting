@@ -26,23 +26,23 @@ public class PacketEasyCrafting extends EasyPacket {
 
     public PacketEasyCrafting(EasyRecipe recipe, boolean isRightClick) {
         this();
-        this.setRecipe(recipe);
+        setRecipe(recipe);
         this.isRightClick = isRightClick;
     }
 
     public void setRecipe(EasyRecipe recipe) {
 
-        this.result = recipe.getResult();
-        this.ingredients = new ItemStack[recipe.getIngredientsSize()];
+        result = recipe.getResult();
+        ingredients = new ItemStack[recipe.getIngredientsSize()];
 
         for (int i = 0; i < recipe.getIngredientsSize(); i++) {
             if (recipe.getIngredient(i) instanceof EasyItemStack) {
                 EasyItemStack eis = (EasyItemStack) recipe.getIngredient(i);
-                this.ingredients[i] = new ItemStack(eis.getID(), eis.getSize(), eis.getDamage());
+                ingredients[i] = new ItemStack(eis.getID(), eis.getSize(), eis.getDamage());
             } else if (recipe.getIngredient(i) instanceof List) {
                 // TODO: when updating forge use the new oredict method of obtaining oreID
                 // TODO: change to custom oreDict EIS because if you getItem(-1) it will throw ArrayOutOfBoundException
-                this.ingredients[i] = new ItemStack(-1, -1, -1);
+                ingredients[i] = new ItemStack(-1, -1, -1);
             }
         }
     }
@@ -63,7 +63,7 @@ public class PacketEasyCrafting extends EasyPacket {
         if (stack_in_hand == null) {
             return_stack = recipe.getResult().toItemStack();
             return_size = recipe.getResult().getSize();
-        } else if (recipe.getResult().equalsItemStack(stack_in_hand, true) && stack_in_hand.getMaxStackSize() >= (recipe.getResult().getSize() + stack_in_hand.stackSize) && EasyItemStack.areStackTagsEqual(recipe.getResult(), stack_in_hand)) {
+        } else if (recipe.getResult().equalsItemStack(stack_in_hand, true) && stack_in_hand.getMaxStackSize() >= recipe.getResult().getSize() + stack_in_hand.stackSize && EasyItemStack.areStackTagsEqual(recipe.getResult(), stack_in_hand)) {
             return_stack = recipe.getResult().toItemStack();
             return_size = recipe.getResult().getSize() + stack_in_hand.stackSize;
         }
@@ -88,24 +88,24 @@ public class PacketEasyCrafting extends EasyPacket {
     @Override
     protected void readData(DataInputStream data) throws IOException {
 
-        this.isRightClick = data.readBoolean();
+        isRightClick = data.readBoolean();
 
         int id = data.readShort();
         int damage = data.readInt();
         int size = data.readByte();
 
-        this.result = new EasyItemStack(id, damage, size);
+        result = new EasyItemStack(id, damage, size);
 
         int length = data.readByte();
 
-        this.ingredients = new ItemStack[length];
+        ingredients = new ItemStack[length];
 
         for (int i = 0; i < length; i++) {
             int _id = data.readShort();
             int _damage = data.readInt();
             int _size = data.readByte();
 
-            this.ingredients[i] = new ItemStack(_id, _size, _damage);
+            ingredients[i] = new ItemStack(_id, _size, _damage);
         }
     }
 

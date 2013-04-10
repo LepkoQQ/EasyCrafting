@@ -114,11 +114,11 @@ public class InventoryHelper {
                 if (is.stackSize >= maxStack) {
                     continue;
                 }
-                if ((is.stackSize + itemstack.stackSize) <= maxStack) {
+                if (is.stackSize + itemstack.stackSize <= maxStack) {
                     is.stackSize += itemstack.stackSize;
                     return true;
                 } else {
-                    itemstack.stackSize -= (maxStack - is.stackSize);
+                    itemstack.stackSize -= maxStack - is.stackSize;
                     is.stackSize = maxStack;
                 }
             }

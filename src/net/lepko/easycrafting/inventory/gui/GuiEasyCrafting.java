@@ -53,8 +53,8 @@ public class GuiEasyCrafting extends GuiContainer {
     public GuiEasyCrafting(InventoryPlayer player_inventory, TileEntityEasyCrafting tile_entity) {
         super(new ContainerEasyCrafting(tile_entity, player_inventory));
 
-        if (this.inventorySlots != null && this.inventorySlots instanceof ContainerEasyCrafting) {
-            ((ContainerEasyCrafting) this.inventorySlots).gui = this;
+        if (inventorySlots != null && inventorySlots instanceof ContainerEasyCrafting) {
+            ((ContainerEasyCrafting) inventorySlots).gui = this;
         }
 
         ySize = 235;
@@ -64,11 +64,11 @@ public class GuiEasyCrafting extends GuiContainer {
     public void initGui() {
         super.initGui();
         Keyboard.enableRepeatEvents(true);
-        this.searchField = new GuiTextField(this.fontRenderer, this.guiLeft + 82, this.guiTop + 6, 89, this.fontRenderer.FONT_HEIGHT);
-        this.searchField.setMaxStringLength(15);
-        this.searchField.setEnableBackgroundDrawing(false);
-        this.searchField.setVisible(false);
-        this.searchField.setTextColor(0xFFFFFF);
+        searchField = new GuiTextField(fontRenderer, guiLeft + 82, guiTop + 6, 89, fontRenderer.FONT_HEIGHT);
+        searchField.setMaxStringLength(15);
+        searchField.setEnableBackgroundDrawing(false);
+        searchField.setVisible(false);
+        searchField.setTextColor(0xFFFFFF);
         switchToTab(selectedTabIndex);
     }
 
@@ -105,29 +105,29 @@ public class GuiEasyCrafting extends GuiContainer {
         mc.renderEngine.bindTexture(GUI_TEXTURE);
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
-        this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
+        drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
         // Search field and output slot backgrounds
         if (selectedTabIndex == TABINDEX_SEARCH) {
             int xSearchTex = xSize - 90 - 7;
-            this.drawTexturedModalRect(this.guiLeft + xSearchTex, y + 4, xSearchTex, 256 - 12, 90, 12);
-            this.searchField.drawTextBox();
+            drawTexturedModalRect(guiLeft + xSearchTex, y + 4, xSearchTex, 256 - 12, 90, 12);
+            searchField.drawTextBox();
 
-            if (this.canCraftCache != null) {
-                int offset = this.currentScroll * 8;
-                for (int k = 0; k < 40 && k + offset < this.canCraftCache.length; k++) {
-                    renderSlotBackColor(this.inventorySlots.getSlot(k), this.canCraftCache[k + offset]);
+            if (canCraftCache != null) {
+                int offset = currentScroll * 8;
+                for (int k = 0; k < 40 && k + offset < canCraftCache.length; k++) {
+                    renderSlotBackColor(inventorySlots.getSlot(k), canCraftCache[k + offset]);
                 }
             }
         }
         // Storage slots background
         for (int l = 0; l < 18; l++) {
-            renderSlotBackColor(this.inventorySlots.getSlot(l + 40), false);
+            renderSlotBackColor(inventorySlots.getSlot(l + 40), false);
         }
         // Scrollbar
         mc.renderEngine.bindTexture(GUI_TEXTURE);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        int xTex = this.maxScroll == 0 ? 12 : 0;
-        this.drawTexturedModalRect(x + 156, y + 17 + (int) (this.scrollbarOffset * 73.0F), xTex, 240, 12, 16);
+        int xTex = maxScroll == 0 ? 12 : 0;
+        drawTexturedModalRect(x + 156, y + 17 + (int) (scrollbarOffset * 73.0F), xTex, 240, 12, 16);
         // Selected tab
         drawTab(selectedTabIndex);
     }
@@ -146,8 +146,8 @@ public class GuiEasyCrafting extends GuiContainer {
         int height = 28;
         int texLeft = 256 - width;
         int texTop = i * height;
-        int x = this.guiLeft - 28 - 2;
-        int y = this.guiTop + (i * (height + 1));
+        int x = guiLeft - 28 - 2;
+        int y = guiTop + i * (height + 1);
 
         if (i == selectedTabIndex) {
             texLeft -= width;
@@ -155,31 +155,31 @@ public class GuiEasyCrafting extends GuiContainer {
         }
 
         GL11.glDisable(GL11.GL_LIGHTING);
-        this.drawTexturedModalRect(x, y, texLeft, texTop, width, height);
-        this.zLevel = 100.0F;
+        drawTexturedModalRect(x, y, texLeft, texTop, width, height);
+        zLevel = 100.0F;
         itemRenderer.zLevel = 100.0F;
         x += 10 + (i == selectedTabIndex ? -1 : 1);
         y += 6;
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
         ItemStack iconItemStack = tabIcons[i];
-        itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.renderEngine, iconItemStack, x, y);
+        itemRenderer.renderItemAndEffectIntoGUI(fontRenderer, mc.renderEngine, iconItemStack, x, y);
         GL11.glDisable(GL11.GL_LIGHTING);
         itemRenderer.zLevel = 0.0F;
-        this.zLevel = 0.0F;
+        zLevel = 0.0F;
     }
 
     @Override
     protected void keyTyped(char par1, int par2) {
         if (selectedTabIndex != TABINDEX_SEARCH) {
-            if (Keyboard.isKeyDown(this.mc.gameSettings.keyBindChat.keyCode)) {
-                this.switchToTab(TABINDEX_SEARCH);
+            if (Keyboard.isKeyDown(mc.gameSettings.keyBindChat.keyCode)) {
+                switchToTab(TABINDEX_SEARCH);
             } else {
                 super.keyTyped(par1, par2);
             }
         } else {
-            if (!this.checkHotbarKeys(par2)) {
-                if (this.searchField.textboxKeyTyped(par1, par2)) {
+            if (!checkHotbarKeys(par2)) {
+                if (searchField.textboxKeyTyped(par1, par2)) {
                     updateSearch();
                 } else {
                     super.keyTyped(par1, par2);
@@ -196,7 +196,7 @@ public class GuiEasyCrafting extends GuiContainer {
             // Fix NEI auto clicking slots when mouse is being scrolled; only call super when mouse is not scrolling
             super.handleMouseInput();
         } else {
-            setScrollPosition(this.currentScroll + (delta > 0 ? -1 : 1));
+            setScrollPosition(currentScroll + (delta > 0 ? -1 : 1));
         }
     }
 
@@ -204,21 +204,21 @@ public class GuiEasyCrafting extends GuiContainer {
     public void drawScreen(int mouseX, int mouseY, float par3) {
         // Handle scrollbar dragging
         boolean leftMouseDown = Mouse.isButtonDown(0);
-        int left = this.guiLeft + 155;
-        int top = this.guiTop + 18;
+        int left = guiLeft + 155;
+        int top = guiTop + 18;
         int right = left + 14;
         int bottom = top + 89;
 
-        if (!this.wasClicking && leftMouseDown && mouseX >= left && mouseY >= top && mouseX < right && mouseY < bottom) {
-            this.isScrolling = this.maxScroll > 0;
+        if (!wasClicking && leftMouseDown && mouseX >= left && mouseY >= top && mouseX < right && mouseY < bottom) {
+            isScrolling = maxScroll > 0;
         } else if (!leftMouseDown) {
-            this.isScrolling = false;
+            isScrolling = false;
         }
 
-        this.wasClicking = leftMouseDown;
+        wasClicking = leftMouseDown;
 
-        if (this.isScrolling) {
-            setScrollPosition(((float) (mouseY - top) - 7.5F) / ((float) (bottom - top) - 15.0F));
+        if (isScrolling) {
+            setScrollPosition((mouseY - top - 7.5F) / (bottom - top - 15.0F));
         }
 
         super.drawScreen(mouseX, mouseY, par3);
@@ -226,15 +226,15 @@ public class GuiEasyCrafting extends GuiContainer {
         // Handle tab hover text
         for (int i = 0; i < tabDescriptions.length; i++) {
             if (isOverTab(i, mouseX, mouseY)) {
-                this.drawCreativeTabHoveringText(tabDescriptions[i], mouseX, mouseY);
+                drawCreativeTabHoveringText(tabDescriptions[i], mouseX, mouseY);
             }
         }
 
         for (int j = 0; j < 40; j++) {
-            Slot slot = this.inventorySlots.getSlot(j);
-            if (this.isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
+            Slot slot = inventorySlots.getSlot(j);
+            if (isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
                 // && Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)
-                this.drawIngredientTooltip(j, mouseX, mouseY);
+                drawIngredientTooltip(j, mouseX, mouseY);
             }
         }
 
@@ -259,22 +259,22 @@ public class GuiEasyCrafting extends GuiContainer {
     private boolean isOverTab(int tabIndex, int x, int y) {
         int width = 32;
         int height = 28;
-        int tabX = this.guiLeft - 28 - 2;
-        int tabY = this.guiTop + (tabIndex * (height + 1));
+        int tabX = guiLeft - 28 - 2;
+        int tabY = guiTop + tabIndex * (height + 1);
         return x > tabX && x < tabX + width && y > tabY && y < tabY + height;
     }
 
     private void switchToTab(int tabIndex) {
-        if (this.searchField != null) {
+        if (searchField != null) {
             if (tabIndex == TABINDEX_SEARCH) {
-                this.searchField.setVisible(true);
-                this.searchField.setCanLoseFocus(false);
-                this.searchField.setFocused(true);
-                this.searchField.setText(lastSearch);
+                searchField.setVisible(true);
+                searchField.setCanLoseFocus(false);
+                searchField.setFocused(true);
+                searchField.setText(lastSearch);
             } else {
-                this.searchField.setVisible(false);
-                this.searchField.setCanLoseFocus(true);
-                this.searchField.setFocused(false);
+                searchField.setVisible(false);
+                searchField.setCanLoseFocus(true);
+                searchField.setFocused(false);
             }
         }
         GuiEasyCrafting.selectedTabIndex = tabIndex;
@@ -282,8 +282,8 @@ public class GuiEasyCrafting extends GuiContainer {
     }
 
     public void renderSlotBackColor(Slot slot, boolean canCraft) {
-        int x = this.guiLeft + slot.xDisplayPosition;
-        int y = this.guiTop + slot.yDisplayPosition;
+        int x = guiLeft + slot.xDisplayPosition;
+        int y = guiTop + slot.yDisplayPosition;
         int w = 16;
         int h = 16;
         int color = canCraft ? 0x8000A000 : 0x80A00000;
@@ -295,11 +295,11 @@ public class GuiEasyCrafting extends GuiContainer {
         if (selectedTabIndex == TABINDEX_SEARCH) {
             ImmutableList<EasyRecipe> all = RecipeHelper.getAllRecipes();
             ArrayList<EasyRecipe> list = new ArrayList<EasyRecipe>();
-            lastSearch = this.searchField.getText().toLowerCase();
+            lastSearch = searchField.getText().toLowerCase();
 
             recipeLoop: for (int i = 0; i < all.size(); i++) {
                 EasyRecipe r = all.get(i);
-                List<String> itemProps = r.getResult().toItemStack().getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
+                List<String> itemProps = r.getResult().toItemStack().getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
                 for (int j = 0; j < itemProps.size(); j++) {
                     if (itemProps.get(j).toLowerCase().contains(lastSearch)) {
                         list.add(r);
@@ -308,10 +308,10 @@ public class GuiEasyCrafting extends GuiContainer {
                 }
             }
 
-            this.renderList = ImmutableList.copyOf(list);
+            renderList = ImmutableList.copyOf(list);
         }
-        this.currentScroll = 0;
-        this.scrollbarOffset = 0.0F;
+        currentScroll = 0;
+        scrollbarOffset = 0.0F;
         TickHandlerClient.updateEasyCraftingOutput();
     }
 
@@ -323,21 +323,21 @@ public class GuiEasyCrafting extends GuiContainer {
             updateSlotBackgroundCache();
         }
 
-        this.maxScroll = (int) (Math.ceil((double) renderList.size() / 8.0D) - 5);
-        if (this.maxScroll < 0) {
-            this.maxScroll = 0;
+        maxScroll = (int) (Math.ceil(renderList.size() / 8.0D) - 5);
+        if (maxScroll < 0) {
+            maxScroll = 0;
         }
 
-        if (this.currentScroll > this.maxScroll) {
-            setScrollPosition(this.maxScroll);
+        if (currentScroll > maxScroll) {
+            setScrollPosition(maxScroll);
         } else {
-            ContainerEasyCrafting c = (ContainerEasyCrafting) this.inventorySlots;
-            c.scrollTo(this.currentScroll, renderList);
+            ContainerEasyCrafting c = (ContainerEasyCrafting) inventorySlots;
+            c.scrollTo(currentScroll, renderList);
         }
     }
 
     private void updateSlotBackgroundCache() {
-        this.canCraftCache = new boolean[renderList.size()];
+        canCraftCache = new boolean[renderList.size()];
         for (int i = 0; i < renderList.size(); i++) {
             if (craftableList.contains(renderList.get(i))) {
                 canCraftCache[i] = true;
@@ -350,20 +350,20 @@ public class GuiEasyCrafting extends GuiContainer {
     private void setScrollPosition(int scroll) {
         if (scroll < 0) {
             scroll = 0;
-        } else if (scroll > this.maxScroll) {
-            scroll = this.maxScroll;
+        } else if (scroll > maxScroll) {
+            scroll = maxScroll;
         }
-        this.currentScroll = scroll;
+        currentScroll = scroll;
 
-        this.scrollbarOffset = (float) this.currentScroll / (float) this.maxScroll;
-        if (this.scrollbarOffset < 0.0F || Float.isNaN(this.scrollbarOffset)) {
-            this.scrollbarOffset = 0.0F;
-        } else if (this.scrollbarOffset > 1.0F) {
-            this.scrollbarOffset = 1.0F;
+        scrollbarOffset = (float) currentScroll / (float) maxScroll;
+        if (scrollbarOffset < 0.0F || Float.isNaN(scrollbarOffset)) {
+            scrollbarOffset = 0.0F;
+        } else if (scrollbarOffset > 1.0F) {
+            scrollbarOffset = 1.0F;
         }
 
-        ContainerEasyCrafting c = (ContainerEasyCrafting) this.inventorySlots;
-        c.scrollTo(this.currentScroll, renderList);
+        ContainerEasyCrafting c = (ContainerEasyCrafting) inventorySlots;
+        c.scrollTo(currentScroll, renderList);
     }
 
     private void setScrollPosition(float scrollOffset) {
@@ -373,30 +373,30 @@ public class GuiEasyCrafting extends GuiContainer {
             scrollOffset = 1.0F;
         }
 
-        if (this.scrollbarOffset == scrollOffset) {
+        if (scrollbarOffset == scrollOffset) {
             return;
         }
-        this.scrollbarOffset = scrollOffset;
+        scrollbarOffset = scrollOffset;
 
-        this.currentScroll = (int) (this.scrollbarOffset * (float) this.maxScroll);
-        if (this.currentScroll < 0) {
-            this.currentScroll = 0;
-        } else if (this.currentScroll > this.maxScroll) {
-            this.currentScroll = this.maxScroll;
+        currentScroll = (int) (scrollbarOffset * maxScroll);
+        if (currentScroll < 0) {
+            currentScroll = 0;
+        } else if (currentScroll > maxScroll) {
+            currentScroll = maxScroll;
         }
 
-        ContainerEasyCrafting c = (ContainerEasyCrafting) this.inventorySlots;
-        c.scrollTo(this.currentScroll, renderList);
+        ContainerEasyCrafting c = (ContainerEasyCrafting) inventorySlots;
+        c.scrollTo(currentScroll, renderList);
     }
 
     protected void drawIngredientTooltip(int slotIndex, int mouseX, int mouseY) {
 
         EasyRecipe recipe = null;
 
-        int recipe_index = slotIndex + (this.currentScroll * 8);
-        if (recipe_index >= 0 && this.renderList != null && recipe_index < this.renderList.size()) {
-            EasyRecipe r = this.renderList.get(recipe_index);
-            if (r.getResult().equalsItemStack(this.inventorySlots.getSlot(slotIndex).getStack())) {
+        int recipe_index = slotIndex + currentScroll * 8;
+        if (recipe_index >= 0 && renderList != null && recipe_index < renderList.size()) {
+            EasyRecipe r = renderList.get(recipe_index);
+            if (r.getResult().equalsItemStack(inventorySlots.getSlot(slotIndex).getStack())) {
                 recipe = r;
             }
         }
@@ -417,15 +417,15 @@ public class GuiEasyCrafting extends GuiContainer {
                 height += (ingredientList.size() - 1) * (height + 2);
             }
 
-            if (this.guiTop + yPos + height + 6 > this.height) {
-                yPos = this.height - height - this.guiTop - 6;
+            if (guiTop + yPos + height + 6 > this.height) {
+                yPos = this.height - height - guiTop - 6;
             }
 
             int bgColor = 0xF0100010;
             int borderColor = 0x505000FF;// red: 0x50FF0000;// green: 0x5000A700;// vanilla purple: 0x505000FF;
             int borderColorDark = (borderColor & 0xFEFEFE) >> 1 | borderColor & 0xFF000000;
 
-            this.zLevel = 300.0F;
+            zLevel = 300.0F;
             itemRenderer.zLevel = 300.0F;
 
             RenderHelper.disableStandardItemLighting();
@@ -433,16 +433,16 @@ public class GuiEasyCrafting extends GuiContainer {
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glDisable(GL12.GL_RESCALE_NORMAL);
 
-            this.drawGradientRect(xPos - 3, yPos - 4, xPos + width + 3, yPos - 3, bgColor, bgColor);
-            this.drawGradientRect(xPos - 3, yPos + height + 3, xPos + width + 3, yPos + height + 4, bgColor, bgColor);
-            this.drawGradientRect(xPos - 3, yPos - 3, xPos + width + 3, yPos + height + 3, bgColor, bgColor);
-            this.drawGradientRect(xPos - 4, yPos - 3, xPos - 3, yPos + height + 3, bgColor, bgColor);
-            this.drawGradientRect(xPos + width + 3, yPos - 3, xPos + width + 4, yPos + height + 3, bgColor, bgColor);
+            drawGradientRect(xPos - 3, yPos - 4, xPos + width + 3, yPos - 3, bgColor, bgColor);
+            drawGradientRect(xPos - 3, yPos + height + 3, xPos + width + 3, yPos + height + 4, bgColor, bgColor);
+            drawGradientRect(xPos - 3, yPos - 3, xPos + width + 3, yPos + height + 3, bgColor, bgColor);
+            drawGradientRect(xPos - 4, yPos - 3, xPos - 3, yPos + height + 3, bgColor, bgColor);
+            drawGradientRect(xPos + width + 3, yPos - 3, xPos + width + 4, yPos + height + 3, bgColor, bgColor);
 
-            this.drawGradientRect(xPos - 3, yPos - 3 + 1, xPos - 3 + 1, yPos + height + 3 - 1, borderColor, borderColorDark);
-            this.drawGradientRect(xPos + width + 2, yPos - 3 + 1, xPos + width + 3, yPos + height + 3 - 1, borderColor, borderColorDark);
-            this.drawGradientRect(xPos - 3, yPos - 3, xPos + width + 3, yPos - 3 + 1, borderColor, borderColor);
-            this.drawGradientRect(xPos - 3, yPos + height + 2, xPos + width + 3, yPos + height + 3, borderColorDark, borderColorDark);
+            drawGradientRect(xPos - 3, yPos - 3 + 1, xPos - 3 + 1, yPos + height + 3 - 1, borderColor, borderColorDark);
+            drawGradientRect(xPos + width + 2, yPos - 3 + 1, xPos + width + 3, yPos + height + 3 - 1, borderColor, borderColorDark);
+            drawGradientRect(xPos - 3, yPos - 3, xPos + width + 3, yPos - 3 + 1, borderColor, borderColor);
+            drawGradientRect(xPos - 3, yPos + height + 2, xPos + width + 3, yPos + height + 3, borderColorDark, borderColorDark);
 
             RenderHelper.enableGUIStandardItemLighting();
             GL11.glEnable(GL11.GL_LIGHTING);
@@ -450,8 +450,8 @@ public class GuiEasyCrafting extends GuiContainer {
             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 
             for (ItemStack is : ingredientList) {
-                itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.renderEngine, is, xPos, yPos);
-                itemRenderer.renderItemOverlayIntoGUI(this.fontRenderer, this.mc.renderEngine, is, xPos, yPos);
+                itemRenderer.renderItemAndEffectIntoGUI(fontRenderer, mc.renderEngine, is, xPos, yPos);
+                itemRenderer.renderItemOverlayIntoGUI(fontRenderer, mc.renderEngine, is, xPos, yPos);
 
                 yPos += 18;
             }
@@ -460,7 +460,7 @@ public class GuiEasyCrafting extends GuiContainer {
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glDisable(GL11.GL_LIGHTING);
 
-            this.zLevel = 0.0F;
+            zLevel = 0.0F;
             itemRenderer.zLevel = 0.0F;
         }
     }

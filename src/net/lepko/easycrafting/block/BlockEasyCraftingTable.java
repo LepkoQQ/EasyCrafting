@@ -2,9 +2,6 @@ package net.lepko.easycrafting.block;
 
 import java.util.Random;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 import net.lepko.easycrafting.ModEasyCrafting;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.VersionHelper;
@@ -19,6 +16,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockEasyCraftingTable extends BlockContainer {
 
@@ -26,10 +25,10 @@ public class BlockEasyCraftingTable extends BlockContainer {
 
     public BlockEasyCraftingTable(int blockID) {
         super(blockID, Material.wood);
-        this.setHardness(2.5F);
-        this.setStepSound(soundWoodFootstep);
-        this.setUnlocalizedName("easycraftingtable");
-        this.setCreativeTab(CreativeTabs.tabDecorations);
+        setHardness(2.5F);
+        setStepSound(soundWoodFootstep);
+        setUnlocalizedName("easycraftingtable");
+        setCreativeTab(CreativeTabs.tabDecorations);
     }
 
     @Override
@@ -102,11 +101,11 @@ public class BlockEasyCraftingTable extends BlockContainer {
                         }
 
                         var9.stackSize -= var13;
-                        var14 = new EntityItem(world, (double) ((float) x + var10), (double) ((float) y + var11), (double) ((float) z + var12), new ItemStack(var9.itemID, var13, var9.getItemDamage()));
+                        var14 = new EntityItem(world, x + var10, y + var11, z + var12, new ItemStack(var9.itemID, var13, var9.getItemDamage()));
                         float var15 = 0.05F;
-                        var14.motionX = (double) ((float) rand.nextGaussian() * var15);
-                        var14.motionY = (double) ((float) rand.nextGaussian() * var15 + 0.2F);
-                        var14.motionZ = (double) ((float) rand.nextGaussian() * var15);
+                        var14.motionX = (float) rand.nextGaussian() * var15;
+                        var14.motionY = (float) rand.nextGaussian() * var15 + 0.2F;
+                        var14.motionZ = (float) rand.nextGaussian() * var15;
 
                         if (var9.hasTagCompound()) {
                             var14.getEntityItem().setTagCompound((NBTTagCompound) var9.getTagCompound().copy());

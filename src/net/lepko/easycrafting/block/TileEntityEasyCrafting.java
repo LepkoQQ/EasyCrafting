@@ -12,22 +12,22 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
     private ItemStack[] inventory;
 
     public TileEntityEasyCrafting() {
-        this.inventory = new ItemStack[40 + 18]; // 40 = 5*8 crafting slots, 18 = 2*9 inventory slots
+        inventory = new ItemStack[40 + 18]; // 40 = 5*8 crafting slots, 18 = 2*9 inventory slots
     }
 
     @Override
     public int getSizeInventory() {
-        return this.inventory.length;
+        return inventory.length;
     }
 
     @Override
     public ItemStack getStackInSlot(int slotIndex) {
-        return this.inventory[slotIndex];
+        return inventory[slotIndex];
     }
 
     @Override
     public void setInventorySlotContents(int slot, ItemStack stack) {
-        this.inventory[slot] = stack;
+        inventory[slot] = stack;
 
         if (stack != null && stack.stackSize > getInventoryStackLimit()) {
             stack.stackSize = getInventoryStackLimit();

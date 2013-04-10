@@ -74,7 +74,7 @@ public class RecipeHelper {
         Collections.sort(scannedRecipes, new RecipeComparator());
 
         //
-        EasyLog.log(String.format("Scanned %d new recipes in %.8f seconds", size, ((double) (System.nanoTime() - beforeTime) / 1000000000.0D)));
+        EasyLog.log(String.format("Scanned %d new recipes in %.8f seconds", size, (System.nanoTime() - beforeTime) / 1000000000.0D));
     }
 
     /**
@@ -183,10 +183,10 @@ public class RecipeHelper {
                         continue iiLoop;
                     }
                     //
-                    if (recipesToCheck != null && (recursion - 1) >= 0) {
+                    if (recipesToCheck != null && recursion - 1 >= 0) {
                         ArrayList<EasyRecipe> list = getRecipesForItemFromList(ingredient, recipesToCheck);
                         for (EasyRecipe er : list) {
-                            if (canCraft(er, tmp, recipesToCheck, true, 1, (recursion - 1)) > 0) {
+                            if (canCraft(er, tmp, recipesToCheck, true, 1, recursion - 1) > 0) {
                                 ItemStack is = er.getResult().toItemStack();
                                 is.stackSize--;
                                 if (is.stackSize > 0 && !tmp.addItemStackToInventory(is)) {
@@ -209,10 +209,10 @@ public class RecipeHelper {
                         continue iiLoop;
                     }
                     //
-                    if (recipesToCheck != null && (recursion - 1) >= 0) {
+                    if (recipesToCheck != null && recursion - 1 >= 0) {
                         ArrayList<EasyRecipe> list = getRecipesForItemFromList(ingredients, recipesToCheck);
                         for (EasyRecipe er : list) {
-                            if (canCraft(er, tmp, recipesToCheck, true, 1, (recursion - 1)) > 0) {
+                            if (canCraft(er, tmp, recipesToCheck, true, 1, recursion - 1) > 0) {
                                 ItemStack is = er.getResult().toItemStack();
                                 is.stackSize--;
                                 if (is.stackSize > 0 && !tmp.addItemStackToInventory(is)) {
@@ -313,9 +313,9 @@ public class RecipeHelper {
         // TODO: there has to be a better way to calculate this
         int maxTimes = (int) ((double) result.getMaxStackSize() / (double) result.stackSize);
         if (inHand != null) {
-            int diff = result.getMaxStackSize() - (maxTimes * result.stackSize);
+            int diff = result.getMaxStackSize() - maxTimes * result.stackSize;
             if (inHand.stackSize > diff) {
-                maxTimes -= (int) (((double) (inHand.stackSize - diff) / (double) result.stackSize) + 1);
+                maxTimes -= (int) ((double) (inHand.stackSize - diff) / (double) result.stackSize + 1);
             }
         }
         return maxTimes;
@@ -327,7 +327,7 @@ public class RecipeHelper {
     @SideOnly(Side.CLIENT)
     public static EasyRecipe getValidRecipe(GuiEasyCrafting gui, int slot_index, ItemStack result) {
         // TODO: find a better way
-        int recipe_index = slot_index + (gui.currentScroll * 8);
+        int recipe_index = slot_index + gui.currentScroll * 8;
         if (recipe_index >= 0 && gui.renderList != null && recipe_index < gui.renderList.size()) {
             EasyRecipe r = gui.renderList.get(recipe_index);
             if (r.getResult().equalsItemStack(result) && gui.craftableList != null && gui.craftableList.contains(r)) {
@@ -364,7 +364,7 @@ public class RecipeHelper {
             }
 
             for (LiquidContainerData data : LiquidContainerRegistry.getRegisteredLiquidContainerData()) {
-                if ((data.stillLiquid.itemID == id) && ((meta == -1) || (data.stillLiquid.itemMeta == meta))) {
+                if (data.stillLiquid.itemID == id && (meta == -1 || data.stillLiquid.itemMeta == meta)) {
                     result.add(data.filled);
                 }
             }
