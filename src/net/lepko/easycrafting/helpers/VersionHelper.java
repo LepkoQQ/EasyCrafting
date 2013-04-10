@@ -7,15 +7,13 @@ import java.net.URL;
 
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.proxy.Proxy;
+import net.minecraft.util.EnumChatFormatting;
 import cpw.mods.fml.common.Loader;
 
 public class VersionHelper {
 
     private enum UpdateStatus {
-        LATEST,
-        OUTDATED,
-        FAILED,
-        DISABLED
+        LATEST, OUTDATED, FAILED, DISABLED
     }
 
     public static final String VERSION = "@MOD_VERSION@";
@@ -45,11 +43,11 @@ public class VersionHelper {
             updateStatus = updateCheck();
         }
         if (updateStatus.equals(UpdateStatus.OUTDATED)) {
-            Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + "Using version " + VERSION + " for " + Loader.instance().getMCVersionString());
-            Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + "Available version " + updateInfo[1].trim() + ". " + ChatFormat.AQUA + "Consider updating!");
+            Proxy.proxy.printMessageToChat(EnumChatFormatting.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + EnumChatFormatting.RESET + "Using version " + VERSION + " for " + Loader.instance().getMCVersionString());
+            Proxy.proxy.printMessageToChat(EnumChatFormatting.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + EnumChatFormatting.RESET + "Available version " + updateInfo[1].trim() + ". " + EnumChatFormatting.AQUA + "Consider updating!");
         }
         if (updateInfo != null && updateInfo.length >= 3 && !updateInfo[2].trim().equalsIgnoreCase("null")) {
-            Proxy.proxy.printMessageToChat(ChatFormat.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + ChatFormat.RESET + updateInfo[2].trim());
+            Proxy.proxy.printMessageToChat(EnumChatFormatting.YELLOW + "[" + VersionHelper.MOD_NAME + "] " + EnumChatFormatting.RESET + updateInfo[2].trim());
         }
     }
 

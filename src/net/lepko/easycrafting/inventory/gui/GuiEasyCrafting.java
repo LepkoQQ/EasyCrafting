@@ -7,7 +7,6 @@ import net.lepko.easycrafting.ModEasyCrafting;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.handlers.TickHandlerClient;
-import net.lepko.easycrafting.helpers.ChatFormat;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.RecipeWorker;
 import net.lepko.easycrafting.helpers.VersionHelper;
@@ -20,6 +19,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -90,7 +90,7 @@ public class GuiEasyCrafting extends GuiContainer {
         }
 
         if (RecipeWorker.lock.isLocked()) {
-            fontRenderer.drawString(ChatFormat.MAGIC + "x", offsetX, 6, 0x404040);
+            fontRenderer.drawString(EnumChatFormatting.OBFUSCATED + "x", offsetX, 6, 0x404040);
         }
     }
 

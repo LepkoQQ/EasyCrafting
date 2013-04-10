@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 
 public class EasyRecipe {
 
-    private ArrayList ingredients;
+    private ArrayList<Object> ingredients;
     private EasyItemStack result;
 
     /**
@@ -21,7 +21,7 @@ public class EasyRecipe {
      * @param result - EasyItemStack representation of the crafting result
      * @param ingredients - and ArrayList of ingredients
      */
-    public EasyRecipe(EasyItemStack result, ArrayList ingredients) {
+    public EasyRecipe(EasyItemStack result, ArrayList<Object> ingredients) {
         this.result = result;
         ingredients.removeAll(Collections.singleton(null));
         this.ingredients = ingredients;
@@ -39,9 +39,9 @@ public class EasyRecipe {
         }
         Object o = ingredients.get(index);
         if (o instanceof EasyItemStack) {
-            return (EasyItemStack) o;
+            return o;
         } else if (o instanceof ArrayList) {
-            return (ArrayList<ItemStack>) o;
+            return o;
         } else if (o instanceof ItemStack) {
             EasyItemStack eis = EasyItemStack.fromItemStack((ItemStack) o);
             ingredients.set(index, eis);
@@ -90,7 +90,7 @@ public class EasyRecipe {
                     eis = (EasyItemStack) o;
                 } else if (o instanceof ArrayList) {
                     // TODO: hmm...
-                    eis = EasyItemStack.fromItemStack(((ItemStack) ((ArrayList) o).get(0)));
+                    eis = EasyItemStack.fromItemStack((ItemStack) ((ArrayList) o).get(0));
                 } else {
                     EasyLog.warning("Somthing went wrong @ getCompactIngredientList(); class = " + o.getClass().getName());
                     return new ArrayList<ItemStack>();
@@ -110,7 +110,7 @@ public class EasyRecipe {
             }
         } else {
             used: for (ItemStack is : result.usedIngredients) {
-                EasyItemStack eis = EasyItemStack.fromItemStack((ItemStack) is);
+                EasyItemStack eis = EasyItemStack.fromItemStack(is);
 
                 for (ItemStack is2 : list) {
                     if (eis.equalsItemStack(is2, true)) {

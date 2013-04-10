@@ -22,11 +22,10 @@ public class ModCompatEE3 extends ModCompat {
             Iterator<IRecipe> iterator = recipes.iterator();
             while (iterator.hasNext()) {
                 IRecipe r = iterator.next();
-                ArrayList ingredients = RecipeHelper.getIngredientList(r);
+                ArrayList<Object> ingredients = RecipeHelper.getIngredientList(r);
                 if (ingredients != null) {
                     for (Object o : ingredients) {
                         if (o instanceof ItemStack && isTransmutationStone((ItemStack) o)) {
-                            // TODO: Add to separate list and tab
                             iterator.remove();
                         }
                     }
@@ -39,7 +38,7 @@ public class ModCompatEE3 extends ModCompat {
         }
     }
 
-    private static Class transmutationStoneInterface;
+    private static Class<?> transmutationStoneInterface;
 
     public static boolean isTransmutationStone(ItemStack itemstack) {
         if (transmutationStoneInterface == null) {

@@ -27,7 +27,7 @@ public class ModCompatIC2 extends ModCompat {
                 String className = r.getClass().getName();
                 if (className.equals("ic2.core.AdvRecipe") || className.equals("ic2.core.AdvShapelessRecipe")) {
                     Object[] input = (Object[]) Class.forName(className).getField("input").get(r);
-                    ArrayList ingredients = new ArrayList(Arrays.asList(input));
+                    ArrayList<Object> ingredients = new ArrayList<Object>(Arrays.asList(input));
                     RecipeHelper.scannedRecipes.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
                     iterator.remove();
                 }

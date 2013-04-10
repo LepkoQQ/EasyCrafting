@@ -11,6 +11,7 @@ import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.handlers.ModCompatibilityHandler;
 import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
@@ -34,6 +35,7 @@ public class RecipeHelper {
     public static List<EasyRecipe> scannedRecipes = new ArrayList<EasyRecipe>();
 
     public static void checkForNewRecipes() {
+        @SuppressWarnings("unchecked")
         List<IRecipe> recipes = CraftingManager.getInstance().getRecipeList();
 
         if (lastRecipeListSize < recipes.size()) {
@@ -56,9 +58,13 @@ public class RecipeHelper {
         ArrayList<EasyRecipe> tmp = new ArrayList<EasyRecipe>();
 
         for (IRecipe r : recipes) {
-            ArrayList ingredients = RecipeHelper.getIngredientList(r);
+            ArrayList<Object> ingredients = RecipeHelper.getIngredientList(r);
             if (ingredients != null && r.getRecipeOutput() != null) {
-                tmp.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
+                if (Item.itemsList[r.getRecipeOutput().itemID] != null) {
+                    tmp.add(new EasyRecipe(EasyItemStack.fromItemStack(r.getRecipeOutput()), ingredients));
+                } else {
+                    EasyLog.warning("Invalid Recipe Output for " + r.getClass().getName() + ". Item with ID " + r.getRecipeOutput().itemID + " is null!");
+                }
             } else {
                 EasyLog.log("Unknown Recipe: " + r.getClass().getName());
             }
@@ -196,6 +202,7 @@ public class RecipeHelper {
                     //
                     break timesLoop;
                 } else if (recipe.getIngredient(ii) instanceof ArrayList) {
+                    @SuppressWarnings("unchecked")
                     ArrayList<ItemStack> ingredients = (ArrayList<ItemStack>) recipe.getIngredient(ii);
                     int inventoryIndex = InventoryHelper.isItemInInventory(tmp, ingredients);
                     if (inventoryIndex != -1 && InventoryHelper.consumeItemForCrafting(tmp, inventoryIndex, usedIngredients)) {
@@ -401,7 +408,8 @@ public class RecipeHelper {
      * @param recipe - object instance implementing IRecipe interface
      * @return ArrayList of ingredients or null if not a valid recipe
      */
-    public static ArrayList getIngredientList(IRecipe recipe) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static ArrayList<Object> getIngredientList(IRecipe recipe) {
         ArrayList ingredients = null;
         // vanilla recipe classes
         if (recipe instanceof ShapedRecipes) {
