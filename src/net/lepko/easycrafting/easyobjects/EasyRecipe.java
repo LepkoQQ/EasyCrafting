@@ -3,7 +3,6 @@ package net.lepko.easycrafting.easyobjects;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import net.lepko.easycrafting.helpers.EasyLog;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.minecraft.item.ItemStack;
 
@@ -89,11 +88,16 @@ public class EasyRecipe {
                 if (o instanceof EasyItemStack) {
                     eis = (EasyItemStack) o;
                 } else if (o instanceof ArrayList) {
-                    // TODO: hmm...
-                    eis = EasyItemStack.fromItemStack((ItemStack) ((ArrayList) o).get(0));
+                    @SuppressWarnings("unchecked")
+                    ArrayList<ItemStack> list2 = (ArrayList<ItemStack>) o;
+                    if (list2.isEmpty()) {
+                        // Missing Ingredient, can't craft
+                        return null;
+                    }
+                    eis = EasyItemStack.fromItemStack(list2.get(0));
                 } else {
-                    EasyLog.warning("Somthing went wrong @ getCompactIngredientList(); class = " + o.getClass().getName());
-                    return new ArrayList<ItemStack>();
+                    // Invalid ingredient, can't craft
+                    return null;
                 }
 
                 for (ItemStack is2 : list) {

@@ -407,7 +407,7 @@ public class GuiEasyCrafting extends GuiContainer {
 
         ArrayList<ItemStack> ingredientList = recipe.getCompactIngredientList();
 
-        if (!ingredientList.isEmpty()) {
+        if (ingredientList != null && !ingredientList.isEmpty()) {
             int width = 16;
             int height = 16;
             int xPos = mouseX - width - 12;

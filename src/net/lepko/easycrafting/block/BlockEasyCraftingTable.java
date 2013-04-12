@@ -42,7 +42,7 @@ public class BlockEasyCraftingTable extends BlockContainer {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public Icon getBlockTextureFromSideAndMetadata(int side, int meta) {
+    public Icon getIcon(int side, int meta) {
         switch (side) {
             case 0:
                 return icons[1];
