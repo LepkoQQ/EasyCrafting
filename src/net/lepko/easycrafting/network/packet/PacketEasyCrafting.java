@@ -40,9 +40,13 @@ public class PacketEasyCrafting extends EasyPacket {
                 EasyItemStack eis = (EasyItemStack) recipe.getIngredient(i);
                 ingredients[i] = new ItemStack(eis.getID(), eis.getSize(), eis.getDamage());
             } else if (recipe.getIngredient(i) instanceof List) {
-                // TODO: when updating forge use the new oredict method of obtaining oreID
-                // TODO: change to custom oreDict EIS because if you getItem(-1) it will throw ArrayOutOfBoundException
-                ingredients[i] = new ItemStack(-1, -1, -1);
+                @SuppressWarnings("rawtypes")
+                List ingList = (List) recipe.getIngredient(i);
+                if (!ingList.isEmpty() && ingList.get(0) instanceof ItemStack) {
+                    ingredients[i] = ((ItemStack) ingList.get(0)).copy();
+                } else {
+                    ingredients[i] = new ItemStack(0, 0, 1);
+                }
             }
         }
     }

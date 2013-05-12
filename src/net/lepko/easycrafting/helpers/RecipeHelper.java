@@ -284,17 +284,29 @@ public class RecipeHelper {
         ImmutableList<EasyRecipe> all = getAllRecipes();
         allLoop: for (EasyRecipe r : all) {
             if (r.getResult().equals(result) && r.getIngredientsSize() == ingredients.length) {
-                for (int j = 0; j < r.getIngredientsSize(); j++) {
+                ingLoop: for (int j = 0; j < r.getIngredientsSize(); j++) {
                     if (r.getIngredient(j) instanceof EasyItemStack) {
                         EasyItemStack eis = (EasyItemStack) r.getIngredient(j);
                         if (!eis.equalsItemStack(ingredients[j])) {
                             continue allLoop;
                         }
-                    } else if (r.getIngredient(j) instanceof ArrayList) {
-                        if (ingredients[j].itemID != -1) {
-                            // TODO: check against oredict
-                            continue allLoop;
+                    } else if (r.getIngredient(j) instanceof List) {
+                        if (ingredients[j].itemID == 0) {
+                            return null;
                         }
+                        @SuppressWarnings("rawtypes")
+                        List ingList = (List) r.getIngredient(j);
+                        if (ingList.isEmpty()) {
+                            return null;
+                        }
+                        for (Object is : ingList) {
+                            if (is instanceof ItemStack) {
+                                if (EasyItemStack.fromItemStack((ItemStack) is).equalsItemStack(ingredients[j])) {
+                                    continue ingLoop;
+                                }
+                            }
+                        }
+                        continue allLoop;
                     }
                 }
                 return r;
@@ -310,7 +322,6 @@ public class RecipeHelper {
      * @param inHand itemstack currently in hand
      */
     public static int calculateCraftingMultiplierUntilMaxStack(ItemStack result, ItemStack inHand) {
-        // TODO: there has to be a better way to calculate this
         int maxTimes = (int) ((double) result.getMaxStackSize() / (double) result.stackSize);
         if (inHand != null) {
             int diff = result.getMaxStackSize() - maxTimes * result.stackSize;
