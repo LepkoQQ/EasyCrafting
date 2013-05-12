@@ -1,7 +1,7 @@
 package net.lepko.easycrafting.easyobjects;
 
-import ic2.api.ElectricItem;
-import ic2.api.IElectricItem;
+import ic2.api.item.ElectricItem;
+import ic2.api.item.IElectricItem;
 
 import java.util.ArrayList;
 
