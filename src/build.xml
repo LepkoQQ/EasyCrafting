@@ -12,9 +12,8 @@
 
 	<property name="res.path" value="mods/${ant.project.name}"/>
 
-	<property name="mc.version" value="1.5.1"/>
-    <property name="forge.version" value="7.7.0.602"/>
-    <property name="project.version" value="1.1.4"/>
+	<property name="mc.version" value="1.5.2"/>
+    <property name="project.version" value="1.1.5"/>
 
     <!-- clean build dir -->
     <target name="clean">
