@@ -451,10 +451,10 @@ public class GuiEasyCrafting extends GuiContainer {
             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 
             for (ItemStack is : ingredientList) {
-                if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE && is.getHasSubtypes()) {
+                if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
                     ItemStack is2 = is.copy();
                     is2.setItemDamage(0);
-                    
+
                     itemRenderer.renderItemAndEffectIntoGUI(fontRenderer, mc.renderEngine, is2, xPos, yPos);
                     itemRenderer.renderItemOverlayIntoGUI(fontRenderer, mc.renderEngine, is2, xPos, yPos);
                 } else {
