@@ -20,6 +20,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.oredict.OreDictionary;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -450,8 +451,16 @@ public class GuiEasyCrafting extends GuiContainer {
             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 
             for (ItemStack is : ingredientList) {
-                itemRenderer.renderItemAndEffectIntoGUI(fontRenderer, mc.renderEngine, is, xPos, yPos);
-                itemRenderer.renderItemOverlayIntoGUI(fontRenderer, mc.renderEngine, is, xPos, yPos);
+                if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE && is.getHasSubtypes()) {
+                    ItemStack is2 = is.copy();
+                    is2.setItemDamage(0);
+                    
+                    itemRenderer.renderItemAndEffectIntoGUI(fontRenderer, mc.renderEngine, is2, xPos, yPos);
+                    itemRenderer.renderItemOverlayIntoGUI(fontRenderer, mc.renderEngine, is2, xPos, yPos);
+                } else {
+                    itemRenderer.renderItemAndEffectIntoGUI(fontRenderer, mc.renderEngine, is, xPos, yPos);
+                    itemRenderer.renderItemOverlayIntoGUI(fontRenderer, mc.renderEngine, is, xPos, yPos);
+                }
 
                 yPos += 18;
             }
