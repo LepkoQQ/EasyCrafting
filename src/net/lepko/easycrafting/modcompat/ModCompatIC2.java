@@ -3,6 +3,8 @@ package net.lepko.easycrafting.modcompat;
 import ic2.api.item.ElectricItem;
 import ic2.api.item.ICustomElectricItem;
 import ic2.api.item.IElectricItem;
+import ic2.api.item.IElectricItemManager;
+import ic2.api.item.ISpecialElectricItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,25 +53,47 @@ public class ModCompatIC2 extends ModCompat {
         return false;
     }
 
+    private static IElectricItemManager getManager(ItemStack is) {
+        IElectricItemManager manager;
+        if (is.getItem() instanceof ISpecialElectricItem) {
+            manager = ((ISpecialElectricItem) is.getItem()).getManager(is);
+        } else {
+            manager = ElectricItem.manager;
+        }
+        return manager;
+    }
+
     public static int charge(ItemStack is, int amount, int tier, boolean ignoreTransferLimit, boolean simulate) {
         if (!isElectric(is)) {
             return 0;
         }
+
+        // TODO: remove when not supported anymore
         if (is.getItem() instanceof ICustomElectricItem) {
             return ((ICustomElectricItem) is.getItem()).charge(is, amount, tier, ignoreTransferLimit, simulate);
-        } else {
-            return ElectricItem.charge(is, amount, tier, ignoreTransferLimit, simulate);
         }
+
+        IElectricItemManager manager = getManager(is);
+        if (manager == null) {
+            return 0;
+        }
+        return manager.charge(is, amount, tier, ignoreTransferLimit, simulate);
     }
 
     public static int discharge(ItemStack is, int amount, int tier, boolean ignoreTransferLimit, boolean simulate) {
         if (!isElectric(is)) {
             return 0;
         }
+
+        // TODO: remove when not supported anymore
         if (is.getItem() instanceof ICustomElectricItem) {
             return ((ICustomElectricItem) is.getItem()).discharge(is, amount, tier, ignoreTransferLimit, simulate);
-        } else {
-            return ElectricItem.discharge(is, amount, tier, ignoreTransferLimit, simulate);
         }
+
+        IElectricItemManager manager = getManager(is);
+        if (manager == null) {
+            return 0;
+        }
+        return manager.discharge(is, amount, tier, ignoreTransferLimit, simulate);
     }
 }
