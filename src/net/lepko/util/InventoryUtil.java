@@ -1,14 +1,30 @@
-package net.lepko.easycrafting.helpers;
+package net.lepko.util;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.lepko.easycrafting.easyobjects.EasyItemStack;
+import net.lepko.easycrafting.helpers.EasyLog;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
-public class InventoryHelper {
+public class InventoryUtil {
+
+    private static final int PLAYER_INVENTORY_SIZE = 36;
+
+    /**
+     * Get the size of the main inventory, without armor slots.
+     * 
+     * @param inv - the inventory to check
+     * @return size of the inventory, or in case of {@link InventoryPlayer} PLAYER_INVENTORY_SIZE
+     */
+    public static int getMainInventorySize(IInventory inv) {
+        if (inv instanceof InventoryPlayer) {
+            return PLAYER_INVENTORY_SIZE;
+        }
+        return inv.getSizeInventory();
+    }
 
     /**
      * Check if an inventory contains a single item matching the supplied EasyItemStack.
@@ -18,10 +34,7 @@ public class InventoryHelper {
      * @return slot index of item in inventory, -1 if not found
      */
     public static int isItemInInventory(IInventory inventory, EasyItemStack eis) {
-        int invSize = inventory.getSizeInventory();
-        if (inventory instanceof InventoryPlayer) {
-            invSize -= 4; // Remove Armor slots
-        }
+        int invSize = getMainInventorySize(inventory);
         for (int i = 0; i < invSize; i++) {
             if (eis.equalsItemStack(inventory.getStackInSlot(i), true)) {
                 return i;
@@ -55,10 +68,7 @@ public class InventoryHelper {
      * @return slot index of the first empty slot, -1 if none found
      */
     public static int getEmptySlot(IInventory inventory) {
-        int invSize = inventory.getSizeInventory();
-        if (inventory instanceof InventoryPlayer) {
-            invSize -= 4; // Remove Armor slots
-        }
+        int invSize = getMainInventorySize(inventory);
         for (int i = 0; i < invSize; i++) {
             if (inventory.getStackInSlot(i) == null) {
                 return i;
@@ -88,25 +98,37 @@ public class InventoryHelper {
      */
     public static void setContents(IInventory inventory, List<ItemStack> list) {
         if (inventory.getSizeInventory() != list.size()) {
+            EasyLog.warning("Tried to set inventory contents from a list that is not the same size as the inventory; Aborted!");
             return;
         }
-        for (int i = 0; i < inventory.getSizeInventory(); i++) {
+        for (int i = 0; i < list.size(); i++) {
             inventory.setInventorySlotContents(i, ItemStack.copyItemStack(list.get(i)));
         }
     }
 
     /**
-     * Add the specified itemstack to inventory.
+     * Replace the contents of an inventory with the contents of another inventory.
+     * 
+     * @param to - inventory to set contents to
+     * @param from - inventory to read contents from
+     */
+    public static void setContents(IInventory to, IInventory from) {
+        int invSize = Math.min(to.getSizeInventory(), from.getSizeInventory());
+        for (int i = 0; i < invSize; i++) {
+            to.setInventorySlotContents(i, ItemStack.copyItemStack(from.getStackInSlot(i)));
+        }
+    }
+
+    /**
+     * Add the specified itemstack to inventory. Try stacking it with existing stacks first. If that fails try to put it in an empty slot.
      * 
      * @param inventory - inventory to add to
      * @param itemstack - item to add
+     * @return whether or not the itemstack was added to the inventory
      */
     public static boolean addItemToInventory(IInventory inventory, ItemStack itemstack) {
         List<ItemStack> contents = storeContents(inventory);
-        int invSize = inventory.getSizeInventory();
-        if (inventory instanceof InventoryPlayer) {
-            invSize -= 4; // Remove Armor slots
-        }
+        int invSize = getMainInventorySize(inventory);
         int maxStack = Math.min(inventory.getInventoryStackLimit(), itemstack.getMaxStackSize());
         for (int i = 0; i < invSize; i++) {
             if (ItemStack.areItemStacksEqual(itemstack, inventory.getStackInSlot(i))) {

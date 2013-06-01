@@ -10,6 +10,7 @@ import net.lepko.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.handlers.ModCompatibilityHandler;
 import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
+import net.lepko.util.InventoryUtil;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -170,7 +171,7 @@ public class RecipeHelper {
         InventoryPlayer tmp2 = new InventoryPlayer(inventory.player);
         tmp.copyInventory(inventory);
 
-        ArrayList<ItemStack> usedIngredients = new ArrayList<ItemStack>();
+        List<ItemStack> usedIngredients = new ArrayList<ItemStack>();
 
         int timesCrafted = 0;
         timesLoop: while (timesCrafted < maxTimes) {
@@ -178,8 +179,8 @@ public class RecipeHelper {
             iiLoop: for (int ii = 0; ii < recipe.getIngredientsSize(); ii++) {
                 if (recipe.getIngredient(ii) instanceof EasyItemStack) {
                     EasyItemStack ingredient = (EasyItemStack) recipe.getIngredient(ii);
-                    int inventoryIndex = InventoryHelper.isItemInInventory(tmp, ingredient);
-                    if (inventoryIndex != -1 && InventoryHelper.consumeItemForCrafting(tmp, inventoryIndex, usedIngredients)) {
+                    int inventoryIndex = InventoryUtil.isItemInInventory(tmp, ingredient);
+                    if (inventoryIndex != -1 && InventoryUtil.consumeItemForCrafting(tmp, inventoryIndex, usedIngredients)) {
                         continue iiLoop;
                     }
                     //
@@ -204,8 +205,8 @@ public class RecipeHelper {
                 } else if (recipe.getIngredient(ii) instanceof ArrayList) {
                     @SuppressWarnings("unchecked")
                     ArrayList<ItemStack> ingredients = (ArrayList<ItemStack>) recipe.getIngredient(ii);
-                    int inventoryIndex = InventoryHelper.isItemInInventory(tmp, ingredients);
-                    if (inventoryIndex != -1 && InventoryHelper.consumeItemForCrafting(tmp, inventoryIndex, usedIngredients)) {
+                    int inventoryIndex = InventoryUtil.isItemInInventory(tmp, ingredients);
+                    if (inventoryIndex != -1 && InventoryUtil.consumeItemForCrafting(tmp, inventoryIndex, usedIngredients)) {
                         continue iiLoop;
                     }
                     //
@@ -237,7 +238,7 @@ public class RecipeHelper {
         if (timesCrafted > 0) {
             recipe.getResult().setCharge(usedIngredients);
             if (take) {
-                inventory.copyInventory(tmp2);
+                InventoryUtil.setContents(inventory, tmp2);
             }
         }
         return timesCrafted;

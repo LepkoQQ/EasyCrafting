@@ -2,7 +2,7 @@ package net.lepko.easycrafting.easyobjects;
 
 import ic2.api.item.IElectricItem;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import net.lepko.easycrafting.modcompat.ModCompatIC2;
 import net.minecraft.item.Item;
@@ -140,7 +140,7 @@ public class EasyItemStack {
     }
 
     // TODO: separate charge and usedIngredient methods
-    public void setCharge(ArrayList<ItemStack> usedIngredients) {
+    public void setCharge(List<ItemStack> usedIngredients) {
         int outputCharge = 0;
 
         if (usedIngredients != null) {
@@ -155,5 +155,5 @@ public class EasyItemStack {
     }
 
     // TODO: move this to EasyRecipe?
-    public ArrayList<ItemStack> usedIngredients;
+    public List<ItemStack> usedIngredients;
 }
