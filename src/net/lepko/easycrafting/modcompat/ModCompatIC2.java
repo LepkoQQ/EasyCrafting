@@ -54,7 +54,7 @@ public class ModCompatIC2 extends ModCompat {
     }
 
     private static IElectricItemManager getManager(ItemStack is) {
-        IElectricItemManager manager;
+        IElectricItemManager manager = null;
         if (is.getItem() instanceof ISpecialElectricItem) {
             manager = ((ISpecialElectricItem) is.getItem()).getManager(is);
         } else {
@@ -71,6 +71,8 @@ public class ModCompatIC2 extends ModCompat {
         // TODO: remove when not supported anymore
         if (is.getItem() instanceof ICustomElectricItem) {
             return ((ICustomElectricItem) is.getItem()).charge(is, amount, tier, ignoreTransferLimit, simulate);
+        } else if (!(is.getItem() instanceof ISpecialElectricItem)) {
+            ElectricItem.charge(is, amount, tier, ignoreTransferLimit, simulate);
         }
 
         IElectricItemManager manager = getManager(is);
@@ -88,6 +90,8 @@ public class ModCompatIC2 extends ModCompat {
         // TODO: remove when not supported anymore
         if (is.getItem() instanceof ICustomElectricItem) {
             return ((ICustomElectricItem) is.getItem()).discharge(is, amount, tier, ignoreTransferLimit, simulate);
+        } else if (!(is.getItem() instanceof ISpecialElectricItem)) {
+            ElectricItem.discharge(is, amount, tier, ignoreTransferLimit, simulate);
         }
 
         IElectricItemManager manager = getManager(is);
