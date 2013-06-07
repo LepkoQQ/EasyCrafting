@@ -43,4 +43,10 @@ public class ConfigHandler {
             config.save();
         }
     }
+
+    public static void setRecursion(int value) {
+        MAX_RECURSION = value;
+        config.getCategory(Configuration.CATEGORY_GENERAL).get("recipeRecursion").set(value);
+        config.save();
+    }
 }

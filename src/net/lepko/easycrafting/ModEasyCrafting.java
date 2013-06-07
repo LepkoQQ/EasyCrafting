@@ -3,6 +3,7 @@ package net.lepko.easycrafting;
 import net.lepko.easycrafting.block.BlockEasyCraftingTable;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.config.ConfigHandler;
+import net.lepko.easycrafting.core.CommandEasyCrafting;
 import net.lepko.easycrafting.handlers.EventHandler;
 import net.lepko.easycrafting.handlers.GuiHandler;
 import net.lepko.easycrafting.handlers.ModCompatibilityHandler;
@@ -21,9 +22,11 @@ import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.Mod.PreInit;
+import cpw.mods.fml.common.Mod.ServerStarting;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -74,6 +77,11 @@ public class ModEasyCrafting {
 
         NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
         MinecraftForge.EVENT_BUS.register(new EventHandler());
+    }
+
+    @ServerStarting
+    public void serverStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new CommandEasyCrafting());
     }
 
     @PostInit
