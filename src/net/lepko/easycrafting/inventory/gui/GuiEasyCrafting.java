@@ -11,6 +11,7 @@ import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.RecipeWorker;
 import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -231,14 +232,6 @@ public class GuiEasyCrafting extends GuiContainer {
             }
         }
 
-        for (int j = 0; j < 40; j++) {
-            Slot slot = inventorySlots.getSlot(j);
-            if (isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
-                // && Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.keyCode)
-                drawIngredientTooltip(j, mouseX, mouseY);
-            }
-        }
-
         RenderHelper.enableStandardItemLighting();
     }
 
@@ -390,7 +383,7 @@ public class GuiEasyCrafting extends GuiContainer {
         c.scrollTo(currentScroll, renderList);
     }
 
-    protected void drawIngredientTooltip(int slotIndex, int mouseX, int mouseY) {
+    protected void drawIngredientTooltip(int slotIndex, int mouseX, int mouseY, boolean leftSide) {
 
         EasyRecipe recipe = null;
 
@@ -411,19 +404,19 @@ public class GuiEasyCrafting extends GuiContainer {
         if (ingredientList != null && !ingredientList.isEmpty()) {
             int width = 16;
             int height = 16;
-            int xPos = mouseX - width - 12;
-            int yPos = mouseY - 4;
+            int xPos = mouseX + 12;
+            int yPos = mouseY - 12 + 14;
 
             if (ingredientList.size() > 1) {
-                height += (ingredientList.size() - 1) * (height + 2);
+                width += (ingredientList.size() - 1) * (width + 2);
             }
 
-            if (guiTop + yPos + height + 6 > this.height) {
-                yPos = this.height - height - guiTop - 6;
+            if (leftSide) {
+                xPos -= 28 + width;
             }
 
             int bgColor = 0xF0100010;
-            int borderColor = 0x505000FF;// red: 0x50FF0000;// green: 0x5000A700;// vanilla purple: 0x505000FF;
+            int borderColor = 0x5000A700;// red: 0x50FF0000;// green: 0x5000A700;// vanilla purple: 0x505000FF;
             int borderColorDark = (borderColor & 0xFEFEFE) >> 1 | borderColor & 0xFF000000;
 
             zLevel = 300.0F;
@@ -462,7 +455,7 @@ public class GuiEasyCrafting extends GuiContainer {
                     itemRenderer.renderItemOverlayIntoGUI(fontRenderer, mc.renderEngine, is, xPos, yPos);
                 }
 
-                yPos += 18;
+                xPos += 18;
             }
 
             GL11.glDisable(GL12.GL_RESCALE_NORMAL);
@@ -472,5 +465,27 @@ public class GuiEasyCrafting extends GuiContainer {
             zLevel = 0.0F;
             itemRenderer.zLevel = 0.0F;
         }
+    }
+
+    @Override
+    protected void drawItemStackTooltip(ItemStack stack, int mouseX, int mouseY) {
+        if (isCtrlKeyDown()) {
+            for (int j = 0; j < 40; j++) {
+                Slot slot = inventorySlots.getSlot(j);
+                if (isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
+                    List<String> list = new ArrayList<String>();
+                    String itemName = (String) stack.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips).get(0);
+                    list.add("\u00a7" + Integer.toHexString(stack.getRarity().rarityColor) + itemName);
+
+                    FontRenderer font = stack.getItem().getFontRenderer(stack);
+                    drawHoveringText(list, mouseX, mouseY, (font == null ? fontRenderer : font));
+
+                    boolean leftSide = (mouseX + 12 + fontRenderer.getStringWidth(itemName) > this.width);
+                    drawIngredientTooltip(j, mouseX, mouseY, leftSide);
+                    return;
+                }
+            }
+        }
+        super.drawItemStackTooltip(stack, mouseX, mouseY);
     }
 }
