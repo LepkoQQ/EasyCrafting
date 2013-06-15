@@ -53,12 +53,19 @@ public class ModCompatIC2 extends ModCompat {
         return false;
     }
 
+    private static IElectricItemManager manager = null;
+
     private static IElectricItemManager getManager(ItemStack is) {
-        IElectricItemManager manager = null;
         if (is.getItem() instanceof ISpecialElectricItem) {
-            manager = ((ISpecialElectricItem) is.getItem()).getManager(is);
-        } else {
-            manager = ElectricItem.manager;
+            return ((ISpecialElectricItem) is.getItem()).getManager(is);
+        }
+
+        // TODO: remove when not supported anymore
+        if (manager == null) {
+            try {
+                manager = (IElectricItemManager) ElectricItem.class.getField("manager").get(null);
+            } catch (Throwable t) {
+            }
         }
         return manager;
     }
