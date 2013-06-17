@@ -3,19 +3,23 @@ package net.lepko.easycrafting.inventory.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.lepko.easycrafting.ModEasyCrafting;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
-import net.lepko.easycrafting.handlers.TickHandlerClient;
+import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.RecipeWorker;
+import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.MathHelper;
 import net.minecraftforge.oredict.OreDictionary;
 
 import org.lwjgl.input.Keyboard;
@@ -23,25 +27,38 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import com.google.common.collect.ImmutableList;
-
 public class GuiEasyCrafting extends GuiTabbed {
 
+    private class TabEasyCrafting extends Tab {
+        public TabEasyCrafting(ItemStack iconStack, String tooltip) {
+            super(iconStack, tooltip);
+        }
+
+        @Override
+        public void onTabSelected() {
+            updateSearch();
+        }
+    }
+
+    private static final String GUI_TEXTURE = "/mods/" + VersionHelper.MOD_ID + "/textures/gui/easycraftinggui.png";
     private static String LAST_SEARCH = "";
 
-    public ImmutableList<EasyRecipe> renderList;
-    public ImmutableList<EasyRecipe> craftableList;
-    public int currentScroll = 0;
-    private int maxScroll = 0;
-    private float scrollTopOffset = 0;
-    private boolean[] canCraftCache;
-    private boolean wasClicking = false;
-    private boolean isScrolling = false;
+    public List<EasyRecipe> shownRecipes;
+    public List<EasyRecipe> craftableRecipes;
 
+    // TODO: private
+    public int currentRowOffset = 0;
+    private int maxRowOffset = 0;
+    private float currentScrollValue = 0;
+    private boolean wasClicking = false;
+    private boolean isDraggingScrollBar = false;
+
+    private final IInventory tileInventory;
     private GuiTextField searchField;
 
-    public GuiEasyCrafting(InventoryPlayer player_inventory, TileEntityEasyCrafting tile_entity) {
-        super(new ContainerEasyCrafting(tile_entity, player_inventory));
+    public GuiEasyCrafting(InventoryPlayer playerInventory, TileEntityEasyCrafting tileInventory) {
+        super(new ContainerEasyCrafting(playerInventory, tileInventory));
+        this.tileInventory = tileInventory;
         ((ContainerEasyCrafting) inventorySlots).gui = this;
         ySize = 235;
     }
@@ -58,7 +75,12 @@ public class GuiEasyCrafting extends GuiTabbed {
         searchField.setCanLoseFocus(false);
         searchField.setFocused(true);
         searchField.setText(LAST_SEARCH);
-        // switchToTab(selectedTabIndex);
+    }
+
+    @Override
+    public void initTabs() {
+        tabGroup.addTab(new TabEasyCrafting(new ItemStack(ModEasyCrafting.blockEasyCraftingTable), "Available"));
+        tabGroup.addTab(new TabEasyCrafting(new ItemStack(Item.compass), "Search"));
     }
 
     @Override
@@ -69,8 +91,6 @@ public class GuiEasyCrafting extends GuiTabbed {
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
-
         fontRenderer.drawString("Easy Crafting", 7, 6, 0x404040);
         int offsetX = 70;
 
@@ -80,6 +100,8 @@ public class GuiEasyCrafting extends GuiTabbed {
         if (RecipeWorker.lock.isLocked()) {
             fontRenderer.drawString(EnumChatFormatting.OBFUSCATED + "x", offsetX, 6, 0x404040);
         }
+
+        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
     }
 
     @Override
@@ -92,8 +114,8 @@ public class GuiEasyCrafting extends GuiTabbed {
         super.drawGuiContainerBackgroundLayer(f, i, j);
 
         // Scrollbar
-        int scrollTextureX = maxScroll == 0 ? 12 : 0;
-        drawTexturedModalRect(guiLeft + 156, guiTop + 17 + (int) (scrollTopOffset * 73.0F), scrollTextureX, 240, 12, 16);
+        int scrollTextureX = maxRowOffset == 0 ? 12 : 0;
+        drawTexturedModalRect(guiLeft + 156, guiTop + 17 + (int) (currentScrollValue * 73.0F), scrollTextureX, 240, 12, 16);
 
         // Search
         int searchTextureX = xSize - 90 - 7;
@@ -132,12 +154,12 @@ public class GuiEasyCrafting extends GuiTabbed {
         if (mouseScroll == 0) { // Bypass NEI fast transfer manager
             super.handleMouseInput();
         } else {
-            setScrollPosition(currentScroll + (mouseScroll > 0 ? -1 : 1));
+            setRowOffset(currentRowOffset + (mouseScroll > 0 ? -1 : 1));
         }
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float par3) {
+    public void drawScreen(int mouseX, int mouseY, float time) {
         // Handle scrollbar dragging
         boolean leftMouseDown = Mouse.isButtonDown(0);
         int left = guiLeft + 155;
@@ -146,92 +168,111 @@ public class GuiEasyCrafting extends GuiTabbed {
         int bottom = top + 89;
 
         if (!wasClicking && leftMouseDown && mouseX >= left && mouseY >= top && mouseX < right && mouseY < bottom) {
-            isScrolling = maxScroll > 0;
+            isDraggingScrollBar = maxRowOffset > 0;
         } else if (!leftMouseDown) {
-            isScrolling = false;
+            isDraggingScrollBar = false;
         }
 
         wasClicking = leftMouseDown;
 
-        if (isScrolling) {
-            setScrollPosition((mouseY - top - 7.5F) / (bottom - top - 15.0F));
+        if (isDraggingScrollBar) {
+            setScrollValue((mouseY - top - 7.5F) / (bottom - top - 15.0F));
         }
 
-        super.drawScreen(mouseX, mouseY, par3);
+        super.drawScreen(mouseX, mouseY, time);
     }
 
-    public void renderSlotBackColor(Slot slot, boolean canCraft) {
-        int x = guiLeft + slot.xDisplayPosition;
-        int y = guiTop + slot.yDisplayPosition;
-        int w = 16;
-        int h = 16;
-        int color = canCraft ? 0x8000A000 : 0x80A00000;
-        Gui.drawRect(x, y, x + w, y + h, color);
-    }
+    // public void renderSlotBackColor(Slot slot, boolean canCraft) {
+    // int x = guiLeft + slot.xDisplayPosition;
+    // int y = guiTop + slot.yDisplayPosition;
+    // int w = 16;
+    // int h = 16;
+    // int color = canCraft ? 0x8000A000 : 0x80A00000;
+    // Gui.drawRect(x, y, x + w, y + h, color);
+    // }
 
     @SuppressWarnings("unchecked")
     private void updateSearch() {
-        /*
-         * if (selectedTabIndex == TABINDEX_OPTIONS) { return; } if (selectedTabIndex == TABINDEX_SEARCH) { ImmutableList<EasyRecipe> all =
-         * RecipeHelper.getAllRecipes(); ArrayList<EasyRecipe> list = new ArrayList<EasyRecipe>(); lastSearch = searchField.getText().toLowerCase();
-         * recipeLoop: for (int i = 0; i < all.size(); i++) { EasyRecipe r = all.get(i); List<String> itemProps =
-         * r.getResult().toItemStack().getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips); for (int j = 0; j < itemProps.size(); j++) { if
-         * (itemProps.get(j).toLowerCase().contains(lastSearch)) { list.add(r); continue recipeLoop; } } } renderList = ImmutableList.copyOf(list); }
-         */
-        currentScroll = 0;
-        scrollTopOffset = 0.0F;
-        TickHandlerClient.updateEasyCraftingOutput();
+        List<EasyRecipe> all = currentTab == 0 ? craftableRecipes : RecipeHelper.getAllRecipes();
+        List<EasyRecipe> list = new ArrayList<EasyRecipe>();
+        if (all == null || searchField == null) {
+            return;
+        }
+        LAST_SEARCH = searchField.getText().toLowerCase();
+        if (!LAST_SEARCH.trim().isEmpty()) {
+            for (EasyRecipe recipe : all) {
+                List<String> tips = recipe.getResult().toItemStack().getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
+                for (String tip : tips) {
+                    if (tip.toLowerCase().contains(LAST_SEARCH)) {
+                        list.add(recipe);
+                        break;
+                    }
+                }
+            }
+            shownRecipes = list;
+        } else {
+            shownRecipes = all;
+        }
+
+        maxRowOffset = (int) (Math.ceil(shownRecipes.size() / 8.0D) - 5);
+        maxRowOffset = maxRowOffset < 0 ? 0 : maxRowOffset;
+
+        setRowOffset(0);
     }
 
     public void refreshCraftingOutput() {
-        /*
-         * if (selectedTabIndex == TABINDEX_OPTIONS) { ContainerEasyCrafting c = (ContainerEasyCrafting) inventorySlots; c.scrollTo(0, new
-         * ArrayList<EasyRecipe>()); return; } craftableList = RecipeWorker.instance().getCraftableRecipes(); if (selectedTabIndex ==
-         * TABINDEX_CRAFTING) { renderList = craftableList; } else if (selectedTabIndex == TABINDEX_SEARCH) { updateSlotBackgroundCache(); } maxScroll
-         * = (int) (Math.ceil(renderList.size() / 8.0D) - 5); if (maxScroll < 0) { maxScroll = 0; } if (currentScroll > maxScroll) {
-         * setScrollPosition(maxScroll); } else { ContainerEasyCrafting c = (ContainerEasyCrafting) inventorySlots; c.scrollTo(currentScroll,
-         * renderList); }
-         */
+        craftableRecipes = RecipeWorker.instance().getCraftableRecipes();
+        updateSearch();
+        // updateSlotBackgroundCache();
+        // setRowOffset(currentRowOffset);
     }
 
-    private void updateSlotBackgroundCache() {
-        canCraftCache = new boolean[renderList.size()];
-        for (int i = 0; i < renderList.size(); i++) {
-            if (craftableList.contains(renderList.get(i))) {
-                canCraftCache[i] = true;
-            } else {
-                canCraftCache[i] = false;
+    // private void updateSlotBackgroundCache() {
+    // canCraftCache = new boolean[renderList.size()];
+    // for (int i = 0; i < renderList.size(); i++) {
+    // if (craftableList.contains(renderList.get(i))) {
+    // canCraftCache[i] = true;
+    // } else {
+    // canCraftCache[i] = false;
+    // }
+    // }
+    // }
+
+    private void setRowOffset(int rowOffset) {
+        currentRowOffset = MathHelper.clamp_int(rowOffset, 0, maxRowOffset);
+        currentScrollValue = MathHelper.clamp_float(currentRowOffset / (float) maxRowOffset, 0F, 1F);
+        setSlots(currentRowOffset, shownRecipes);
+    }
+
+    private void setScrollValue(float scrollValue) {
+        currentScrollValue = MathHelper.clamp_float(scrollValue, 0F, 1F);
+        currentRowOffset = MathHelper.clamp_int((int) (currentScrollValue * maxRowOffset + 0.5F), 0, maxRowOffset);
+        setSlots(currentRowOffset, shownRecipes);
+    }
+
+    // TODO: this can get data from fields now, remove args
+    private void setSlots(int currentScroll, List<EasyRecipe> renderList) {
+        if (renderList != null) {
+            int offset = currentScroll * 8;
+            for (int i = 0; i < 40; i++) {
+                if (i + offset >= renderList.size() || i + offset < 0) {
+                    tileInventory.setInventorySlotContents(i, null);
+                } else {
+                    ItemStack is = renderList.get(i + offset).getResult().toItemStack();
+                    tileInventory.setInventorySlotContents(i, is);
+                }
             }
         }
     }
 
-    private void setScrollPosition(int scroll) {
-        /*
-         * if (selectedTabIndex == TABINDEX_OPTIONS) { ContainerEasyCrafting c = (ContainerEasyCrafting) inventorySlots; c.scrollTo(0, new
-         * ArrayList<EasyRecipe>()); return; } if (scroll < 0) { scroll = 0; } else if (scroll > maxScroll) { scroll = maxScroll; } currentScroll =
-         * scroll; scrollbarOffset = (float) currentScroll / (float) maxScroll; if (scrollbarOffset < 0.0F || Float.isNaN(scrollbarOffset)) {
-         * scrollbarOffset = 0.0F; } else if (scrollbarOffset > 1.0F) { scrollbarOffset = 1.0F; } ContainerEasyCrafting c = (ContainerEasyCrafting)
-         * inventorySlots; c.scrollTo(currentScroll, renderList);
-         */
-    }
-
-    private void setScrollPosition(float scrollOffset) {
-        /*
-         * if (selectedTabIndex == TABINDEX_OPTIONS) { ContainerEasyCrafting c = (ContainerEasyCrafting) inventorySlots; c.scrollTo(0, new
-         * ArrayList<EasyRecipe>()); return; } if (scrollOffset < 0.0F || Float.isNaN(scrollOffset)) { scrollOffset = 0.0F; } else if (scrollOffset >
-         * 1.0F) { scrollOffset = 1.0F; } if (scrollbarOffset == scrollOffset) { return; } scrollbarOffset = scrollOffset; currentScroll = (int)
-         * (scrollbarOffset * maxScroll); if (currentScroll < 0) { currentScroll = 0; } else if (currentScroll > maxScroll) { currentScroll =
-         * maxScroll; } ContainerEasyCrafting c = (ContainerEasyCrafting) inventorySlots; c.scrollTo(currentScroll, renderList);
-         */
-    }
-
+    // TODO: simplify
     protected void drawIngredientTooltip(int slotIndex, int mouseX, int mouseY, boolean leftSide) {
 
         EasyRecipe recipe = null;
 
-        int recipe_index = slotIndex + currentScroll * 8;
-        if (recipe_index >= 0 && renderList != null && recipe_index < renderList.size()) {
-            EasyRecipe r = renderList.get(recipe_index);
+        int recipe_index = slotIndex + currentRowOffset * 8;
+        if (recipe_index >= 0 && shownRecipes != null && recipe_index < shownRecipes.size()) {
+            EasyRecipe r = shownRecipes.get(recipe_index);
             if (r.getResult().equalsItemStack(inventorySlots.getSlot(slotIndex).getStack())) {
                 recipe = r;
             }
@@ -257,6 +298,7 @@ public class GuiEasyCrafting extends GuiTabbed {
                 xPos -= 28 + width;
             }
 
+            // TODO: change color from craftcache
             int bgColor = 0xF0100010;
             int borderColor = 0x5000A700;// red: 0x50FF0000;// green: 0x5000A700;// vanilla purple: 0x505000FF;
             int borderColorDark = (borderColor & 0xFEFEFE) >> 1 | borderColor & 0xFF000000;

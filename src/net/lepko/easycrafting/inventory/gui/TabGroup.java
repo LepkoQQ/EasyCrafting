@@ -28,6 +28,10 @@ public class TabGroup {
         tabs.add(tab);
     }
 
+    public Tab getTab(int index) {
+        return tabs.get(index);
+    }
+
     public Tab getTabAt(int mouseX, int mouseY) {
         if (mouseX > gui.guiLeft() - 28 && mouseX < gui.guiLeft()) {
             if (mouseY > gui.guiTop()) {

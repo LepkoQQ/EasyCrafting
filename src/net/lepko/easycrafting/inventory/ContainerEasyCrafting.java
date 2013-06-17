@@ -1,7 +1,5 @@
 package net.lepko.easycrafting.inventory;
 
-import java.util.List;
-
 import net.lepko.easycrafting.block.SlotEasyCraftingOutput;
 import net.lepko.easycrafting.block.SlotInterceptor;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
@@ -18,16 +16,16 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ContainerEasyCrafting extends Container {
-    protected TileEntityEasyCrafting tile_entity;
+
+    protected TileEntityEasyCrafting tileEntity;
+
+    // TODO: remove
     public GuiEasyCrafting gui;
 
-    public ContainerEasyCrafting(TileEntityEasyCrafting tile_entity, InventoryPlayer player_inventory) {
-
-        this.tile_entity = tile_entity;
+    public ContainerEasyCrafting(InventoryPlayer playerInventory, TileEntityEasyCrafting tileEntity) {
+        this.tileEntity = tileEntity;
         int offset2 = 5 * 18 + 4;
         int offset = offset2 + 2 * 18 + 4;
         int offset3 = offset + 3 * 18 + 5;
@@ -37,33 +35,33 @@ public class ContainerEasyCrafting extends Container {
         // Crafting output slots
         for (int g = 0; g < 5; ++g) {
             for (int h = 0; h < 8; ++h) {
-                addSlotToContainer(new SlotEasyCraftingOutput(tile_entity, count++, 8 + h * 18, 18 + g * 18));
+                addSlotToContainer(new SlotEasyCraftingOutput(tileEntity, count++, 8 + h * 18, 18 + g * 18));
             }
         }
 
         // Table inventory slots
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j < 9; ++j) {
-                addSlotToContainer(new Slot(tile_entity, count++, 8 + j * 18, 18 + i * 18 + offset2));
+                addSlotToContainer(new Slot(tileEntity, count++, 8 + j * 18, 18 + i * 18 + offset2));
             }
         }
 
         // Player inventory
         for (int k = 0; k < 3; ++k) {
             for (int l = 0; l < 9; ++l) {
-                addSlotToContainer(new SlotInterceptor(player_inventory, l + k * 9 + 9, 8 + l * 18, 18 + k * 18 + offset));
+                addSlotToContainer(new SlotInterceptor(playerInventory, l + k * 9 + 9, 8 + l * 18, 18 + k * 18 + offset));
             }
         }
 
         // Player hotbar
         for (int m = 0; m < 9; ++m) {
-            addSlotToContainer(new SlotInterceptor(player_inventory, m, 8 + m * 18, 18 + offset3));
+            addSlotToContainer(new SlotInterceptor(playerInventory, m, 8 + m * 18, 18 + offset3));
         }
     }
 
     @Override
     public boolean canInteractWith(EntityPlayer player) {
-        return tile_entity.isUseableByPlayer(player);
+        return tileEntity.isUseableByPlayer(player);
     }
 
     @Override
@@ -167,20 +165,5 @@ public class ContainerEasyCrafting extends Container {
         }
 
         return null;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void scrollTo(int currentScroll, List<EasyRecipe> renderList) {
-        if (renderList != null) {
-            int offset = currentScroll * 8;
-            for (int i = 0; i < 40; i++) {
-                if (i + offset >= renderList.size() || i + offset < 0) {
-                    tile_entity.setInventorySlotContents(i, null);
-                } else {
-                    ItemStack is = renderList.get(i + offset).getResult().toItemStack();
-                    tile_entity.setInventorySlotContents(i, is);
-                }
-            }
-        }
     }
 }

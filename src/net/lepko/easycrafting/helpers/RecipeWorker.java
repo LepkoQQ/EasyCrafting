@@ -2,6 +2,7 @@ package net.lepko.easycrafting.helpers;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import net.lepko.easycrafting.config.ConfigHandler;
@@ -16,7 +17,7 @@ import cpw.mods.fml.client.FMLClientHandler;
 
 public class RecipeWorker implements Runnable {
 
-    private ArrayList<EasyRecipe> craftableRecipes = new ArrayList<EasyRecipe>();
+    private List<EasyRecipe> craftableRecipes = new ArrayList<EasyRecipe>();
     private boolean displayed = true;
     private boolean requested = false;
 
@@ -62,7 +63,7 @@ public class RecipeWorker implements Runnable {
         displayed = true;
     }
 
-    public ImmutableList<EasyRecipe> getCraftableRecipes() {
+    public List<EasyRecipe> getCraftableRecipes() {
         return ImmutableList.copyOf(craftableRecipes);
     }
 

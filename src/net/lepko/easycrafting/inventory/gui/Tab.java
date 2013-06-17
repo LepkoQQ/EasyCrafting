@@ -3,7 +3,7 @@ package net.lepko.easycrafting.inventory.gui;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 
-public class Tab {
+public abstract class Tab {
 
     public int width = 32;
     public int height = 28;
@@ -12,14 +12,9 @@ public class Tab {
     public ItemStack iconStack = new ItemStack(Block.stone);
     public String tooltip = "tab";
 
-    public Tab tooltip(String tooltip) {
+    public Tab(ItemStack iconStack, String tooltip) {
+        this.iconStack = iconStack;
         this.tooltip = tooltip;
-        return this;
-    }
-
-    public Tab icon(ItemStack is) {
-        this.iconStack = is;
-        return this;
     }
 
     public void drawBackground() {
@@ -55,6 +50,5 @@ public class Tab {
     }
 
     public void onTabSelected() {
-        // TODO: onTabSelected
     }
 }

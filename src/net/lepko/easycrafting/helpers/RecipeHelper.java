@@ -339,10 +339,10 @@ public class RecipeHelper {
     @SideOnly(Side.CLIENT)
     public static EasyRecipe getValidRecipe(GuiEasyCrafting gui, int slot_index, ItemStack result) {
         // TODO: find a better way
-        int recipe_index = slot_index + gui.currentScroll * 8;
-        if (recipe_index >= 0 && gui.renderList != null && recipe_index < gui.renderList.size()) {
-            EasyRecipe r = gui.renderList.get(recipe_index);
-            if (r.getResult().equalsItemStack(result) && gui.craftableList != null && gui.craftableList.contains(r)) {
+        int recipe_index = slot_index + gui.currentRowOffset * 8;
+        if (recipe_index >= 0 && gui.shownRecipes != null && recipe_index < gui.shownRecipes.size()) {
+            EasyRecipe r = gui.shownRecipes.get(recipe_index);
+            if (r.getResult().equalsItemStack(result) && gui.craftableRecipes != null && gui.craftableRecipes.contains(r)) {
                 return r;
             }
         }

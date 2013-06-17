@@ -15,7 +15,7 @@ public class GuiHandler implements IGuiHandler {
         if (id == 0) {
             TileEntity tile_entity = world.getBlockTileEntity(x, y, z);
             if (tile_entity instanceof TileEntityEasyCrafting) {
-                return new ContainerEasyCrafting((TileEntityEasyCrafting) tile_entity, player.inventory);
+                return new ContainerEasyCrafting(player.inventory, (TileEntityEasyCrafting) tile_entity);
             }
         }
         return null;
