@@ -15,10 +15,10 @@ public class TickHandlerClient implements ITickHandler {
     private Minecraft mc = FMLClientHandler.instance().getClient();
     private static boolean updateEasyCraftingOutput = false;
     private static boolean showUpdateInChat = true;
-    private static int count = 2;
+    private static int count = 5;
 
     public static void updateEasyCraftingOutput() {
-        updateEasyCraftingOutput(2);
+        updateEasyCraftingOutput(5);
     }
 
     public static void updateEasyCraftingOutput(int c) {

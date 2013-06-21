@@ -96,6 +96,7 @@ public class RecipeHelper {
         ArrayList<EasyRecipe> tmpCraftable = new ArrayList<EasyRecipe>();
         ArrayList<EasyRecipe> tmpAll = new ArrayList<EasyRecipe>(recipesToCheck);
 
+        // TODO: timeout
         for (EasyRecipe er : tmpAll) {
             if (canCraft(er, inventory)) {
                 tmpCraftable.add(er);

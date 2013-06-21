@@ -3,10 +3,10 @@ package net.lepko.easycrafting.inventory.gui;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 
-public abstract class Tab {
+public class Tab {
 
-    public int width = 32;
-    public int height = 28;
+    public final int width = 32;
+    public final int height = 28;
     public int index = 0;
     public TabGroup group;
     public ItemStack iconStack = new ItemStack(Block.stone);

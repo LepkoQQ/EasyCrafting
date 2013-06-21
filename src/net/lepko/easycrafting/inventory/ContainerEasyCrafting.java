@@ -19,7 +19,7 @@ import net.minecraft.item.ItemStack;
 
 public class ContainerEasyCrafting extends Container {
 
-    protected TileEntityEasyCrafting tileEntity;
+    private TileEntityEasyCrafting tileEntity;
 
     // TODO: remove
     public GuiEasyCrafting gui;
@@ -95,11 +95,18 @@ public class ContainerEasyCrafting extends Container {
 
     @Override
     public ItemStack slotClick(int slot_index, int mouse_button, int modifier, EntityPlayer player) {
-        if (slot_index >= 0 && inventorySlots.get(slot_index) instanceof SlotEasyCraftingOutput) {
-            return slotClickEasyCraftingOutput(slot_index, mouse_button, modifier, player);
-        } else {
-            return super.slotClick(slot_index, mouse_button, modifier, player);
+        if (slot_index >= 0) {
+            Slot slot = (Slot) inventorySlots.get(slot_index);
+            if (slot instanceof SlotEasyCraftingOutput) {
+                return slotClickEasyCraftingOutput(slot_index, mouse_button, modifier, player);
+            }
+            if (slot instanceof SlotInterceptor) {
+                if (!slot.getHasStack() && (player.inventory.getItemStack() == null)) {
+                    return null;
+                }
+            }
         }
+        return super.slotClick(slot_index, mouse_button, modifier, player);
     }
 
     private ItemStack slotClickEasyCraftingOutput(int slot_index, int mouse_button, int modifier, EntityPlayer player) {

@@ -21,6 +21,7 @@ public class RecipeWorker implements Runnable {
     private boolean displayed = true;
     private boolean requested = false;
 
+    // TODO: if a new request comes before we finish this one, abort and start again
     private void setCraftableRecipes() {
         long beforeTime = System.nanoTime();
 

@@ -11,6 +11,7 @@ import net.lepko.easycrafting.helpers.RecipeWorker;
 import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -18,7 +19,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -42,6 +42,7 @@ public class GuiEasyCrafting extends GuiTabbed {
 
     private static final String GUI_TEXTURE = "/mods/" + VersionHelper.MOD_ID + "/textures/gui/easycraftinggui.png";
     private static String LAST_SEARCH = "";
+    private static boolean WORKER_LOCKED = false;
 
     public List<EasyRecipe> shownRecipes;
     public List<EasyRecipe> craftableRecipes;
@@ -52,6 +53,7 @@ public class GuiEasyCrafting extends GuiTabbed {
     private float currentScrollValue = 0;
     private boolean wasClicking = false;
     private boolean isDraggingScrollBar = false;
+    private boolean[] canCraftCache;
 
     private final IInventory tileInventory;
     private GuiTextField searchField;
@@ -90,18 +92,30 @@ public class GuiEasyCrafting extends GuiTabbed {
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        fontRenderer.drawString("Easy Crafting", 7, 6, 0x404040);
-        int offsetX = 70;
+    public void drawScreen(int mouseX, int mouseY, float time) {
+        // Check lock on worker thread
+        WORKER_LOCKED = RecipeWorker.lock.isLocked();
 
-        // fontRenderer.drawString("Search:", 8, 6, 0x404040);
-        // offsetX = 70;
+        // Handle scrollbar dragging
+        boolean leftMouseDown = Mouse.isButtonDown(0);
+        int left = guiLeft + 155;
+        int top = guiTop + 18;
+        int right = left + 14;
+        int bottom = top + 89;
 
-        if (RecipeWorker.lock.isLocked()) {
-            fontRenderer.drawString(EnumChatFormatting.OBFUSCATED + "x", offsetX, 6, 0x404040);
+        if (!wasClicking && leftMouseDown && mouseX >= left && mouseY >= top && mouseX < right && mouseY < bottom) {
+            isDraggingScrollBar = maxRowOffset > 0;
+        } else if (!leftMouseDown) {
+            isDraggingScrollBar = false;
         }
 
-        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
+        wasClicking = leftMouseDown;
+
+        if (isDraggingScrollBar) {
+            setScrollValue((mouseY - top - 7.5F) / (bottom - top - 15.0F));
+        }
+
+        super.drawScreen(mouseX, mouseY, time);
     }
 
     @Override
@@ -123,18 +137,28 @@ public class GuiEasyCrafting extends GuiTabbed {
         searchField.drawTextBox();
 
         // Output slot backgrounds
-        // if (selectedTabIndex == TABINDEX_SEARCH) {
-        // if (canCraftCache != null) {
-        // int offset = currentScroll * 8;
-        // for (int k = 0; k < 40 && k + offset < canCraftCache.length; k++) {
-        // renderSlotBackColor(inventorySlots.getSlot(k), canCraftCache[k + offset]);
-        // }
-        // }
-        // }
+        if (canCraftCache != null && currentTab != 0) {
+            int offset = currentRowOffset * 8;
+            for (int k = 0; k < 40 && k + offset < canCraftCache.length; k++) {
+                drawSlotBackground(inventorySlots.getSlot(k), canCraftCache[k + offset]);
+            }
+        }
+
         // Storage slots background
-        // for (int l = 0; l < 18; l++) {
-        // renderSlotBackColor(inventorySlots.getSlot(l + 40), false);
-        // }
+        for (int l = 0; l < 18; l++) {
+            drawSlotBackground(inventorySlots.getSlot(l + 40), false);
+        }
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        String title = "Easy Crafting";
+        if (WORKER_LOCKED) {
+            title = "Searching...";
+        }
+        fontRenderer.drawString(title, 7, 6, 0x404040);
+
+        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
     }
 
     @Override
@@ -158,38 +182,25 @@ public class GuiEasyCrafting extends GuiTabbed {
         }
     }
 
+    /**
+     * button: 0 -> left mouse 1 -> action=0 or 1 -> right mouse action=5 -> left click dragged over 2 -> middle mouse 5 -> action=5 -> right click
+     * dragged over
+     * 
+     * action: 0 -> click 1 -> shift click 2 -> swap with slot in hotbar (button is 0-8) 3 -> pick block 4 -> drop block 5 -> dragged stack 6 ->
+     * double click
+     */
     @Override
-    public void drawScreen(int mouseX, int mouseY, float time) {
-        // Handle scrollbar dragging
-        boolean leftMouseDown = Mouse.isButtonDown(0);
-        int left = guiLeft + 155;
-        int top = guiTop + 18;
-        int right = left + 14;
-        int bottom = top + 89;
-
-        if (!wasClicking && leftMouseDown && mouseX >= left && mouseY >= top && mouseX < right && mouseY < bottom) {
-            isDraggingScrollBar = maxRowOffset > 0;
-        } else if (!leftMouseDown) {
-            isDraggingScrollBar = false;
-        }
-
-        wasClicking = leftMouseDown;
-
-        if (isDraggingScrollBar) {
-            setScrollValue((mouseY - top - 7.5F) / (bottom - top - 15.0F));
-        }
-
-        super.drawScreen(mouseX, mouseY, time);
+    protected void handleMouseClick(Slot slot, int slotIndex, int button, int action) {
+        super.handleMouseClick(slot, slotIndex, button, action);
+        System.out.println("Slot: " + slot + " par2: " + slotIndex + " par3: " + button + " par4:" + action);
     }
 
-    // public void renderSlotBackColor(Slot slot, boolean canCraft) {
-    // int x = guiLeft + slot.xDisplayPosition;
-    // int y = guiTop + slot.yDisplayPosition;
-    // int w = 16;
-    // int h = 16;
-    // int color = canCraft ? 0x8000A000 : 0x80A00000;
-    // Gui.drawRect(x, y, x + w, y + h, color);
-    // }
+    private void drawSlotBackground(Slot slot, boolean canCraft) {
+        int x = guiLeft + slot.xDisplayPosition;
+        int y = guiTop + slot.yDisplayPosition;
+        int color = canCraft ? 0x8000A000 : 0x80A00000;
+        Gui.drawRect(x, y, x + 16, y + 16, color);
+    }
 
     @SuppressWarnings("unchecked")
     private void updateSearch() {
@@ -217,56 +228,72 @@ public class GuiEasyCrafting extends GuiTabbed {
         maxRowOffset = (int) (Math.ceil(shownRecipes.size() / 8.0D) - 5);
         maxRowOffset = maxRowOffset < 0 ? 0 : maxRowOffset;
 
+        rebuildCanCraftCache();
         setRowOffset(0);
     }
 
     public void refreshCraftingOutput() {
         craftableRecipes = RecipeWorker.instance().getCraftableRecipes();
         updateSearch();
-        // updateSlotBackgroundCache();
-        // setRowOffset(currentRowOffset);
     }
 
-    // private void updateSlotBackgroundCache() {
-    // canCraftCache = new boolean[renderList.size()];
-    // for (int i = 0; i < renderList.size(); i++) {
-    // if (craftableList.contains(renderList.get(i))) {
-    // canCraftCache[i] = true;
-    // } else {
-    // canCraftCache[i] = false;
-    // }
-    // }
-    // }
+    private void rebuildCanCraftCache() {
+        canCraftCache = new boolean[shownRecipes.size()];
+        for (int i = 0; i < shownRecipes.size(); i++) {
+            canCraftCache[i] = craftableRecipes.contains(shownRecipes.get(i));
+        }
+    }
 
     private void setRowOffset(int rowOffset) {
         currentRowOffset = MathHelper.clamp_int(rowOffset, 0, maxRowOffset);
         currentScrollValue = MathHelper.clamp_float(currentRowOffset / (float) maxRowOffset, 0F, 1F);
-        setSlots(currentRowOffset, shownRecipes);
+        setSlots();
     }
 
     private void setScrollValue(float scrollValue) {
         currentScrollValue = MathHelper.clamp_float(scrollValue, 0F, 1F);
         currentRowOffset = MathHelper.clamp_int((int) (currentScrollValue * maxRowOffset + 0.5F), 0, maxRowOffset);
-        setSlots(currentRowOffset, shownRecipes);
+        setSlots();
     }
 
-    // TODO: this can get data from fields now, remove args
-    private void setSlots(int currentScroll, List<EasyRecipe> renderList) {
-        if (renderList != null) {
-            int offset = currentScroll * 8;
+    private void setSlots() {
+        if (shownRecipes != null) {
+            int offset = currentRowOffset * 8;
             for (int i = 0; i < 40; i++) {
-                if (i + offset >= renderList.size() || i + offset < 0) {
+                if (i + offset >= shownRecipes.size() || i + offset < 0) {
                     tileInventory.setInventorySlotContents(i, null);
                 } else {
-                    ItemStack is = renderList.get(i + offset).getResult().toItemStack();
+                    ItemStack is = shownRecipes.get(i + offset).getResult().toItemStack();
                     tileInventory.setInventorySlotContents(i, is);
                 }
             }
         }
     }
 
+    @Override
+    protected void drawItemStackTooltip(ItemStack stack, int mouseX, int mouseY) {
+        if (isCtrlKeyDown()) {
+            for (int j = 0; j < 40; j++) {
+                Slot slot = inventorySlots.getSlot(j);
+                if (isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
+                    List<String> list = new ArrayList<String>();
+                    String itemName = (String) stack.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips).get(0);
+                    list.add("\u00a7" + Integer.toHexString(stack.getRarity().rarityColor) + itemName);
+
+                    FontRenderer font = stack.getItem().getFontRenderer(stack);
+                    drawHoveringText(list, mouseX, mouseY, (font == null ? fontRenderer : font));
+
+                    boolean leftSide = (mouseX + 12 + fontRenderer.getStringWidth(itemName) > this.width);
+                    drawIngredientTooltip(j, mouseX, mouseY, leftSide);
+                    return;
+                }
+            }
+        }
+        super.drawItemStackTooltip(stack, mouseX, mouseY);
+    }
+
     // TODO: simplify
-    protected void drawIngredientTooltip(int slotIndex, int mouseX, int mouseY, boolean leftSide) {
+    private void drawIngredientTooltip(int slotIndex, int mouseX, int mouseY, boolean leftSide) {
 
         EasyRecipe recipe = null;
 
@@ -349,27 +376,5 @@ public class GuiEasyCrafting extends GuiTabbed {
             zLevel = 0.0F;
             itemRenderer.zLevel = 0.0F;
         }
-    }
-
-    @Override
-    protected void drawItemStackTooltip(ItemStack stack, int mouseX, int mouseY) {
-        if (isCtrlKeyDown()) {
-            for (int j = 0; j < 40; j++) {
-                Slot slot = inventorySlots.getSlot(j);
-                if (isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
-                    List<String> list = new ArrayList<String>();
-                    String itemName = (String) stack.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips).get(0);
-                    list.add("\u00a7" + Integer.toHexString(stack.getRarity().rarityColor) + itemName);
-
-                    FontRenderer font = stack.getItem().getFontRenderer(stack);
-                    drawHoveringText(list, mouseX, mouseY, (font == null ? fontRenderer : font));
-
-                    boolean leftSide = (mouseX + 12 + fontRenderer.getStringWidth(itemName) > this.width);
-                    drawIngredientTooltip(j, mouseX, mouseY, leftSide);
-                    return;
-                }
-            }
-        }
-        super.drawItemStackTooltip(stack, mouseX, mouseY);
     }
 }
