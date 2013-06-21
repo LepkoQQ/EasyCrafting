@@ -5,11 +5,16 @@ import java.util.List;
 
 import net.lepko.easycrafting.ModEasyCrafting;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
+import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
+import net.lepko.easycrafting.helpers.EasyLog;
 import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.RecipeWorker;
 import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
+import net.lepko.easycrafting.network.PacketHandler;
+import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
+import net.lepko.util.StackUtil;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
@@ -61,7 +66,6 @@ public class GuiEasyCrafting extends GuiTabbed {
     public GuiEasyCrafting(InventoryPlayer playerInventory, TileEntityEasyCrafting tileInventory) {
         super(new ContainerEasyCrafting(playerInventory, tileInventory));
         this.tileInventory = tileInventory;
-        ((ContainerEasyCrafting) inventorySlots).gui = this;
         ySize = 235;
     }
 
@@ -182,17 +186,74 @@ public class GuiEasyCrafting extends GuiTabbed {
         }
     }
 
-    /**
-     * button: 0 -> left mouse 1 -> action=0 or 1 -> right mouse action=5 -> left click dragged over 2 -> middle mouse 5 -> action=5 -> right click
-     * dragged over
-     * 
-     * action: 0 -> click 1 -> shift click 2 -> swap with slot in hotbar (button is 0-8) 3 -> pick block 4 -> drop block 5 -> dragged stack 6 ->
-     * double click
-     */
+    // button:
+    // 0 -> left mouse
+    // 1 -> action=0 or 1 -> right mouse
+    // _____action=5 -> left click dragged over
+    // 2 -> middle mouse
+    // 5 -> action=5 -> right click dragged over
+    //
+    // action:
+    // 0 -> click
+    // 1 -> shift click
+    // 2 -> swap with slot in hotbar (button is 0-8)
+    // 3 -> pick block
+    // 4 -> drop block
+    // 5 -> dragged stack
+    // 6 -> double click
     @Override
     protected void handleMouseClick(Slot slot, int slotIndex, int button, int action) {
-        super.handleMouseClick(slot, slotIndex, button, action);
-        System.out.println("Slot: " + slot + " par2: " + slotIndex + " par3: " + button + " par4:" + action);
+        if (slotIndex >= 0 && slotIndex < 40) {
+            onCraftingSlotClick(slot, slotIndex, button, action);
+        } else {
+            super.handleMouseClick(slot, slotIndex, button, action);
+        }
+    }
+
+    private void onCraftingSlotClick(Slot slot, int slotIndex, int button, int action) {
+        EasyLog.log("Clicked: " + slot.getClass().getSimpleName() + "@" + slotIndex + ", button=" + button + ", action=" + action + ", stack=" + slot.getStack());
+
+        if (action > 1 || button > 1 || slot == null || !slot.getHasStack()) {
+            return;
+        }
+
+        ItemStack finalStack = null;
+        int finalStackSize = 0;
+
+        // TODO: Shift clicking to transfer stack to inventory
+        ItemStack heldStack = mc.thePlayer.inventory.getItemStack();
+        ItemStack slotStack = slot.getStack();
+
+        if (heldStack == null) {
+            finalStack = slotStack.copy();
+            finalStackSize = slotStack.stackSize;
+        } else if (StackUtil.canStack(slotStack, heldStack)) {
+            finalStack = slotStack.copy();
+            finalStackSize = slotStack.stackSize + heldStack.stackSize;
+        } else {
+            return;
+        }
+
+        EasyRecipe recipe = RecipeHelper.getValidRecipe(this, slotIndex, finalStack);
+        if (recipe == null) {
+            return;
+        }
+
+        boolean isRightClick = button == 1;
+
+        PacketHandler.sendPacket(new PacketEasyCrafting(recipe, isRightClick));
+
+        if (isRightClick) { // Right click; craft until max stack
+            int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, heldStack);
+            int timesCrafted = RecipeHelper.canCraft(recipe, mc.thePlayer.inventory, RecipeHelper.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
+            if (timesCrafted > 0) {
+                finalStack.stackSize = finalStackSize + (timesCrafted - 1) * slotStack.stackSize;
+                mc.thePlayer.inventory.setItemStack(finalStack);
+            }
+        } else { // Left click; craft once
+            finalStack.stackSize = finalStackSize;
+            mc.thePlayer.inventory.setItemStack(finalStack);
+        }
     }
 
     private void drawSlotBackground(Slot slot, boolean canCraft) {

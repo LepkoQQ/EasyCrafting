@@ -3,14 +3,6 @@ package net.lepko.easycrafting.inventory;
 import net.lepko.easycrafting.block.SlotEasyCraftingOutput;
 import net.lepko.easycrafting.block.SlotInterceptor;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
-import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.easyobjects.EasyRecipe;
-import net.lepko.easycrafting.helpers.RecipeHelper;
-import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
-import net.lepko.easycrafting.network.PacketHandler;
-import net.lepko.easycrafting.network.packet.EasyPacket;
-import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
-import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -20,9 +12,6 @@ import net.minecraft.item.ItemStack;
 public class ContainerEasyCrafting extends Container {
 
     private TileEntityEasyCrafting tileEntity;
-
-    // TODO: remove
-    public GuiEasyCrafting gui;
 
     public ContainerEasyCrafting(InventoryPlayer playerInventory, TileEntityEasyCrafting tileEntity) {
         this.tileEntity = tileEntity;
@@ -95,82 +84,11 @@ public class ContainerEasyCrafting extends Container {
 
     @Override
     public ItemStack slotClick(int slot_index, int mouse_button, int modifier, EntityPlayer player) {
-        if (slot_index >= 0) {
-            Slot slot = (Slot) inventorySlots.get(slot_index);
-            if (slot instanceof SlotEasyCraftingOutput) {
-                return slotClickEasyCraftingOutput(slot_index, mouse_button, modifier, player);
-            }
-            if (slot instanceof SlotInterceptor) {
-                if (!slot.getHasStack() && (player.inventory.getItemStack() == null)) {
-                    return null;
-                }
+        if (slot_index >= 0 && inventorySlots.get(slot_index) instanceof SlotInterceptor) {
+            if (!((Slot) inventorySlots.get(slot_index)).getHasStack() && (player.inventory.getItemStack() == null)) {
+                return null;
             }
         }
         return super.slotClick(slot_index, mouse_button, modifier, player);
-    }
-
-    private ItemStack slotClickEasyCraftingOutput(int slot_index, int mouse_button, int modifier, EntityPlayer player) {
-        if (!Proxy.proxy.isClient()) {
-            return null;
-        }
-
-        if (gui == null) {
-            return null;
-        }
-
-        if (mouse_button != 0 && mouse_button != 1 || modifier != 0 && modifier != 1) {
-            return null;
-        }
-
-        Slot clicked_slot = (Slot) inventorySlots.get(slot_index);
-        if (clicked_slot == null) {
-            return null;
-        }
-
-        ItemStack stack_in_slot = clicked_slot.getStack();
-        if (stack_in_slot == null) {
-            return null;
-        }
-
-        ItemStack stack_in_hand = player.inventory.getItemStack();
-
-        ItemStack return_stack = null;
-        int return_size = 0;
-
-        // TODO: Shift clicking to transfer stack to inventory
-
-        if (stack_in_hand == null) {
-            return_stack = stack_in_slot.copy();
-            return_size = stack_in_slot.stackSize;
-        } else if (stack_in_slot.itemID == stack_in_hand.itemID && stack_in_hand.getMaxStackSize() >= stack_in_slot.stackSize + stack_in_hand.stackSize && (!stack_in_slot.getHasSubtypes() || stack_in_slot.getItemDamage() == stack_in_hand.getItemDamage()) && ItemStack.areItemStackTagsEqual(stack_in_slot, stack_in_hand)) {
-            return_stack = stack_in_slot.copy();
-            return_size = stack_in_slot.stackSize + stack_in_hand.stackSize;
-        }
-
-        if (return_stack != null) {
-            EasyRecipe recipe = RecipeHelper.getValidRecipe(gui, slot_index, return_stack);
-            if (recipe != null) {
-                boolean isRightClick = mouse_button != 0;
-
-                EasyPacket packet = new PacketEasyCrafting(recipe, isRightClick);
-                PacketHandler.sendPacket(packet);
-
-                if (isRightClick) { // Right click; craft until max stack
-                    int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(stack_in_slot, stack_in_hand);
-                    int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, RecipeHelper.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
-                    if (timesCrafted > 0) {
-                        return_stack.stackSize = return_size + (timesCrafted - 1) * stack_in_slot.stackSize;
-                        player.inventory.setItemStack(return_stack);
-                        return return_stack;
-                    }
-                } else { // Left click; craft once
-                    return_stack.stackSize = return_size;
-                    player.inventory.setItemStack(return_stack);
-                    return return_stack;
-                }
-            }
-        }
-
-        return null;
     }
 }
