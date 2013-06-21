@@ -345,13 +345,13 @@ public class GuiEasyCrafting extends GuiTabbed {
                 Slot slot = inventorySlots.getSlot(j);
                 if (isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
                     List<String> list = new ArrayList<String>();
-                    String itemName = (String) stack.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips).get(0);
+                    String itemName = (String) stack.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips).get(0);
                     list.add("\u00a7" + Integer.toHexString(stack.getRarity().rarityColor) + itemName);
 
                     FontRenderer font = stack.getItem().getFontRenderer(stack);
-                    drawHoveringText(list, mouseX, mouseY, (font == null ? fontRenderer : font));
+                    drawHoveringText(list, mouseX, mouseY, font == null ? fontRenderer : font);
 
-                    boolean leftSide = (mouseX + 12 + fontRenderer.getStringWidth(itemName) > this.width);
+                    boolean leftSide = mouseX + 12 + fontRenderer.getStringWidth(itemName) > width;
                     drawIngredientTooltip(j, mouseX, mouseY, leftSide);
                     return;
                 }

@@ -47,15 +47,15 @@ public abstract class GuiTabbed extends GuiContainer {
 
     // public accessors
     public int guiLeft() {
-        return this.guiLeft;
+        return guiLeft;
     }
 
     public int guiTop() {
-        return this.guiTop;
+        return guiTop;
     }
 
     public void drawRectangle(int x, int y, int texLeft, int texTop, int width, int height) {
-        this.drawTexturedModalRect(x, y, texLeft, texTop, width, height);
+        drawTexturedModalRect(x, y, texLeft, texTop, width, height);
     }
 
     public RenderItem itemRenderer() {

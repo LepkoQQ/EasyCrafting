@@ -85,7 +85,7 @@ public class ContainerEasyCrafting extends Container {
     @Override
     public ItemStack slotClick(int slot_index, int mouse_button, int modifier, EntityPlayer player) {
         if (slot_index >= 0 && inventorySlots.get(slot_index) instanceof SlotInterceptor) {
-            if (!((Slot) inventorySlots.get(slot_index)).getHasStack() && (player.inventory.getItemStack() == null)) {
+            if (!((Slot) inventorySlots.get(slot_index)).getHasStack() && player.inventory.getItemStack() == null) {
                 return null;
             }
         }

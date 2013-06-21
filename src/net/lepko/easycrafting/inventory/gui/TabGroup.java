@@ -14,7 +14,7 @@ public class TabGroup {
 
     public TabGroup(GuiTabbed gui) {
         this.gui = gui;
-        this.leftSide = true;
+        leftSide = true;
     }
 
     public TabGroup(GuiTabbed gui, boolean leftSide) {
