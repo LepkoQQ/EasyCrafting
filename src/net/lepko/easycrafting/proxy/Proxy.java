@@ -26,4 +26,7 @@ public class Proxy {
         }
         return false;
     }
+
+    public void replaceRecipe(String itemIDs) {
+    }
 }

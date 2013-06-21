@@ -6,9 +6,6 @@ import net.minecraftforge.common.Configuration;
 
 public class ConfigHandler {
 
-    /**
-     * The {@link Configuration} instance.
-     */
     private static Configuration config;
 
     // Properties
@@ -28,7 +25,9 @@ public class ConfigHandler {
     public static String CUSTOM_RECIPE_INGREDIENTS_COMMENT = "Block and item IDs to use in crafting recipe; default: 58,331,340";
 
     public static void initialize(File file) {
-        config = new Configuration(file);
+        if (config == null) {
+            config = new Configuration(file);
+        }
 
         config.load();
 

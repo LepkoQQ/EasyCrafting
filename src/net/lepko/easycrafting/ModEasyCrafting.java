@@ -4,6 +4,7 @@ import net.lepko.easycrafting.block.BlockEasyCraftingTable;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.core.CommandEasyCrafting;
+import net.lepko.easycrafting.handlers.ConnectionHandler;
 import net.lepko.easycrafting.handlers.EventHandler;
 import net.lepko.easycrafting.handlers.GuiHandler;
 import net.lepko.easycrafting.handlers.ModCompatibilityHandler;
@@ -13,10 +14,7 @@ import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
@@ -33,7 +31,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 @Mod(modid = VersionHelper.MOD_ID, name = VersionHelper.MOD_NAME, version = VersionHelper.VERSION)
-@NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = { "EasyCrafting" }, packetHandler = PacketHandler.class)
+@NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = { "EasyCrafting" }, packetHandler = PacketHandler.class, connectionHandler = ConnectionHandler.class)
 public class ModEasyCrafting {
 
     @Instance(VersionHelper.MOD_ID)
@@ -57,22 +55,6 @@ public class ModEasyCrafting {
         GameRegistry.registerBlock(blockEasyCraftingTable, "blockEasyCraftingTable");
         GameRegistry.registerTileEntity(TileEntityEasyCrafting.class, "tileEntityEasyCrafting");
 
-        // Recipe from config
-        String recipeItems = ConfigHandler.CUSTOM_RECIPE_INGREDIENTS;
-        String[] items = recipeItems.split(",");
-        Object[] array = new Object[items.length];
-        for (int i = 0; i < items.length; i++) {
-            try {
-                array[i] = new ItemStack(Integer.parseInt(items[i]), 1, OreDictionary.WILDCARD_VALUE);
-            } catch (NumberFormatException nfe) {
-                EasyLog.warning("customRecipeItems: '" + recipeItems + "' is not valid; Using default!");
-                array = new Object[] { Block.workbench, Item.book, Item.redstone };
-                break;
-            }
-        }
-        GameRegistry.addShapelessRecipe(new ItemStack(blockEasyCraftingTable, 1), array);
-        //
-
         Proxy.proxy.onLoad();
 
         NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
@@ -81,6 +63,7 @@ public class ModEasyCrafting {
 
     @ServerStarting
     public void serverStarting(FMLServerStartingEvent event) {
+        // TODO: execute appropriate commands on client
         event.registerServerCommand(new CommandEasyCrafting());
     }
 

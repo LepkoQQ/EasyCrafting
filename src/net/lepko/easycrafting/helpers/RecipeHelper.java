@@ -29,7 +29,7 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 
 public class RecipeHelper {
 
-    private static int lastRecipeListSize = 0;
+    public static int lastRecipeListSize = 0;
     public static List<EasyRecipe> scannedRecipes = new ArrayList<EasyRecipe>();
 
     public static void checkForNewRecipes() {
@@ -78,8 +78,8 @@ public class RecipeHelper {
     /**
      * Get a list of all recipes that are scanned and available. If recipes are not yet scanned it will return an empty list.
      */
-    public static ImmutableList<EasyRecipe> getAllRecipes() {
-        return ImmutableList.copyOf(scannedRecipes);
+    public static List<EasyRecipe> getAllRecipes() {
+        return scannedRecipes;
     }
 
     /**
@@ -158,7 +158,7 @@ public class RecipeHelper {
      * @param take - whether or not to take the ingredients from the inventory
      * @param recursion - how deep to recurse while trying to craft an ingredient (must be nonnegative)
      */
-    public static int canCraft(EasyRecipe recipe, InventoryPlayer inventory, ImmutableList<EasyRecipe> recipesToCheck, boolean take, int maxTimes, int recursion) {
+    public static int canCraft(EasyRecipe recipe, InventoryPlayer inventory, List<EasyRecipe> recipesToCheck, boolean take, int maxTimes, int recursion) {
         if (recursion < 0) {
             return 0;
         }
@@ -248,7 +248,7 @@ public class RecipeHelper {
      * @param ingredient - the item/block we want to craft
      * @param recipesToCheck - a list of recipes to be checked
      */
-    private static ArrayList<EasyRecipe> getRecipesForItemFromList(EasyItemStack ingredient, ImmutableList<EasyRecipe> recipesToCheck) {
+    private static ArrayList<EasyRecipe> getRecipesForItemFromList(EasyItemStack ingredient, List<EasyRecipe> recipesToCheck) {
         ArrayList<EasyRecipe> returnList = new ArrayList<EasyRecipe>();
         for (EasyRecipe er : recipesToCheck) {
             if (er.getResult().equals(ingredient, true)) {
@@ -264,7 +264,7 @@ public class RecipeHelper {
      * @param ingredients - a list of itemstacks
      * @param recipesToCheck - a list of recipes to be checked
      */
-    private static ArrayList<EasyRecipe> getRecipesForItemFromList(ArrayList<ItemStack> ingredients, ImmutableList<EasyRecipe> recipesToCheck) {
+    private static ArrayList<EasyRecipe> getRecipesForItemFromList(ArrayList<ItemStack> ingredients, List<EasyRecipe> recipesToCheck) {
         ArrayList<EasyRecipe> returnList = new ArrayList<EasyRecipe>();
         for (ItemStack is : ingredients) {
             returnList.addAll(getRecipesForItemFromList(EasyItemStack.fromItemStack(is), recipesToCheck));
@@ -280,7 +280,7 @@ public class RecipeHelper {
      * @return the matched EasyRecipe instance, null if none of the recipes match
      */
     public static EasyRecipe getValidRecipe(EasyItemStack result, ItemStack[] ingredients) {
-        ImmutableList<EasyRecipe> all = getAllRecipes();
+        List<EasyRecipe> all = getAllRecipes();
         allLoop: for (EasyRecipe r : all) {
             if (r.getResult().equals(result) && r.getIngredientsSize() == ingredients.length) {
                 ingLoop: for (int j = 0; j < r.getIngredientsSize(); j++) {
