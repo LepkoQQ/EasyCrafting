@@ -9,7 +9,6 @@ import java.util.List;
 import net.lepko.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.handlers.ModCompatibilityHandler;
-import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
 import net.lepko.util.InventoryUtil;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
@@ -27,8 +26,6 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 import com.google.common.collect.ImmutableList;
 
 import cpw.mods.fml.relauncher.ReflectionHelper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class RecipeHelper {
 
@@ -332,22 +329,6 @@ public class RecipeHelper {
             }
         }
         return maxTimes;
-    }
-
-    /**
-     * Get the recipe from the gui index position.
-     */
-    @SideOnly(Side.CLIENT)
-    public static EasyRecipe getValidRecipe(GuiEasyCrafting gui, int slot_index, ItemStack result) {
-        // TODO: find a better way
-        int recipe_index = slot_index + gui.currentRowOffset * 8;
-        if (recipe_index >= 0 && gui.shownRecipes != null && recipe_index < gui.shownRecipes.size()) {
-            EasyRecipe r = gui.shownRecipes.get(recipe_index);
-            if (r.getResult().equalsItemStack(result) && gui.craftableRecipes != null && gui.craftableRecipes.contains(r)) {
-                return r;
-            }
-        }
-        return null;
     }
 
     /**

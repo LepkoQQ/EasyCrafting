@@ -52,8 +52,7 @@ public class GuiEasyCrafting extends GuiTabbed {
     public List<EasyRecipe> shownRecipes;
     public List<EasyRecipe> craftableRecipes;
 
-    // TODO: private
-    public int currentRowOffset = 0;
+    private int currentRowOffset = 0;
     private int maxRowOffset = 0;
     private float currentScrollValue = 0;
     private boolean wasClicking = false;
@@ -234,7 +233,15 @@ public class GuiEasyCrafting extends GuiTabbed {
             return;
         }
 
-        EasyRecipe recipe = RecipeHelper.getValidRecipe(this, slotIndex, finalStack);
+        EasyRecipe recipe = null;
+        int recipeIndex = slotIndex + currentRowOffset * 8;
+        if (recipeIndex >= 0 && shownRecipes != null && recipeIndex < shownRecipes.size()) {
+            EasyRecipe r = shownRecipes.get(recipeIndex);
+            if (r.getResult().equalsItemStack(finalStack) && craftableRecipes != null && craftableRecipes.contains(r)) {
+                recipe = r;
+            }
+        }
+
         if (recipe == null) {
             return;
         }
