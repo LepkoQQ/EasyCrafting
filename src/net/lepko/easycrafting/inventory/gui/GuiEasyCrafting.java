@@ -14,7 +14,7 @@ import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
-import net.lepko.util.StackUtil;
+import net.lepko.util.StackUtils;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
@@ -226,7 +226,7 @@ public class GuiEasyCrafting extends GuiTabbed {
         if (heldStack == null) {
             finalStack = slotStack.copy();
             finalStackSize = slotStack.stackSize;
-        } else if (StackUtil.canStack(slotStack, heldStack)) {
+        } else if (StackUtils.canStack(slotStack, heldStack) == 0) {
             finalStack = slotStack.copy();
             finalStackSize = slotStack.stackSize + heldStack.stackSize;
         } else {

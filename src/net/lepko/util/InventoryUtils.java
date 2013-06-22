@@ -9,7 +9,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
-public class InventoryUtil {
+public class InventoryUtils {
 
     private static final int PLAYER_INVENTORY_SIZE = 36;
 

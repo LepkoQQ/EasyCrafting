@@ -1,4 +1,4 @@
-package net.lepko.easycrafting.block;
+package net.lepko.easycrafting.inventory.slot;
 
 import net.lepko.easycrafting.handlers.TickHandlerClient;
 import net.minecraft.inventory.IInventory;
@@ -6,13 +6,13 @@ import net.minecraft.inventory.Slot;
 
 public class SlotInterceptor extends Slot {
 
-    public SlotInterceptor(IInventory par1iInventory, int par2, int par3, int par4) {
-        super(par1iInventory, par2, par3, par4);
+    public SlotInterceptor(IInventory inventory, int index, int x, int y) {
+        super(inventory, index, x, y);
     }
 
     @Override
     public void onSlotChanged() {
         super.onSlotChanged();
-        TickHandlerClient.updateEasyCraftingOutput();
+        TickHandlerClient.scheduleRecipeUpdate();
     }
 }

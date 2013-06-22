@@ -1,8 +1,8 @@
 package net.lepko.easycrafting.inventory;
 
-import net.lepko.easycrafting.block.SlotEasyCraftingOutput;
-import net.lepko.easycrafting.block.SlotInterceptor;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
+import net.lepko.easycrafting.inventory.slot.SlotEasyCraftingOutput;
+import net.lepko.easycrafting.inventory.slot.SlotInterceptor;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;

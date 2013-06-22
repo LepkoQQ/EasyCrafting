@@ -17,11 +17,11 @@ public class TickHandlerClient implements ITickHandler {
     private static boolean showUpdateInChat = true;
     private static int count = 5;
 
-    public static void updateEasyCraftingOutput() {
-        updateEasyCraftingOutput(5);
+    public static void scheduleRecipeUpdate() {
+        scheduleRecipeUpdate(5);
     }
 
-    public static void updateEasyCraftingOutput(int c) {
+    public static void scheduleRecipeUpdate(int c) {
         updateEasyCraftingOutput = true;
         count = c;
     }
