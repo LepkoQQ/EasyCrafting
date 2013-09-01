@@ -2,9 +2,9 @@ package net.lepko.easycrafting.handlers;
 
 import java.util.EnumSet;
 
-import net.lepko.easycrafting.helpers.RecipeWorker;
 import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
+import net.lepko.easycrafting.recipe.RecipeWorker;
 import net.minecraft.client.Minecraft;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.ITickHandler;

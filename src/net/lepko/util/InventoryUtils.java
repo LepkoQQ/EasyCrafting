@@ -3,7 +3,6 @@ package net.lepko.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.lepko.easycrafting.easyobjects.EasyItemStack;
 import net.lepko.easycrafting.helpers.EasyLog;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
@@ -24,41 +23,6 @@ public class InventoryUtils {
             return PLAYER_INVENTORY_SIZE;
         }
         return inv.getSizeInventory();
-    }
-
-    /**
-     * Check if an inventory contains a single item matching the supplied EasyItemStack.
-     * 
-     * @param inventory - inventory to check
-     * @param eis - item to find
-     * @return slot index of item in inventory, -1 if not found
-     */
-    public static int isItemInInventory(IInventory inventory, EasyItemStack eis) {
-        int invSize = getMainInventorySize(inventory);
-        for (int i = 0; i < invSize; i++) {
-            if (eis.equalsItemStack(inventory.getStackInSlot(i), true)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Check if an inventory contains any of the items in the supplied list of ItemStacks
-     * 
-     * @param inventory - inventory to check
-     * @param ingredients - list of items
-     * @return slot index of the first item found, -1 if none found
-     * @see #isItemInInventory(IInventory, EasyItemStack)
-     */
-    public static int isItemInInventory(IInventory inventory, List<ItemStack> ingredients) {
-        for (ItemStack is : ingredients) {
-            int slot = isItemInInventory(inventory, EasyItemStack.fromItemStack(is));
-            if (slot != -1) {
-                return slot;
-            }
-        }
-        return -1;
     }
 
     /**

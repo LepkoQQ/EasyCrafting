@@ -7,12 +7,11 @@ import net.lepko.easycrafting.core.CommandEasyCrafting;
 import net.lepko.easycrafting.handlers.ConnectionHandler;
 import net.lepko.easycrafting.handlers.EventHandler;
 import net.lepko.easycrafting.handlers.GuiHandler;
-import net.lepko.easycrafting.handlers.ModCompatibilityHandler;
 import net.lepko.easycrafting.helpers.EasyLog;
-import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.proxy.Proxy;
+import net.lepko.easycrafting.recipe.RecipeManager;
 import net.minecraft.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
@@ -35,7 +34,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 public class ModEasyCrafting {
 
     @Instance(VersionHelper.MOD_ID)
-    public static ModEasyCrafting instance = new ModEasyCrafting();
+    public static ModEasyCrafting instance;
 
     // Blocks
     public static Block blockEasyCraftingTable;
@@ -69,7 +68,6 @@ public class ModEasyCrafting {
 
     @PostInit
     public void postInit(FMLPostInitializationEvent event) {
-        ModCompatibilityHandler.load();
-        RecipeHelper.checkForNewRecipes();
+        RecipeManager.scanRecipes();
     }
 }

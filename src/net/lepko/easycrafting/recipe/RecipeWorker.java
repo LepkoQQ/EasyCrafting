@@ -1,13 +1,11 @@
-package net.lepko.easycrafting.helpers;
+package net.lepko.easycrafting.recipe;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.easyobjects.EasyRecipe;
-import net.lepko.easycrafting.helpers.RecipeHelper.RecipeComparator;
+import net.lepko.easycrafting.helpers.EasyLog;
 import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.entity.player.InventoryPlayer;
 
@@ -17,7 +15,7 @@ import cpw.mods.fml.client.FMLClientHandler;
 
 public class RecipeWorker implements Runnable {
 
-    private List<EasyRecipe> craftableRecipes = new ArrayList<EasyRecipe>();
+    private List<WrappedRecipe> craftableRecipes = new LinkedList<WrappedRecipe>();
     private boolean displayed = true;
     private boolean requested = false;
 
@@ -28,11 +26,13 @@ public class RecipeWorker implements Runnable {
         InventoryPlayer player_inventory = FMLClientHandler.instance().getClient().thePlayer.inventory;
 
         int maxRecursion = ConfigHandler.MAX_RECURSION;
-        ArrayList<EasyRecipe> tmp = RecipeHelper.getCraftableRecipes(player_inventory, maxRecursion, RecipeHelper.getAllRecipes());
-        Collections.sort(tmp, new RecipeComparator());
+        List<WrappedRecipe> tmp = RecipeHelper.getCraftableRecipes(player_inventory, maxRecursion, RecipeManager.getAllRecipes());
+
+        // TODO: sort the list
+        // Collections.sort(tmp, new RecipeComparator());
 
         craftableRecipes = tmp;
-        EasyLog.log(String.format("%d/%d craftable | %.8f seconds", craftableRecipes.size(), RecipeHelper.getAllRecipes().size(), (System.nanoTime() - beforeTime) / 1000000000.0D));
+        EasyLog.log(String.format("%d/%d craftable | %.8f seconds", craftableRecipes.size(), RecipeManager.getAllRecipes().size(), (System.nanoTime() - beforeTime) / 1000000000.0D));
     }
 
     @Override
@@ -64,7 +64,7 @@ public class RecipeWorker implements Runnable {
         displayed = true;
     }
 
-    public List<EasyRecipe> getCraftableRecipes() {
+    public List<WrappedRecipe> getCraftableRecipes() {
         return ImmutableList.copyOf(craftableRecipes);
     }
 

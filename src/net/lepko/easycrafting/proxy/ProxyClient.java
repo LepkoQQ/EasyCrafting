@@ -1,13 +1,12 @@
 package net.lepko.easycrafting.proxy;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.lepko.easycrafting.ModEasyCrafting;
-import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.handlers.TickHandlerClient;
 import net.lepko.easycrafting.helpers.EasyLog;
-import net.lepko.easycrafting.helpers.RecipeHelper;
+import net.lepko.easycrafting.recipe.RecipeManager;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -44,23 +43,13 @@ public class ProxyClient extends Proxy {
 
         @SuppressWarnings("unchecked")
         List<IRecipe> recipes = CraftingManager.getInstance().getRecipeList();
-        List<IRecipe> toRemove = new ArrayList<IRecipe>();
+        List<IRecipe> toRemove = new LinkedList<IRecipe>();
         for (IRecipe r : recipes) {
             if (is.equals(r.getRecipeOutput())) {
                 toRemove.add(r);
             }
         }
         recipes.removeAll(toRemove);
-        RecipeHelper.lastRecipeListSize -= toRemove.size();
-
-        List<EasyRecipe> eRecipes = RecipeHelper.getAllRecipes();
-        List<EasyRecipe> eToRemove = new ArrayList<EasyRecipe>();
-        for (EasyRecipe r : eRecipes) {
-            if (r.getResult().equalsItemStack(is)) {
-                eToRemove.add(r);
-            }
-        }
-        eRecipes.removeAll(eToRemove);
 
         String[] items = itemIDs.split(",");
         Object[] array = new Object[items.length];
@@ -74,5 +63,7 @@ public class ProxyClient extends Proxy {
             }
         }
         GameRegistry.addShapelessRecipe(new ItemStack(ModEasyCrafting.blockEasyCraftingTable, 1), array);
+
+        RecipeManager.scanRecipes();
     }
 }

@@ -6,47 +6,42 @@ import java.io.IOException;
 import java.util.List;
 
 import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.easyobjects.EasyItemStack;
-import net.lepko.easycrafting.easyobjects.EasyRecipe;
-import net.lepko.easycrafting.helpers.RecipeHelper;
 import net.lepko.easycrafting.network.PacketHandler;
+import net.lepko.easycrafting.recipe.RecipeHelper;
+import net.lepko.easycrafting.recipe.RecipeManager;
+import net.lepko.easycrafting.recipe.WrappedRecipe;
+import net.lepko.util.StackUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.network.Player;
 
 public class PacketEasyCrafting extends EasyPacket {
 
-    private EasyItemStack result;
-    ItemStack[] ingredients;
+    private ItemStack result;
+    private ItemStack[] ingredients;
     private boolean isRightClick = false;
 
     public PacketEasyCrafting() {
         super(PacketHandler.PACKETID_EASYCRAFTING);
     }
 
-    public PacketEasyCrafting(EasyRecipe recipe, boolean isRightClick) {
+    public PacketEasyCrafting(WrappedRecipe recipe, boolean isRightClick) {
         this();
         setRecipe(recipe);
         this.isRightClick = isRightClick;
     }
 
-    public void setRecipe(EasyRecipe recipe) {
+    private void setRecipe(WrappedRecipe recipe) {
+        result = recipe.output.stack;
+        ingredients = new ItemStack[recipe.inputs.size()];
 
-        result = recipe.getResult();
-        ingredients = new ItemStack[recipe.getIngredientsSize()];
-
-        for (int i = 0; i < recipe.getIngredientsSize(); i++) {
-            if (recipe.getIngredient(i) instanceof EasyItemStack) {
-                EasyItemStack eis = (EasyItemStack) recipe.getIngredient(i);
-                ingredients[i] = new ItemStack(eis.getID(), eis.getSize(), eis.getDamage());
-            } else if (recipe.getIngredient(i) instanceof List) {
-                @SuppressWarnings("rawtypes")
-                List ingList = (List) recipe.getIngredient(i);
-                if (!ingList.isEmpty() && ingList.get(0) instanceof ItemStack) {
-                    ingredients[i] = ((ItemStack) ingList.get(0)).copy();
-                } else {
-                    ingredients[i] = new ItemStack(0, 0, 1);
-                }
+        for (int i = 0; i < recipe.inputs.size(); i++) {
+            if (recipe.inputs.get(i) instanceof ItemStack) {
+                ingredients[i] = ((ItemStack) recipe.inputs.get(i)).copy();
+            } else if (recipe.inputs.get(i) instanceof List) {
+                @SuppressWarnings("unchecked")
+                List<ItemStack> ingList = (List<ItemStack>) recipe.inputs.get(i);
+                ingredients[i] = ((ItemStack) ingList.get(0)).copy();
             }
         }
     }
@@ -54,7 +49,7 @@ public class PacketEasyCrafting extends EasyPacket {
     @Override
     public void run(Player player) {
 
-        EasyRecipe recipe = RecipeHelper.getValidRecipe(result, ingredients);
+        WrappedRecipe recipe = RecipeHelper.getValidRecipe(result, ingredients);
         if (recipe == null) {
             return;
         }
@@ -65,24 +60,27 @@ public class PacketEasyCrafting extends EasyPacket {
         int return_size = 0;
 
         if (stack_in_hand == null) {
-            return_stack = recipe.getResult().toItemStack();
-            return_size = recipe.getResult().getSize();
-        } else if (recipe.getResult().equalsItemStack(stack_in_hand, true) && stack_in_hand.getMaxStackSize() >= recipe.getResult().getSize() + stack_in_hand.stackSize && EasyItemStack.areStackTagsEqual(recipe.getResult(), stack_in_hand)) {
-            return_stack = recipe.getResult().toItemStack();
-            return_size = recipe.getResult().getSize() + stack_in_hand.stackSize;
+            return_stack = recipe.output.stack.copy();
+            return_size = recipe.output.stack.stackSize;
+        } else {
+            int leftover = StackUtils.canStack(stack_in_hand, recipe.output.stack);
+            if (leftover == 0) {
+                return_stack = recipe.output.stack.copy();
+                return_size = recipe.output.stack.stackSize + stack_in_hand.stackSize;
+            }
         }
 
         if (return_stack != null) {
             if (!isRightClick) {
-                if (RecipeHelper.canCraft(recipe, sender.inventory, RecipeHelper.getAllRecipes(), true, 1, ConfigHandler.MAX_RECURSION) > 0) {
+                if (RecipeHelper.canCraft(recipe, sender.inventory, RecipeManager.getAllRecipes(), true, 1, ConfigHandler.MAX_RECURSION) > 0) {
                     return_stack.stackSize = return_size;
                     sender.inventory.setItemStack(return_stack);
                 }
             } else {
                 int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, stack_in_hand);
-                int timesCrafted = RecipeHelper.canCraft(recipe, sender.inventory, RecipeHelper.getAllRecipes(), true, maxTimes, ConfigHandler.MAX_RECURSION);
+                int timesCrafted = RecipeHelper.canCraft(recipe, sender.inventory, RecipeManager.getAllRecipes(), true, maxTimes, ConfigHandler.MAX_RECURSION);
                 if (timesCrafted > 0) {
-                    return_stack.stackSize = return_size + (timesCrafted - 1) * recipe.getResult().getSize();
+                    return_stack.stackSize = return_size + (timesCrafted - 1) * recipe.output.stack.stackSize;
                     sender.inventory.setItemStack(return_stack);
                 }
             }
@@ -98,7 +96,7 @@ public class PacketEasyCrafting extends EasyPacket {
         int damage = data.readInt();
         int size = data.readByte();
 
-        result = new EasyItemStack(id, damage, size);
+        result = new ItemStack(id, damage, size);
 
         int length = data.readByte();
 
@@ -118,9 +116,9 @@ public class PacketEasyCrafting extends EasyPacket {
 
         data.writeBoolean(isRightClick);
 
-        data.writeShort(result.getID());
-        data.writeInt(result.getDamage());
-        data.writeByte(result.getSize());
+        data.writeShort(result.itemID);
+        data.writeInt(result.getItemDamage());
+        data.writeByte(result.stackSize);
 
         data.writeByte(ingredients.length);
 

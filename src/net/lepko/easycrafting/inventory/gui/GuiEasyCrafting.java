@@ -6,15 +6,17 @@ import java.util.List;
 import net.lepko.easycrafting.ModEasyCrafting;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.easyobjects.EasyRecipe;
 import net.lepko.easycrafting.helpers.EasyLog;
-import net.lepko.easycrafting.helpers.RecipeHelper;
-import net.lepko.easycrafting.helpers.RecipeWorker;
 import net.lepko.easycrafting.helpers.VersionHelper;
 import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
+import net.lepko.easycrafting.recipe.RecipeHelper;
+import net.lepko.easycrafting.recipe.RecipeManager;
+import net.lepko.easycrafting.recipe.RecipeWorker;
+import net.lepko.easycrafting.recipe.WrappedRecipe;
 import net.lepko.util.StackUtils;
+import net.lepko.util.WrappedStack;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
@@ -49,8 +51,8 @@ public class GuiEasyCrafting extends GuiTabbed {
     private static String LAST_SEARCH = "";
     private static boolean WORKER_LOCKED = false;
 
-    public List<EasyRecipe> shownRecipes;
-    public List<EasyRecipe> craftableRecipes;
+    public List<WrappedRecipe> shownRecipes;
+    public List<WrappedRecipe> craftableRecipes;
 
     private int currentRowOffset = 0;
     private int maxRowOffset = 0;
@@ -233,11 +235,11 @@ public class GuiEasyCrafting extends GuiTabbed {
             return;
         }
 
-        EasyRecipe recipe = null;
+        WrappedRecipe recipe = null;
         int recipeIndex = slotIndex + currentRowOffset * 8;
         if (recipeIndex >= 0 && shownRecipes != null && recipeIndex < shownRecipes.size()) {
-            EasyRecipe r = shownRecipes.get(recipeIndex);
-            if (r.getResult().equalsItemStack(finalStack) && craftableRecipes != null && craftableRecipes.contains(r)) {
+            WrappedRecipe r = shownRecipes.get(recipeIndex);
+            if (StackUtils.areCraftingEquivalent(r.output.stack, finalStack) && craftableRecipes != null && craftableRecipes.contains(r)) {
                 recipe = r;
             }
         }
@@ -252,7 +254,7 @@ public class GuiEasyCrafting extends GuiTabbed {
 
         if (isRightClick) { // Right click; craft until max stack
             int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, heldStack);
-            int timesCrafted = RecipeHelper.canCraft(recipe, mc.thePlayer.inventory, RecipeHelper.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
+            int timesCrafted = RecipeHelper.canCraft(recipe, mc.thePlayer.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
             if (timesCrafted > 0) {
                 finalStack.stackSize = finalStackSize + (timesCrafted - 1) * slotStack.stackSize;
                 mc.thePlayer.inventory.setItemStack(finalStack);
@@ -272,15 +274,15 @@ public class GuiEasyCrafting extends GuiTabbed {
 
     @SuppressWarnings("unchecked")
     private void updateSearch() {
-        List<EasyRecipe> all = currentTab == 0 ? craftableRecipes : RecipeHelper.getAllRecipes();
-        List<EasyRecipe> list = new ArrayList<EasyRecipe>();
+        List<WrappedRecipe> all = currentTab == 0 ? craftableRecipes : RecipeManager.getAllRecipes();
+        List<WrappedRecipe> list = new ArrayList<WrappedRecipe>();
         if (all == null || searchField == null) {
             return;
         }
         LAST_SEARCH = searchField.getText().toLowerCase();
         if (!LAST_SEARCH.trim().isEmpty()) {
-            for (EasyRecipe recipe : all) {
-                List<String> tips = recipe.getResult().toItemStack().getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
+            for (WrappedRecipe recipe : all) {
+                List<String> tips = recipe.output.stack.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
                 for (String tip : tips) {
                     if (tip.toLowerCase().contains(LAST_SEARCH)) {
                         list.add(recipe);
@@ -331,7 +333,7 @@ public class GuiEasyCrafting extends GuiTabbed {
                 if (i + offset >= shownRecipes.size() || i + offset < 0) {
                     tileInventory.setInventorySlotContents(i, null);
                 } else {
-                    ItemStack is = shownRecipes.get(i + offset).getResult().toItemStack();
+                    ItemStack is = shownRecipes.get(i + offset).output.stack.copy();
                     tileInventory.setInventorySlotContents(i, is);
                 }
             }
@@ -363,12 +365,12 @@ public class GuiEasyCrafting extends GuiTabbed {
     // TODO: simplify
     private void drawIngredientTooltip(int slotIndex, int mouseX, int mouseY, boolean leftSide) {
 
-        EasyRecipe recipe = null;
+        WrappedRecipe recipe = null;
 
         int recipe_index = slotIndex + currentRowOffset * 8;
         if (recipe_index >= 0 && shownRecipes != null && recipe_index < shownRecipes.size()) {
-            EasyRecipe r = shownRecipes.get(recipe_index);
-            if (r.getResult().equalsItemStack(inventorySlots.getSlot(slotIndex).getStack())) {
+            WrappedRecipe r = shownRecipes.get(recipe_index);
+            if (StackUtils.areCraftingEquivalent(r.output.stack, inventorySlots.getSlot(slotIndex).getStack())) {
                 recipe = r;
             }
         }
@@ -377,7 +379,7 @@ public class GuiEasyCrafting extends GuiTabbed {
             return;
         }
 
-        ArrayList<ItemStack> ingredientList = recipe.getCompactIngredientList();
+        List<WrappedStack> ingredientList = recipe.collatedInputs;
 
         if (ingredientList != null && !ingredientList.isEmpty()) {
             int width = 16;
@@ -422,7 +424,8 @@ public class GuiEasyCrafting extends GuiTabbed {
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 
-            for (ItemStack is : ingredientList) {
+            for (WrappedStack ws : ingredientList) {
+                ItemStack is = ws.stack;
                 if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
                     ItemStack is2 = is.copy();
                     is2.setItemDamage(0);
