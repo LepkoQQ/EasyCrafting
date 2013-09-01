@@ -61,7 +61,8 @@ public class WrappedRecipe {
             warn("recipe input list is empty", recipe);
             return null;
         }
-        for (Object o : inputs) {
+        for (int i = 0; i < inputs.size(); i++) {
+            Object o = inputs.get(i);
             if (o instanceof List) {
                 List<?> list = (List<?>) o;
                 if (list.isEmpty()) {
@@ -90,6 +91,13 @@ public class WrappedRecipe {
                         return null;
                     }
                     stack.stackSize = 1;
+                } else if (o instanceof String) {
+                    List<ItemStack> resolved = RecipeHelper.resolveOreAndLiquidDictionaries((String) o);
+                    if (resolved == null || resolved.isEmpty()) {
+                        warn("could not resolve one of the recipe inputs [string=" + (String) o + "]", recipe);
+                        return null;
+                    }
+                    inputs.set(i, resolved);
                 } else {
                     warn("one of recipe inputs is unknown", o, recipe);
                     return null;

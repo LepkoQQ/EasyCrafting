@@ -1,5 +1,8 @@
 package net.lepko.easycrafting.recipe;
 
+import ic2.api.item.ElectricItem;
+import ic2.api.item.IElectricItem;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -89,8 +92,10 @@ public class RecipeHelper {
             return 0;
         }
 
-        // TODO: fix charge
-        // recipe.getResult().setCharge(null);
+        if (recipe.output.stack.getItem() instanceof IElectricItem) {
+            ElectricItem.manager.discharge(recipe.output.stack, Integer.MAX_VALUE, Integer.MAX_VALUE, true, false);
+        }
+
         List<ItemStack> usedIngredients = new ArrayList<ItemStack>();
 
         int invSize = InventoryUtils.getMainInventorySize(inventory);
@@ -103,7 +108,7 @@ public class RecipeHelper {
             iiLoop: for (int ii = 0; ii < recipe.inputs.size(); ii++) {
                 if (recipe.inputs.get(ii) instanceof ItemStack) {
                     ItemStack ingredient = (ItemStack) recipe.inputs.get(ii);
-                    int inventoryIndex = isItemInInventory(ingredient, recipe.handler, tmp);
+                    int inventoryIndex = isItemInInventory(ingredient, recipe, tmp);
                     if (inventoryIndex != -1 && InventoryUtils.consumeItemForCrafting(tmp, inventoryIndex, usedIngredients)) {
                         continue iiLoop;
                     }
@@ -129,7 +134,7 @@ public class RecipeHelper {
                 } else if (recipe.inputs.get(ii) instanceof List) {
                     @SuppressWarnings("unchecked")
                     List<ItemStack> ingredients = (List<ItemStack>) recipe.inputs.get(ii);
-                    int inventoryIndex = isItemInInventory(ingredients, recipe.handler, tmp);
+                    int inventoryIndex = isItemInInventory(ingredients, recipe, tmp);
                     if (inventoryIndex != -1 && InventoryUtils.consumeItemForCrafting(tmp, inventoryIndex, usedIngredients)) {
                         continue iiLoop;
                     }
@@ -160,8 +165,6 @@ public class RecipeHelper {
         }
 
         if (timesCrafted > 0) {
-            // TODO: fix charge
-            // recipe.getResult().setCharge(usedIngredients);
             if (take) {
                 InventoryUtils.setContents(inventory, tmp2);
             }
@@ -169,20 +172,20 @@ public class RecipeHelper {
         return timesCrafted;
     }
 
-    private static int isItemInInventory(ItemStack is, IRecipeHandler han, IInventory inv) {
+    private static int isItemInInventory(ItemStack is, WrappedRecipe recipe, IInventory inv) {
         int size = InventoryUtils.getMainInventorySize(inv);
         for (int i = 0; i < size; i++) {
             ItemStack candidate = inv.getStackInSlot(i);
-            if (candidate != null && han.matchItem(is, candidate)) {
+            if (candidate != null && recipe.handler.matchItem(is, candidate, recipe.output.stack)) {
                 return i;
             }
         }
         return -1;
     }
 
-    private static int isItemInInventory(List<ItemStack> ing, IRecipeHandler han, IInventory inv) {
+    private static int isItemInInventory(List<ItemStack> ing, WrappedRecipe recipe, IInventory inv) {
         for (ItemStack is : ing) {
-            int slot = isItemInInventory(is, han, inv);
+            int slot = isItemInInventory(is, recipe, inv);
             if (slot != -1) {
                 return slot;
             }
@@ -193,7 +196,7 @@ public class RecipeHelper {
     private static List<WrappedRecipe> getRecipesForItemFromList(ItemStack ingredient, IRecipeHandler handler, List<WrappedRecipe> recipesToCheck) {
         List<WrappedRecipe> list = new LinkedList<WrappedRecipe>();
         for (WrappedRecipe wr : recipesToCheck) {
-            if (handler.matchItem(ingredient, wr.output.stack)) {
+            if (handler.matchItem(ingredient, wr.output.stack, null)) {
                 list.add(wr);
             }
         }
@@ -274,7 +277,7 @@ public class RecipeHelper {
 
             int separator = string.indexOf(':');
             int id;
-            int meta = -1;
+            int meta = OreDictionary.WILDCARD_VALUE;
 
             try {
                 if (separator > -1) {
@@ -289,7 +292,7 @@ public class RecipeHelper {
             }
 
             for (LiquidContainerData data : LiquidContainerRegistry.getRegisteredLiquidContainerData()) {
-                if (data.stillLiquid.itemID == id && (meta == -1 || data.stillLiquid.itemMeta == meta)) {
+                if (data.stillLiquid.itemID == id && (meta == OreDictionary.WILDCARD_VALUE || data.stillLiquid.itemMeta == meta)) {
                     result.add(data.filled);
                 }
             }

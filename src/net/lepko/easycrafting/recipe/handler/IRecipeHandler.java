@@ -9,5 +9,5 @@ public interface IRecipeHandler {
 
     public List<Object> getInputs(IRecipe recipe);
 
-    public boolean matchItem(ItemStack target, ItemStack candidate);
+    public boolean matchItem(ItemStack target, ItemStack candidate, ItemStack finalResult);
 }

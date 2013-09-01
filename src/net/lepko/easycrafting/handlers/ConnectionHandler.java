@@ -9,6 +9,7 @@ import net.minecraft.network.packet.NetHandler;
 import net.minecraft.network.packet.Packet1Login;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.server.MinecraftServer;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.IConnectionHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -26,8 +27,10 @@ public class ConnectionHandler implements IConnectionHandler {
     @Override
     public void connectionClosed(INetworkManager manager) {
         // on client
-        ConfigHandler.initialize(null);
-        Proxy.proxy.replaceRecipe(ConfigHandler.CUSTOM_RECIPE_INGREDIENTS);
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+            ConfigHandler.initialize(null);
+            Proxy.proxy.replaceRecipe(ConfigHandler.CUSTOM_RECIPE_INGREDIENTS);
+        }
     }
 
     @Override

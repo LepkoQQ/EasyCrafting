@@ -27,7 +27,7 @@ public class ForgeRecipeHandler implements IRecipeHandler {
     }
 
     @Override
-    public boolean matchItem(ItemStack target, ItemStack candidate) {
+    public boolean matchItem(ItemStack target, ItemStack candidate, ItemStack finalResult) {
         if (candidate == null || target == null) {
             return candidate == target;
         }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.lepko.easycrafting.helpers.EasyLog;
 import net.lepko.easycrafting.recipe.handler.ForgeRecipeHandler;
+import net.lepko.easycrafting.recipe.handler.IC2RecipeHandler;
 import net.lepko.easycrafting.recipe.handler.IRecipeHandler;
 import net.lepko.easycrafting.recipe.handler.VanillaRecipeHandler;
 import net.minecraft.item.crafting.CraftingManager;
@@ -17,7 +18,7 @@ public class RecipeManager {
     public static final List<IRecipeHandler> HANDLERS = new LinkedList<IRecipeHandler>();
     static {
         // Mod recipe classes could extend vanilla classes so scan them first
-        // HANDLERS.add(new IC2RecipeHandler());
+        HANDLERS.add(new IC2RecipeHandler());
         // HANDLERS.add(new EE3RecipeHandler());
         // HANDLERS.add(new ForestryRecipeHandler());
 
