@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.lepko.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.recipe.WrappedRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.oredict.OreDictionary;
@@ -30,7 +31,7 @@ public class IC2RecipeHandler implements IRecipeHandler {
     }
 
     @Override
-    public boolean matchItem(ItemStack target, ItemStack candidate, ItemStack finalResult) {
+    public boolean matchItem(ItemStack target, ItemStack candidate, WrappedRecipe recipe) {
         if (candidate == null || target == null) {
             return candidate == target;
         }
@@ -38,9 +39,9 @@ public class IC2RecipeHandler implements IRecipeHandler {
             return false;
         }
         if (candidate.getItem() instanceof IElectricItem) {
-            int charge = ElectricItem.manager.getCharge(candidate);
-            if (finalResult.getItem() instanceof IElectricItem) {
-                ElectricItem.manager.charge(finalResult, charge, Integer.MAX_VALUE, true, false);
+            if (recipe != null && recipe.output.stack.getItem() instanceof IElectricItem) {
+                int charge = ElectricItem.manager.getCharge(candidate);
+                ElectricItem.manager.charge(recipe.output.stack, charge, Integer.MAX_VALUE, true, false);
             }
             return true;
         }
@@ -48,5 +49,10 @@ public class IC2RecipeHandler implements IRecipeHandler {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public ItemStack getCraftingResult(WrappedRecipe recipe, List<ItemStack> usedIngredients) {
+        return recipe.output.stack.copy();
     }
 }

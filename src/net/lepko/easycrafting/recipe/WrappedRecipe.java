@@ -1,5 +1,6 @@
 package net.lepko.easycrafting.recipe;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class WrappedRecipe {
     public final List<WrappedStack> collatedInputs;
     public final WrappedStack output;
     public final IRecipeHandler handler;
+    public final List<ItemStack> usedIngredients;
 
     private WrappedRecipe(IRecipe recipe, List<Object> inputs, WrappedStack output, IRecipeHandler handler) {
         this.recipe = recipe;
@@ -24,6 +26,7 @@ public class WrappedRecipe {
         this.collatedInputs = StackUtils.collateStacks(inputs);
         this.output = output;
         this.handler = handler;
+        this.usedIngredients = new ArrayList<ItemStack>(9);
     }
 
     /**

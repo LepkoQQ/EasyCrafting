@@ -333,7 +333,8 @@ public class GuiEasyCrafting extends GuiTabbed {
                 if (i + offset >= shownRecipes.size() || i + offset < 0) {
                     tileInventory.setInventorySlotContents(i, null);
                 } else {
-                    ItemStack is = shownRecipes.get(i + offset).output.stack.copy();
+                    WrappedRecipe recipe = shownRecipes.get(i + offset);
+                    ItemStack is = recipe.handler.getCraftingResult(recipe, recipe.usedIngredients);
                     tileInventory.setInventorySlotContents(i, is);
                 }
             }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.lepko.easycrafting.recipe.WrappedRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.oredict.OreDictionary;
@@ -27,7 +28,7 @@ public class ForgeRecipeHandler implements IRecipeHandler {
     }
 
     @Override
-    public boolean matchItem(ItemStack target, ItemStack candidate, ItemStack finalResult) {
+    public boolean matchItem(ItemStack target, ItemStack candidate, WrappedRecipe recipe) {
         if (candidate == null || target == null) {
             return candidate == target;
         }
@@ -38,5 +39,10 @@ public class ForgeRecipeHandler implements IRecipeHandler {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public ItemStack getCraftingResult(WrappedRecipe recipe, List<ItemStack> usedIngredients) {
+        return recipe.output.stack.copy();
     }
 }

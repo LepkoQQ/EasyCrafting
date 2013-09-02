@@ -96,7 +96,7 @@ public class RecipeHelper {
             ElectricItem.manager.discharge(recipe.output.stack, Integer.MAX_VALUE, Integer.MAX_VALUE, true, false);
         }
 
-        List<ItemStack> usedIngredients = new ArrayList<ItemStack>();
+        recipe.usedIngredients.clear();
 
         int invSize = InventoryUtils.getMainInventorySize(inventory);
         InventoryBasic tmp = new InventoryBasic("tmp", true, invSize);
@@ -109,7 +109,7 @@ public class RecipeHelper {
                 if (recipe.inputs.get(ii) instanceof ItemStack) {
                     ItemStack ingredient = (ItemStack) recipe.inputs.get(ii);
                     int inventoryIndex = isItemInInventory(ingredient, recipe, tmp);
-                    if (inventoryIndex != -1 && InventoryUtils.consumeItemForCrafting(tmp, inventoryIndex, usedIngredients)) {
+                    if (inventoryIndex != -1 && InventoryUtils.consumeItemForCrafting(tmp, inventoryIndex, recipe.usedIngredients)) {
                         continue iiLoop;
                     }
                     // ingredient is not in inventory, can we craft it?
@@ -117,14 +117,14 @@ public class RecipeHelper {
                         List<WrappedRecipe> list = getRecipesForItemFromList(ingredient, recipe.handler, recipesToCheck);
                         for (WrappedRecipe wr : list) {
                             if (canCraft(wr, tmp, recipesToCheck, true, 1, recursion - 1) > 0) {
-                                ItemStack is = wr.output.stack.copy();
+                                ItemStack is = wr.handler.getCraftingResult(wr, wr.usedIngredients);
                                 is.stackSize--;
                                 if (is.stackSize > 0 && !InventoryUtils.addItemToInventory(tmp, is)) {
                                     break timesLoop;
                                 }
                                 ItemStack usedItemStack = is.copy();
                                 usedItemStack.stackSize = 1;
-                                usedIngredients.add(usedItemStack);
+                                recipe.usedIngredients.add(usedItemStack);
                                 continue iiLoop;
                             }
                         }
@@ -135,7 +135,7 @@ public class RecipeHelper {
                     @SuppressWarnings("unchecked")
                     List<ItemStack> ingredients = (List<ItemStack>) recipe.inputs.get(ii);
                     int inventoryIndex = isItemInInventory(ingredients, recipe, tmp);
-                    if (inventoryIndex != -1 && InventoryUtils.consumeItemForCrafting(tmp, inventoryIndex, usedIngredients)) {
+                    if (inventoryIndex != -1 && InventoryUtils.consumeItemForCrafting(tmp, inventoryIndex, recipe.usedIngredients)) {
                         continue iiLoop;
                     }
                     // ingredient is not in inventory, can we craft it?
@@ -143,14 +143,14 @@ public class RecipeHelper {
                         List<WrappedRecipe> list = getRecipesForItemFromList(ingredients, recipe.handler, recipesToCheck);
                         for (WrappedRecipe wr : list) {
                             if (canCraft(wr, tmp, recipesToCheck, true, 1, recursion - 1) > 0) {
-                                ItemStack is = wr.output.stack.copy();
+                                ItemStack is = wr.handler.getCraftingResult(wr, wr.usedIngredients);
                                 is.stackSize--;
                                 if (is.stackSize > 0 && !InventoryUtils.addItemToInventory(tmp, is)) {
                                     break timesLoop;
                                 }
                                 ItemStack usedItemStack = is.copy();
                                 usedItemStack.stackSize = 1;
-                                usedIngredients.add(usedItemStack);
+                                recipe.usedIngredients.add(usedItemStack);
                                 continue iiLoop;
                             }
                         }
@@ -176,7 +176,7 @@ public class RecipeHelper {
         int size = InventoryUtils.getMainInventorySize(inv);
         for (int i = 0; i < size; i++) {
             ItemStack candidate = inv.getStackInSlot(i);
-            if (candidate != null && recipe.handler.matchItem(is, candidate, recipe.output.stack)) {
+            if (candidate != null && recipe.handler.matchItem(is, candidate, recipe)) {
                 return i;
             }
         }

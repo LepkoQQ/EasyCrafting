@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.lepko.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.recipe.handler.ForestryRecipeHandler;
 import net.lepko.easycrafting.recipe.handler.ForgeRecipeHandler;
 import net.lepko.easycrafting.recipe.handler.IC2RecipeHandler;
 import net.lepko.easycrafting.recipe.handler.IRecipeHandler;
@@ -20,7 +21,7 @@ public class RecipeManager {
         // Mod recipe classes could extend vanilla classes so scan them first
         HANDLERS.add(new IC2RecipeHandler());
         // HANDLERS.add(new EE3RecipeHandler());
-        // HANDLERS.add(new ForestryRecipeHandler());
+        HANDLERS.add(new ForestryRecipeHandler());
 
         // At the end scan vanilla and forge
         HANDLERS.add(new VanillaRecipeHandler());

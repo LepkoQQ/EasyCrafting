@@ -61,12 +61,12 @@ public class PacketEasyCrafting extends EasyPacket {
 
         if (stack_in_hand == null) {
             return_stack = recipe.output.stack.copy();
-            return_size = recipe.output.stack.stackSize;
+            return_size = return_stack.stackSize;
         } else {
             int leftover = StackUtils.canStack(stack_in_hand, recipe.output.stack);
             if (leftover == 0) {
                 return_stack = recipe.output.stack.copy();
-                return_size = recipe.output.stack.stackSize + stack_in_hand.stackSize;
+                return_size = return_stack.stackSize + stack_in_hand.stackSize;
             }
         }
 
@@ -80,7 +80,7 @@ public class PacketEasyCrafting extends EasyPacket {
                 int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, stack_in_hand);
                 int timesCrafted = RecipeHelper.canCraft(recipe, sender.inventory, RecipeManager.getAllRecipes(), true, maxTimes, ConfigHandler.MAX_RECURSION);
                 if (timesCrafted > 0) {
-                    return_stack.stackSize = return_size + (timesCrafted - 1) * recipe.output.stack.stackSize;
+                    return_stack.stackSize = return_size + (timesCrafted - 1) * return_stack.stackSize;
                     sender.inventory.setItemStack(return_stack);
                 }
             }
