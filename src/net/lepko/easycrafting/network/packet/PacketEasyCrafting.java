@@ -96,7 +96,7 @@ public class PacketEasyCrafting extends EasyPacket {
         int damage = data.readInt();
         int size = data.readByte();
 
-        result = new ItemStack(id, damage, size);
+        result = new ItemStack(id, size, damage);
 
         int length = data.readByte();
 

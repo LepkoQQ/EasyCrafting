@@ -41,9 +41,9 @@ public class StackUtils {
     }
 
     /**
-     * Checks if two ItemStacks are equal. Does NOT check sizes!
+     * Checks if two ItemStack items are equal. Does NOT check sizes or NBT!
      */
-    public static boolean areEqual(ItemStack first, ItemStack second) {
+    public static boolean areEqualItems(ItemStack first, ItemStack second) {
         if (first == null || second == null) {
             return first == second;
         }
@@ -53,10 +53,14 @@ public class StackUtils {
         if (first.getHasSubtypes() && first.getItemDamage() != second.getItemDamage()) {
             return false;
         }
-        if (!areNBTsEqual(first, second)) {
-            return false;
-        }
         return true;
+    }
+
+    /**
+     * Checks if two ItemStacks are equal. Does NOT check sizes!
+     */
+    public static boolean areEqual(ItemStack first, ItemStack second) {
+        return areEqualItems(first, second) && areNBTsEqual(first, second);
     }
 
     /**

@@ -217,7 +217,7 @@ public class RecipeHelper {
     public static WrappedRecipe getValidRecipe(ItemStack result, ItemStack[] ingredients) {
         List<WrappedRecipe> all = RecipeManager.getAllRecipes();
         allLoop: for (WrappedRecipe wr : all) {
-            if (StackUtils.areCraftingEquivalent(wr.output.stack, result) && wr.inputs.size() == ingredients.length) {
+            if (StackUtils.areEqualItems(wr.output.stack, result) && wr.inputs.size() == ingredients.length) {
                 ingLoop: for (int i = 0; i < ingredients.length; i++) {
                     if (wr.inputs.get(i) instanceof ItemStack) {
                         ItemStack is = (ItemStack) wr.inputs.get(i);
