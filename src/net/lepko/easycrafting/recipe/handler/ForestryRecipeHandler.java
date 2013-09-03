@@ -32,6 +32,7 @@ public class ForestryRecipeHandler implements IRecipeHandler {
                 ingredients = new ArrayList<Object>(Arrays.asList(input));
             } catch (Exception e) {
                 EasyLog.warning("[Forestry Recipe Scan] " + recipe.getClass().getName() + " failed!", e);
+                return null;
             }
         }
         return ingredients;

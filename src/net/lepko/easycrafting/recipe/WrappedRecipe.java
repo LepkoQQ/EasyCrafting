@@ -94,13 +94,6 @@ public class WrappedRecipe {
                         return null;
                     }
                     stack.stackSize = 1;
-                } else if (o instanceof String) {
-                    List<ItemStack> resolved = RecipeHelper.resolveOreAndLiquidDictionaries((String) o);
-                    if (resolved == null || resolved.isEmpty()) {
-                        warn("could not resolve one of the recipe inputs [string=" + (String) o + "]", recipe);
-                        return null;
-                    }
-                    inputs.set(i, resolved);
                 } else {
                     warn("one of recipe inputs is unknown", o, recipe);
                     return null;

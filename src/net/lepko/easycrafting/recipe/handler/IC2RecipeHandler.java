@@ -15,17 +15,49 @@ import net.minecraftforge.oredict.OreDictionary;
 
 public class IC2RecipeHandler implements IRecipeHandler {
 
+    private static Class<? super IRecipe> shapedRecipeClass = null;
+    private static Class<? super IRecipe> shapelessRecipeClass = null;
+    static {
+        try {
+            shapedRecipeClass = (Class<? super IRecipe>) Class.forName("ic2.core.AdvRecipe");
+            shapelessRecipeClass = (Class<? super IRecipe>) Class.forName("ic2.core.AdvShapelessRecipe");
+        } catch (Exception e) {
+            EasyLog.warning("[IC2 Recipe Scan] Adv(Shapeless)Recipe.class could not be obtained!", e);
+        }
+    }
+
     @Override
     public List<Object> getInputs(IRecipe recipe) {
         List<Object> ingredients = null;
-        String className = recipe.getClass().getName();
-        if (className.equals("ic2.core.AdvRecipe") || className.equals("ic2.core.AdvShapelessRecipe")) {
-            try {
-                Object[] input = (Object[]) Class.forName(className).getField("input").get(recipe);
-                ingredients = new ArrayList<Object>(Arrays.asList(input));
-            } catch (Exception e) {
-                EasyLog.warning("[IC2 Recipe Scan] " + className + " failed!", e);
+        Object[] input = null;
+        try {
+            if (shapedRecipeClass != null && shapedRecipeClass.isInstance(recipe)) {
+                input = (Object[]) shapedRecipeClass.getField("input").get(recipe);
+            } else if (shapelessRecipeClass != null && shapelessRecipeClass.isInstance(recipe)) {
+                input = (Object[]) shapelessRecipeClass.getField("input").get(recipe);
             }
+
+            if (input != null) {
+                ingredients = new ArrayList<Object>(Arrays.asList(input));
+                for (int i = 0; i < ingredients.size(); i++) {
+                    Object o = ingredients.get(i);
+                    if (o instanceof String) {
+                        if (shapedRecipeClass == null) {
+                            return null;
+                        }
+                        @SuppressWarnings("unchecked")
+                        List<ItemStack> resolved = (List<ItemStack>) shapedRecipeClass.getMethod("resolveOreDict", Object.class).invoke(null, o);
+                        if (resolved == null || resolved.isEmpty()) {
+                            EasyLog.warning("[IC2 Recipe Scan] could not resolve one of the recipe inputs [string=" + (String) o + "]");
+                            return null;
+                        }
+                        ingredients.set(i, resolved);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            EasyLog.warning("[IC2 Recipe Scan] " + recipe.getClass().getName() + " failed!", e);
+            return null;
         }
         return ingredients;
     }

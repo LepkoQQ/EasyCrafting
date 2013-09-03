@@ -1,19 +1,14 @@
 package net.lepko.easycrafting.recipe;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.lepko.easycrafting.helpers.EasyLog;
 import net.lepko.easycrafting.recipe.handler.IRecipeHandler;
 import net.lepko.util.InventoryUtils;
 import net.lepko.util.StackUtils;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.liquids.LiquidContainerData;
-import net.minecraftforge.liquids.LiquidContainerRegistry;
-import net.minecraftforge.oredict.OreDictionary;
 
 public class RecipeHelper {
 
@@ -255,43 +250,5 @@ public class RecipeHelper {
             }
         }
         return maxTimes;
-    }
-
-    /**
-     * Resolves the provided string to a list of itemstacks by querying the ore dictionary. Also handles liquid containers from IC2 recipes.
-     * 
-     * @param string - name of the ore dictionary entry to resolve
-     * @return a list of itemstacks registered under the provided name
-     */
-    // TODO: move this to IC2 recipe handler
-    public static ArrayList<ItemStack> resolveOreAndLiquidDictionaries(String string) {
-        if (string.startsWith("liquid$")) {
-            ArrayList<ItemStack> result = new ArrayList<ItemStack>();
-
-            int separator = string.indexOf(':');
-            int id;
-            int meta = OreDictionary.WILDCARD_VALUE;
-
-            try {
-                if (separator > -1) {
-                    id = Integer.parseInt(string.substring(7, separator - 1));
-                    meta = Integer.parseInt(string.substring(separator + 1));
-                } else {
-                    id = Integer.parseInt(string.substring(7));
-                }
-            } catch (NumberFormatException e) {
-                EasyLog.warning("Execption while resolving liquid dictionary!", e);
-                return result;
-            }
-
-            for (LiquidContainerData data : LiquidContainerRegistry.getRegisteredLiquidContainerData()) {
-                if (data.stillLiquid.itemID == id && (meta == OreDictionary.WILDCARD_VALUE || data.stillLiquid.itemMeta == meta)) {
-                    result.add(data.filled);
-                }
-            }
-
-            return result;
-        }
-        return OreDictionary.getOres(string);
     }
 }
