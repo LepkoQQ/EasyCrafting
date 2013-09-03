@@ -1,8 +1,5 @@
 package net.lepko.easycrafting.recipe;
 
-import ic2.api.item.ElectricItem;
-import ic2.api.item.IElectricItem;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -90,10 +87,6 @@ public class RecipeHelper {
     public static int canCraft(WrappedRecipe recipe, IInventory inventory, List<WrappedRecipe> recipesToCheck, boolean take, int maxTimes, int recursion) {
         if (recursion < 0) {
             return 0;
-        }
-
-        if (recipe.output.stack.getItem() instanceof IElectricItem) {
-            ElectricItem.manager.discharge(recipe.output.stack, Integer.MAX_VALUE, Integer.MAX_VALUE, true, false);
         }
 
         recipe.usedIngredients.clear();

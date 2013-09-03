@@ -39,10 +39,6 @@ public class IC2RecipeHandler implements IRecipeHandler {
             return false;
         }
         if (candidate.getItem() instanceof IElectricItem) {
-            if (recipe != null && recipe.output.stack.getItem() instanceof IElectricItem) {
-                int charge = ElectricItem.manager.getCharge(candidate);
-                ElectricItem.manager.charge(recipe.output.stack, charge, Integer.MAX_VALUE, true, false);
-            }
             return true;
         }
         if (target.getItemDamage() != OreDictionary.WILDCARD_VALUE && target.getItemDamage() != candidate.getItemDamage()) {
@@ -53,6 +49,21 @@ public class IC2RecipeHandler implements IRecipeHandler {
 
     @Override
     public ItemStack getCraftingResult(WrappedRecipe recipe, List<ItemStack> usedIngredients) {
+        if (recipe.inputs.size() == usedIngredients.size()) {
+            if (recipe.output.stack.getItem() instanceof IElectricItem) {
+                ItemStack crafted = recipe.output.stack.copy();
+                int charge = 0;
+                for (ItemStack is : usedIngredients) {
+                    if (is.getItem() instanceof IElectricItem) {
+                        charge += ElectricItem.manager.getCharge(is);
+                    }
+                }
+                if (charge > 0) {
+                    ElectricItem.manager.charge(crafted, charge, Integer.MAX_VALUE, true, false);
+                }
+                return crafted;
+            }
+        }
         return recipe.output.stack.copy();
     }
 }

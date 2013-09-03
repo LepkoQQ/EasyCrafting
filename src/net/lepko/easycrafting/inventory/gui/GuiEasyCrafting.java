@@ -218,50 +218,48 @@ public class GuiEasyCrafting extends GuiTabbed {
             return;
         }
 
-        ItemStack finalStack = null;
-        int finalStackSize = 0;
-
         // TODO: Shift clicking to transfer stack to inventory
         ItemStack heldStack = mc.thePlayer.inventory.getItemStack();
         ItemStack slotStack = slot.getStack();
-
-        if (heldStack == null) {
-            finalStack = slotStack.copy();
-            finalStackSize = slotStack.stackSize;
-        } else if (StackUtils.canStack(slotStack, heldStack) == 0) {
-            finalStack = slotStack.copy();
-            finalStackSize = slotStack.stackSize + heldStack.stackSize;
-        } else {
-            return;
-        }
 
         WrappedRecipe recipe = null;
         int recipeIndex = slotIndex + currentRowOffset * 8;
         if (recipeIndex >= 0 && shownRecipes != null && recipeIndex < shownRecipes.size()) {
             WrappedRecipe r = shownRecipes.get(recipeIndex);
-            if (StackUtils.areCraftingEquivalent(r.output.stack, finalStack) && craftableRecipes != null && craftableRecipes.contains(r)) {
+            if (StackUtils.areEqualItems(r.output.stack, slotStack) && craftableRecipes != null && craftableRecipes.contains(r)) {
                 recipe = r;
             }
         }
-
         if (recipe == null) {
             return;
         }
 
-        boolean isRightClick = button == 1;
+        // slotStack already has a stack from recipe.handler.getCraftingResult()
+        ItemStack finalStack = slotStack.copy();
+        int finalStackSize = 0;
 
-        PacketHandler.sendPacket(new PacketEasyCrafting(recipe, isRightClick));
+        if (heldStack == null) {
+            finalStackSize = finalStack.stackSize;
+        } else if (StackUtils.canStack(slotStack, heldStack) == 0) {
+            finalStackSize = finalStack.stackSize + heldStack.stackSize;
+        }
 
-        if (isRightClick) { // Right click; craft until max stack
-            int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, heldStack);
-            int timesCrafted = RecipeHelper.canCraft(recipe, mc.thePlayer.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
-            if (timesCrafted > 0) {
-                finalStack.stackSize = finalStackSize + (timesCrafted - 1) * slotStack.stackSize;
+        if (finalStackSize > 0) {
+            boolean isRightClick = button == 1;
+
+            PacketHandler.sendPacket(new PacketEasyCrafting(recipe, isRightClick));
+
+            if (isRightClick) { // Right click; craft until max stack
+                int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, heldStack);
+                int timesCrafted = RecipeHelper.canCraft(recipe, mc.thePlayer.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
+                if (timesCrafted > 0) {
+                    finalStack.stackSize = finalStackSize + (timesCrafted - 1) * finalStack.stackSize;
+                    mc.thePlayer.inventory.setItemStack(finalStack);
+                }
+            } else { // Left click; craft once
+                finalStack.stackSize = finalStackSize;
                 mc.thePlayer.inventory.setItemStack(finalStack);
             }
-        } else { // Left click; craft once
-            finalStack.stackSize = finalStackSize;
-            mc.thePlayer.inventory.setItemStack(finalStack);
         }
     }
 

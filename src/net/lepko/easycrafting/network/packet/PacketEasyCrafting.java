@@ -56,21 +56,22 @@ public class PacketEasyCrafting extends EasyPacket {
 
         EntityPlayer sender = (EntityPlayer) player;
         ItemStack stack_in_hand = sender.inventory.getItemStack();
-        ItemStack return_stack = null;
+
+        // We need this call to canCraft() to populate the output in getCraftingResult() with NBT
+        if (RecipeHelper.canCraft(recipe, sender.inventory, RecipeManager.getAllRecipes(), false, 1, ConfigHandler.MAX_RECURSION) == 0) {
+            return;
+        }
+
+        ItemStack return_stack = recipe.handler.getCraftingResult(recipe, recipe.usedIngredients);
         int return_size = 0;
 
         if (stack_in_hand == null) {
-            return_stack = recipe.output.stack.copy();
             return_size = return_stack.stackSize;
-        } else {
-            int leftover = StackUtils.canStack(stack_in_hand, recipe.output.stack);
-            if (leftover == 0) {
-                return_stack = recipe.output.stack.copy();
-                return_size = return_stack.stackSize + stack_in_hand.stackSize;
-            }
+        } else if (StackUtils.canStack(stack_in_hand, return_stack) == 0) {
+            return_size = return_stack.stackSize + stack_in_hand.stackSize;
         }
 
-        if (return_stack != null) {
+        if (return_size > 0) {
             if (!isRightClick) {
                 if (RecipeHelper.canCraft(recipe, sender.inventory, RecipeManager.getAllRecipes(), true, 1, ConfigHandler.MAX_RECURSION) > 0) {
                     return_stack.stackSize = return_size;
