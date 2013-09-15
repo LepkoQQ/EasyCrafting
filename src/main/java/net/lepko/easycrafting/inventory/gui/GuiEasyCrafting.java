@@ -27,6 +27,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.oredict.OreDictionary;
 
 import org.lwjgl.input.Keyboard;
@@ -47,7 +48,7 @@ public class GuiEasyCrafting extends GuiTabbed {
         }
     }
 
-    private static final String GUI_TEXTURE = "/mods/" + VersionHelper.MOD_ID + "/textures/gui/easycraftinggui.png";
+    private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(VersionHelper.MOD_ID, "textures/gui/easycraftinggui.png");
     private static String LAST_SEARCH = "";
     private static boolean WORKER_LOCKED = false;
 

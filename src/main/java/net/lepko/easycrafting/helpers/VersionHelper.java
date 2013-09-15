@@ -18,7 +18,7 @@ public class VersionHelper {
 
     public static final String VERSION = "@MOD_VERSION@";
     public static final String MOD_NAME = "Easy Crafting";
-    public static final String MOD_ID = "EasyCrafting";
+    public static final String MOD_ID = "easycrafting";
 
     private static final String UPDATE_URL = "http://mods.lepko.net/archive/easycrafting/update.csv";
 

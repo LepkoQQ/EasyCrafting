@@ -7,6 +7,7 @@ import net.lepko.easycrafting.helpers.VersionHelper;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.EnumChatFormatting;
 
 public class CommandEasyCrafting extends CommandBase {
@@ -52,19 +53,19 @@ public class CommandEasyCrafting extends CommandBase {
 
     private void processRecursionCommand(ICommandSender sender, String[] args) {
         if (args.length == 1) {
-            sender.sendChatToPlayer(EnumChatFormatting.YELLOW + "> Recursion is: " + ConfigHandler.MAX_RECURSION);
+            sender.sendChatToPlayer(ChatMessageComponent.createFromText(EnumChatFormatting.YELLOW + "> Recursion is: " + ConfigHandler.MAX_RECURSION));
         } else if (args.length == 2) {
             int number = parseIntBounded(sender, args[1], 0, 10);
             ConfigHandler.setRecursion(number);
-            sender.sendChatToPlayer(EnumChatFormatting.YELLOW + "> Recursion set: " + number);
+            sender.sendChatToPlayer(ChatMessageComponent.createFromText(EnumChatFormatting.YELLOW + "> Recursion set: " + number));
         } else {
-            sender.sendChatToPlayer(EnumChatFormatting.RED + "Usage:");
-            sender.sendChatToPlayer(EnumChatFormatting.AQUA + "  /easycrafting recursion " + EnumChatFormatting.RED + " - Get current recursion value");
-            sender.sendChatToPlayer(EnumChatFormatting.AQUA + "  /easycrafting recursion <value>" + EnumChatFormatting.RED + " - Set new recursion value");
+            sender.sendChatToPlayer(ChatMessageComponent.createFromText(EnumChatFormatting.RED + "Usage:"));
+            sender.sendChatToPlayer(ChatMessageComponent.createFromText(EnumChatFormatting.AQUA + "  /easycrafting recursion " + EnumChatFormatting.RED + " - Get current recursion value"));
+            sender.sendChatToPlayer(ChatMessageComponent.createFromText(EnumChatFormatting.AQUA + "  /easycrafting recursion <value>" + EnumChatFormatting.RED + " - Set new recursion value"));
         }
     }
 
     private void processVersionCommand(ICommandSender sender, String[] args) {
-        sender.sendChatToPlayer(EnumChatFormatting.YELLOW + "> " + VersionHelper.MOD_NAME + " version " + VersionHelper.VERSION);
+        sender.sendChatToPlayer(ChatMessageComponent.createFromText(EnumChatFormatting.YELLOW + "> " + VersionHelper.MOD_NAME + " version " + VersionHelper.VERSION));
     }
 }

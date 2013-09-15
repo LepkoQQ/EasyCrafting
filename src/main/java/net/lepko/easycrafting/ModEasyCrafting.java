@@ -5,7 +5,6 @@ import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.core.CommandEasyCrafting;
 import net.lepko.easycrafting.handlers.ConnectionHandler;
-import net.lepko.easycrafting.handlers.EventHandler;
 import net.lepko.easycrafting.handlers.GuiHandler;
 import net.lepko.easycrafting.helpers.EasyLog;
 import net.lepko.easycrafting.helpers.VersionHelper;
@@ -15,11 +14,8 @@ import net.lepko.easycrafting.recipe.RecipeManager;
 import net.minecraft.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.Init;
+import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.Mod.PostInit;
-import cpw.mods.fml.common.Mod.PreInit;
-import cpw.mods.fml.common.Mod.ServerStarting;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -30,7 +26,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 @Mod(modid = VersionHelper.MOD_ID, name = VersionHelper.MOD_NAME, version = VersionHelper.VERSION)
-@NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = { "EasyCrafting" }, packetHandler = PacketHandler.class, connectionHandler = ConnectionHandler.class)
+@NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = { VersionHelper.MOD_ID }, packetHandler = PacketHandler.class, connectionHandler = ConnectionHandler.class)
 public class ModEasyCrafting {
 
     @Instance(VersionHelper.MOD_ID)
@@ -39,14 +35,14 @@ public class ModEasyCrafting {
     // Blocks
     public static Block blockEasyCraftingTable;
 
-    @PreInit
+    @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         EasyLog.log("Loading " + VersionHelper.MOD_NAME + " version " + VersionHelper.VERSION + ".");
         ConfigHandler.initialize(event.getSuggestedConfigurationFile());
         VersionHelper.performCheck();
     }
 
-    @Init
+    @EventHandler
     public void init(FMLInitializationEvent event) {
         blockEasyCraftingTable = new BlockEasyCraftingTable(ConfigHandler.EASYCRAFTINGTABLE_ID);
         LanguageRegistry.addName(blockEasyCraftingTable, "Easy Crafting Table");
@@ -57,16 +53,16 @@ public class ModEasyCrafting {
         Proxy.proxy.onLoad();
 
         NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
-        MinecraftForge.EVENT_BUS.register(new EventHandler());
+        MinecraftForge.EVENT_BUS.register(new net.lepko.easycrafting.handlers.EventHandler());
     }
 
-    @ServerStarting
+    @EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
         // TODO: execute appropriate commands on client
         event.registerServerCommand(new CommandEasyCrafting());
     }
 
-    @PostInit
+    @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         RecipeManager.scanRecipes();
     }

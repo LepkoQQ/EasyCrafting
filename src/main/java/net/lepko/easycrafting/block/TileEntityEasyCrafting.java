@@ -118,7 +118,7 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
     }
 
     @Override
-    public boolean isStackValidForSlot(int slotIndex, ItemStack itemstack) {
+    public boolean isItemValidForSlot(int slotIndex, ItemStack itemstack) {
         if (slotIndex >= 40) {
             return true;
         }
