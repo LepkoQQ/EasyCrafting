@@ -4,11 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.lepko.easycrafting.helpers.EasyLog;
-import net.lepko.easycrafting.recipe.handler.ForestryRecipeHandler;
-import net.lepko.easycrafting.recipe.handler.ForgeRecipeHandler;
-import net.lepko.easycrafting.recipe.handler.IC2RecipeHandler;
-import net.lepko.easycrafting.recipe.handler.IRecipeHandler;
-import net.lepko.easycrafting.recipe.handler.VanillaRecipeHandler;
+import net.lepko.easycrafting.recipe.handler.*;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 
@@ -22,6 +18,7 @@ public class RecipeManager {
         HANDLERS.add(new IC2RecipeHandler());
         // HANDLERS.add(new EE3RecipeHandler());
         HANDLERS.add(new ForestryRecipeHandler());
+        HANDLERS.add(new LogisticsPipesRecipeHandler());
 
         // At the end scan vanilla and forge
         HANDLERS.add(new VanillaRecipeHandler());

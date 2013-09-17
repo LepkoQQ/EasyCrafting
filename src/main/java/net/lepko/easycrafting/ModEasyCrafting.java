@@ -25,8 +25,10 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod(modid = VersionHelper.MOD_ID, name = VersionHelper.MOD_NAME, version = VersionHelper.VERSION)
-@NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = { VersionHelper.MOD_ID }, packetHandler = PacketHandler.class, connectionHandler = ConnectionHandler.class)
+@Mod(modid = VersionHelper.MOD_ID, name = VersionHelper.MOD_NAME, version = VersionHelper.VERSION,
+        dependencies = "after:Forestry;after:LogisticsPipes|Main")
+@NetworkMod(clientSideRequired = true, serverSideRequired = true,
+        channels = { VersionHelper.MOD_ID }, packetHandler = PacketHandler.class, connectionHandler = ConnectionHandler.class)
 public class ModEasyCrafting {
 
     @Instance(VersionHelper.MOD_ID)
