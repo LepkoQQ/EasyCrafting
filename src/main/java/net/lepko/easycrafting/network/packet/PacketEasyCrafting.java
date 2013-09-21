@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.List;
 
 import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.recipe.RecipeHelper;
 import net.lepko.easycrafting.recipe.RecipeManager;
 import net.lepko.easycrafting.recipe.WrappedRecipe;
@@ -21,12 +20,7 @@ public class PacketEasyCrafting extends EasyPacket {
     private ItemStack[] ingredients;
     private boolean isRightClick = false;
 
-    public PacketEasyCrafting() {
-        super(PacketHandler.PACKETID_EASYCRAFTING);
-    }
-
     public PacketEasyCrafting(WrappedRecipe recipe, boolean isRightClick) {
-        this();
         setRecipe(recipe);
         this.isRightClick = isRightClick;
     }

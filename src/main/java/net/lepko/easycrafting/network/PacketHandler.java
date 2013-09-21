@@ -16,8 +16,25 @@ import cpw.mods.fml.common.network.Player;
 
 public class PacketHandler implements IPacketHandler {
 
-    public static final int PACKETID_EASYCRAFTING = 1;
-    public static final int PACKETID_SERVERCONFIG = 2;
+    public enum PacketTypes {
+        PACKETID_EASYCRAFTING(PacketEasyCrafting.class),
+        PACKETID_SERVERCONFIG(PacketServerConfig.class);
+
+        public final Class<? extends EasyPacket> clazz;
+
+        PacketTypes(Class<? extends EasyPacket> clazz) {
+            this.clazz = clazz;
+        }
+
+        public static int indexOf(Class<? extends EasyPacket> clazz) {
+            for (PacketTypes typ : PacketTypes.values()) {
+                if (typ.clazz == clazz) {
+                    return typ.ordinal();
+                }
+            }
+            return -1;
+        }
+    }
 
     @Override
     public void onPacketData(INetworkManager manager, Packet250CustomPayload packet250, Player player) {
@@ -26,20 +43,18 @@ public class PacketHandler implements IPacketHandler {
         DataInputStream dis = new DataInputStream(bis);
 
         EasyPacket packet = getPacketType(id);
-
-        packet.read(dis);
-        packet.run(player);
+        if (packet != null) {
+            packet.read(dis);
+            packet.run(player);
+        }
     }
 
     private EasyPacket getPacketType(int id) {
-        switch (id) {
-            case PACKETID_EASYCRAFTING:
-                return new PacketEasyCrafting();
-            case PACKETID_SERVERCONFIG:
-                return new PacketServerConfig();
-            default:
-                EasyLog.warning("Bad packet ID: " + id);
-                return null;
+        try {
+            return PacketTypes.values()[id].clazz.newInstance();
+        } catch (Exception e) {
+            EasyLog.warning("Bad packet ID: " + id, e);
+            return null;
         }
     }
 

@@ -6,17 +6,18 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import net.lepko.easycrafting.core.EasyLog;
+import net.lepko.easycrafting.network.PacketHandler.PacketTypes;
 import cpw.mods.fml.common.network.Player;
 
 public abstract class EasyPacket {
 
     public int packetID;
 
-    public EasyPacket(int packetID) {
-        this.packetID = packetID;
+    public EasyPacket() {
+        this.packetID = PacketTypes.indexOf(this.getClass());
     }
 
-    public void read(DataInputStream data) {
+    public final void read(DataInputStream data) {
         try {
             readData(data);
         } catch (IOException e) {
@@ -24,7 +25,7 @@ public abstract class EasyPacket {
         }
     }
 
-    public byte[] getBytes() {
+    public final byte[] getBytes() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
 

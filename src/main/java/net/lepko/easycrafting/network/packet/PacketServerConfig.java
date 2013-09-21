@@ -7,7 +7,6 @@ import java.io.IOException;
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.core.VersionHelper;
-import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.proxy.Proxy;
 import cpw.mods.fml.common.network.Player;
 
@@ -16,10 +15,6 @@ public class PacketServerConfig extends EasyPacket {
     private String modVersionServer;
     private int easyCraftingTableID;
     private String customRecipeString;
-
-    public PacketServerConfig() {
-        super(PacketHandler.PACKETID_SERVERCONFIG);
-    }
 
     @Override
     public void run(Player player) {
