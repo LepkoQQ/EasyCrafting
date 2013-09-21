@@ -2,7 +2,7 @@ package net.lepko.easycrafting.block;
 
 import java.util.List;
 
-import net.lepko.easycrafting.ModEasyCrafting;
+import net.lepko.easycrafting.core.GuiHandler;
 import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.recipe.RecipeManager;
 import net.lepko.easycrafting.util.InventoryUtils;
@@ -80,23 +80,25 @@ public class BlockTable extends BlockContainer {
         }
     }
 
-    // TODO: from here down check meta values
-
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int i, float f, float g, float t) {
-        TileEntity tile_entity = world.getBlockTileEntity(x, y, z);
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+        TileEntity te = world.getBlockTileEntity(x, y, z);
 
-        if (tile_entity == null || player.isSneaking()) {
+        if (te == null || player.isSneaking()) {
             return false;
         }
 
-        if (!(tile_entity instanceof TileEntityEasyCrafting)) {
-            return false;
+        if (te instanceof TileEntityEasyCrafting) {
+            RecipeManager.scanRecipes();
+            GuiHandler.openGui(GuiHandler.GUI_EASYCRAFTING, player, world, x, y, z);
+            return true;
+        }
+        if (te instanceof TileEntityAutoCrafting) {
+            GuiHandler.openGui(GuiHandler.GUI_AUTOCRAFTING, player, world, x, y, z);
+            return true;
         }
 
-        RecipeManager.scanRecipes();
-        player.openGui(ModEasyCrafting.instance, 0, world, x, y, z);
-        return true;
+        return false;
     }
 
     @Override
