@@ -9,7 +9,7 @@ public class Blocks {
     public static Block table;
 
     public static void setupBlocks() {
-        table = new BlockEasyCraftingTable(ConfigHandler.EASYCRAFTINGTABLE_ID);
+        table = new BlockTable(ConfigHandler.EASYCRAFTINGTABLE_ID);
         GameRegistry.registerBlock(table, ItemBlockTable.class, table.getUnlocalizedName());
 
         GameRegistry.registerTileEntityWithAlternatives(TileEntityEasyCrafting.class, "EasyCraftingTableTE", "tileEntityEasyCrafting");

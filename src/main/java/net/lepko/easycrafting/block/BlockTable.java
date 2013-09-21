@@ -21,12 +21,12 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockEasyCraftingTable extends BlockContainer {
+public class BlockTable extends BlockContainer {
 
     public static String[] names = { "easy_crafting", "auto_crafting" };
     private Icon[][] icons = new Icon[2][4];
 
-    public BlockEasyCraftingTable(int blockID) {
+    public BlockTable(int blockID) {
         super(blockID, Material.wood);
         setHardness(2.5F);
         setStepSound(soundWoodFootstep);

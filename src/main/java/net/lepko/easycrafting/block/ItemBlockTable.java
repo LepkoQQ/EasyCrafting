@@ -20,8 +20,8 @@ public class ItemBlockTable extends ItemBlock {
     @Override
     public String getUnlocalizedName(ItemStack stack) {
         int meta = stack.getItemDamage();
-        if (meta >= 0 && meta < BlockEasyCraftingTable.names.length) {
-            return this.getUnlocalizedName() + "." + BlockEasyCraftingTable.names[meta];
+        if (meta >= 0 && meta < BlockTable.names.length) {
+            return this.getUnlocalizedName() + "." + BlockTable.names[meta];
         }
         return "missingno";
     }
