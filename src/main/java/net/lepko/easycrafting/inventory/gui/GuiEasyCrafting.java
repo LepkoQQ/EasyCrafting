@@ -3,7 +3,7 @@ package net.lepko.easycrafting.inventory.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.lepko.easycrafting.ModEasyCrafting;
+import net.lepko.easycrafting.block.Blocks;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.core.EasyLog;
@@ -87,7 +87,7 @@ public class GuiEasyCrafting extends GuiTabbed {
 
     @Override
     public void initTabs() {
-        tabGroup.addTab(new TabEasyCrafting(new ItemStack(ModEasyCrafting.blockEasyCraftingTable), "Available"));
+        tabGroup.addTab(new TabEasyCrafting(new ItemStack(Blocks.table), "Available"));
         tabGroup.addTab(new TabEasyCrafting(new ItemStack(Item.compass), "Search"));
     }
 

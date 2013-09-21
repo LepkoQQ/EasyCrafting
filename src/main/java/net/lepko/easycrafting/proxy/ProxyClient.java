@@ -3,7 +3,7 @@ package net.lepko.easycrafting.proxy;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.lepko.easycrafting.ModEasyCrafting;
+import net.lepko.easycrafting.block.Blocks;
 import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.core.TickHandlerClient;
 import net.lepko.easycrafting.recipe.RecipeManager;
@@ -39,7 +39,7 @@ public class ProxyClient extends Proxy {
 
     @Override
     public void replaceRecipe(String itemIDs) {
-        ItemStack is = new ItemStack(ModEasyCrafting.blockEasyCraftingTable, 1);
+        ItemStack is = new ItemStack(Blocks.table, 1, 0);
 
         @SuppressWarnings("unchecked")
         List<IRecipe> recipes = CraftingManager.getInstance().getRecipeList();
@@ -62,7 +62,7 @@ public class ProxyClient extends Proxy {
                 break;
             }
         }
-        GameRegistry.addShapelessRecipe(new ItemStack(ModEasyCrafting.blockEasyCraftingTable, 1), array);
+        GameRegistry.addShapelessRecipe(new ItemStack(Blocks.table, 1, 0), array);
 
         RecipeManager.scanRecipes();
     }
