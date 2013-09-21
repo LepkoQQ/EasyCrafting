@@ -10,7 +10,7 @@ import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.recipe.RecipeHelper;
 import net.lepko.easycrafting.recipe.RecipeManager;
 import net.lepko.easycrafting.recipe.WrappedRecipe;
-import net.lepko.util.StackUtils;
+import net.lepko.easycrafting.util.StackUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.network.Player;

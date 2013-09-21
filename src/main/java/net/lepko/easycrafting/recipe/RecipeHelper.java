@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.lepko.easycrafting.recipe.handler.IRecipeHandler;
-import net.lepko.util.InventoryUtils;
-import net.lepko.util.StackUtils;
+import net.lepko.easycrafting.util.InventoryUtils;
+import net.lepko.easycrafting.util.StackUtils;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;

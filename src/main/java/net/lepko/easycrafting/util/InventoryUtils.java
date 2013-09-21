@@ -1,4 +1,4 @@
-package net.lepko.util;
+package net.lepko.easycrafting.util;
 
 import java.util.ArrayList;
 import java.util.List;

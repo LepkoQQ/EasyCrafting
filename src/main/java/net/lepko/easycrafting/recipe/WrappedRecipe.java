@@ -6,8 +6,8 @@ import java.util.List;
 
 import net.lepko.easycrafting.helpers.EasyLog;
 import net.lepko.easycrafting.recipe.handler.IRecipeHandler;
-import net.lepko.util.StackUtils;
-import net.lepko.util.WrappedStack;
+import net.lepko.easycrafting.util.StackUtils;
+import net.lepko.easycrafting.util.WrappedStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 

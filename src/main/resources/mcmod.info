@@ -11,7 +11,7 @@
         "authors": [ "Lepko" ],
         "credits": "Created by Lepko; Idea based on mods by ljdp and Zeldo",
         "logoFile": "",
-        "screenshots": [],        
+        "screenshots": [],
         "parent": "",
         "requiredMods": [ "Forge" ],
         "dependencies": [],
