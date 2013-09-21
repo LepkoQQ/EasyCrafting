@@ -33,8 +33,6 @@ public class PacketServerConfig extends EasyPacket {
 
     @Override
     protected void readData(DataInputStream data) throws IOException {
-        EasyLog.log("readData packet PacketServerConfig");
-
         // Mod version
         modVersionServer = data.readUTF();
         // Easy Crafting Table ID
@@ -45,7 +43,6 @@ public class PacketServerConfig extends EasyPacket {
 
     @Override
     protected void writeData(DataOutputStream data) throws IOException {
-        EasyLog.log("writeData packet PacketServerConfig");
         // only send settings that need to be in sync
 
         // Mod version

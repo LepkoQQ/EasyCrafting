@@ -20,7 +20,7 @@ public class ConnectionHandler implements IConnectionHandler {
     public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager) {
         // on server
         PacketServerConfig packet = new PacketServerConfig();
-        Packet250CustomPayload p250 = PacketDispatcher.getPacket("EasyCrafting", packet.getBytes());
+        Packet250CustomPayload p250 = PacketDispatcher.getPacket(VersionHelper.MOD_ID, packet.getBytes());
         manager.addToSendQueue(p250);
     }
 
