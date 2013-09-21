@@ -3,7 +3,7 @@ package net.lepko.easycrafting.recipe;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.lepko.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.recipe.handler.ForestryRecipeHandler;
 import net.lepko.easycrafting.recipe.handler.ForgeRecipeHandler;
 import net.lepko.easycrafting.recipe.handler.IC2RecipeHandler;

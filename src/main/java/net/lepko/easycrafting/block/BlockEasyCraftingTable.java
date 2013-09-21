@@ -3,7 +3,7 @@ package net.lepko.easycrafting.block;
 import java.util.Random;
 
 import net.lepko.easycrafting.ModEasyCrafting;
-import net.lepko.easycrafting.helpers.VersionHelper;
+import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.recipe.RecipeManager;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;

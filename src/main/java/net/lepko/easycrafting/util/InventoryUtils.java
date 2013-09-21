@@ -3,7 +3,7 @@ package net.lepko.easycrafting.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.lepko.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.core.EasyLog;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;

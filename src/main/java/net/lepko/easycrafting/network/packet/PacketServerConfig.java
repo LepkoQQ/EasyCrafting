@@ -5,8 +5,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.helpers.EasyLog;
-import net.lepko.easycrafting.helpers.VersionHelper;
+import net.lepko.easycrafting.core.EasyLog;
+import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.proxy.Proxy;
 import cpw.mods.fml.common.network.Player;

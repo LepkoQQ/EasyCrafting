@@ -4,10 +4,11 @@ import net.lepko.easycrafting.block.BlockEasyCraftingTable;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.core.CommandEasyCrafting;
-import net.lepko.easycrafting.handlers.ConnectionHandler;
-import net.lepko.easycrafting.handlers.GuiHandler;
-import net.lepko.easycrafting.helpers.EasyLog;
-import net.lepko.easycrafting.helpers.VersionHelper;
+import net.lepko.easycrafting.core.ConnectionHandler;
+import net.lepko.easycrafting.core.EasyLog;
+import net.lepko.easycrafting.core.EventHandlerEC;
+import net.lepko.easycrafting.core.GuiHandler;
+import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.proxy.Proxy;
 import net.lepko.easycrafting.recipe.RecipeManager;
@@ -53,7 +54,7 @@ public class ModEasyCrafting {
         Proxy.proxy.onLoad();
 
         NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
-        MinecraftForge.EVENT_BUS.register(new net.lepko.easycrafting.handlers.EventHandler());
+        MinecraftForge.EVENT_BUS.register(new EventHandlerEC());
     }
 
     @EventHandler

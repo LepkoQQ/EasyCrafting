@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.lepko.easycrafting.ModEasyCrafting;
-import net.lepko.easycrafting.handlers.TickHandlerClient;
-import net.lepko.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.core.EasyLog;
+import net.lepko.easycrafting.core.TickHandlerClient;
 import net.lepko.easycrafting.recipe.RecipeManager;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;

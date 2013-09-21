@@ -3,7 +3,8 @@ package net.lepko.easycrafting.network;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 
-import net.lepko.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.core.EasyLog;
+import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.network.packet.EasyPacket;
 import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
 import net.lepko.easycrafting.network.packet.PacketServerConfig;
@@ -43,7 +44,7 @@ public class PacketHandler implements IPacketHandler {
     }
 
     public static void sendPacket(EasyPacket packet) {
-        Packet250CustomPayload p250 = PacketDispatcher.getPacket("EasyCrafting", packet.getBytes());
+        Packet250CustomPayload p250 = PacketDispatcher.getPacket(VersionHelper.MOD_ID, packet.getBytes());
         PacketDispatcher.sendPacketToServer(p250);
     }
 }

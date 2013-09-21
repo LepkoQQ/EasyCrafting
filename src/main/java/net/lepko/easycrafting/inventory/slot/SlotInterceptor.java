@@ -1,6 +1,6 @@
 package net.lepko.easycrafting.inventory.slot;
 
-import net.lepko.easycrafting.handlers.TickHandlerClient;
+import net.lepko.easycrafting.core.TickHandlerClient;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 

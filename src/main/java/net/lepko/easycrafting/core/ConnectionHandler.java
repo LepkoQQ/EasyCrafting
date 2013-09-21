@@ -1,4 +1,4 @@
-package net.lepko.easycrafting.handlers;
+package net.lepko.easycrafting.core;
 
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.network.packet.PacketServerConfig;

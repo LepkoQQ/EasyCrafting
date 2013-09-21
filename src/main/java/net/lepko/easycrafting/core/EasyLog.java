@@ -1,4 +1,4 @@
-package net.lepko.easycrafting.helpers;
+package net.lepko.easycrafting.core;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

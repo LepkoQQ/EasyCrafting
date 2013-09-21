@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.helpers.EasyLog;
+import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.entity.player.InventoryPlayer;
 

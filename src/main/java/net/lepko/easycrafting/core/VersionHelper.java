@@ -1,4 +1,4 @@
-package net.lepko.easycrafting.helpers;
+package net.lepko.easycrafting.core;
 
 import java.io.BufferedReader;
 import java.io.IOException;

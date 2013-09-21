@@ -3,7 +3,6 @@ package net.lepko.easycrafting.core;
 import java.util.List;
 
 import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.helpers.VersionHelper;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;

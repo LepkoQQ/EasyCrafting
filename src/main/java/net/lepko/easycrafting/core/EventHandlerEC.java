@@ -1,10 +1,10 @@
-package net.lepko.easycrafting.handlers;
+package net.lepko.easycrafting.core;
 
 import net.lepko.easycrafting.recipe.RecipeManager;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.world.WorldEvent;
 
-public class EventHandler {
+public class EventHandlerEC {
 
     private boolean isFirstWorldLoad = true;
 
