@@ -10,16 +10,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.OreDictionary;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 
+@SuppressWarnings("unchecked")
 public class ForestryRecipeHandler implements IRecipeHandler {
 
     private static Class<? super IRecipe> shapedRecipeClass = null;
     static {
-        try {
-            shapedRecipeClass = (Class<? super IRecipe>) Class.forName("forestry.core.utils.ShapedRecipeCustom");
-        } catch (Exception e) {
-            EasyLog.warning("[Forestry Recipe Scan] Forestry ShapedRecipeCustom.class could not be obtained!", e);
+        if (Loader.isModLoaded("Forestry")) {
+            try {
+                shapedRecipeClass = (Class<? super IRecipe>) Class.forName("forestry.core.utils.ShapedRecipeCustom");
+            } catch (Exception e) {
+                EasyLog.warning("[Forestry Recipe Scan] Forestry ShapedRecipeCustom.class could not be obtained!", e);
+            }
+        } else {
+            EasyLog.log("[Forestry Recipe Scan] Disabled.");
         }
     }
 
