@@ -2,11 +2,17 @@ package net.lepko.easycrafting.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import net.lepko.easycrafting.core.EasyLog;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 public class InventoryUtils {
 
@@ -159,5 +165,53 @@ public class InventoryUtils {
             return true;
         }
         return false;
+    }
+
+    public static void readStacksFromNBT(ItemStack[] stacks, NBTTagList nbt) {
+        for (int i = 0; i < nbt.tagCount(); i++) {
+            NBTTagCompound tag = (NBTTagCompound) nbt.tagAt(i);
+            byte slot = tag.getByte("Slot");
+            if (slot >= 0 && slot < stacks.length) {
+                stacks[slot] = ItemStack.loadItemStackFromNBT(tag);
+            }
+        }
+    }
+
+    public static NBTTagList writeStacksToNBT(ItemStack[] stacks) {
+        NBTTagList itemList = new NBTTagList();
+        for (int i = 0; i < stacks.length; i++) {
+            ItemStack stack = stacks[i];
+            if (stack != null) {
+                NBTTagCompound tag = new NBTTagCompound();
+                tag.setByte("Slot", (byte) i);
+                stack.writeToNBT(tag);
+                itemList.appendTag(tag);
+            }
+        }
+        return itemList;
+    }
+
+    public static void dropItems(TileEntity te) {
+        if (te instanceof IInventory) {
+            double x = te.xCoord + 0.5;
+            double y = te.yCoord + 0.5;
+            double z = te.zCoord + 0.5;
+            World world = te.worldObj;
+
+            IInventory inv = (IInventory) te;
+            Random rng = new Random();
+
+            for (int i = 0; i < inv.getSizeInventory(); i++) {
+                ItemStack stack = inv.getStackInSlot(i);
+                if (stack != null) {
+                    EntityItem drop = new EntityItem(world, x, y, z, stack.copy());
+                    float speed = 0.05F;
+                    drop.motionX = (float) rng.nextGaussian() * speed;
+                    drop.motionY = (float) rng.nextGaussian() * speed + 0.2F;
+                    drop.motionZ = (float) rng.nextGaussian() * speed;
+                    world.spawnEntityInWorld(drop);
+                }
+            }
+        }
     }
 }
