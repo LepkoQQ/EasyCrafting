@@ -23,9 +23,9 @@ public class SlotDummy extends Slot {
 
     @Override
     public void putStack(ItemStack stack) {
-        if (stack != null) {
+        if (stack != null && stack.stackSize > getSlotStackLimit()) {
             stack = stack.copy();
-            stack.stackSize = 1;
+            stack.stackSize = getSlotStackLimit();
         }
         super.putStack(stack);
     }

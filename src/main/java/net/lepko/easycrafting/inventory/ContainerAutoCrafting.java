@@ -3,6 +3,7 @@ package net.lepko.easycrafting.inventory;
 import net.lepko.easycrafting.block.TileEntityAutoCrafting;
 import net.lepko.easycrafting.inventory.slot.SlotDummy;
 import net.lepko.easycrafting.inventory.slot.SlotDummyResult;
+import net.lepko.easycrafting.inventory.slot.SlotOutput;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -38,7 +39,7 @@ public class ContainerAutoCrafting extends Container {
         // Table output slots
         for (int m = 0; m < 2; m++) {
             for (int l = 0; l < 4; l++) {
-                addSlotToContainer(new Slot(tileEntity, count++, 8 + 5 * 18 + l * 18, 18 + m * 18 + tableInvOffset));
+                addSlotToContainer(new SlotOutput(tileEntity, count++, 8 + 5 * 18 + l * 18, 18 + m * 18 + tableInvOffset));
             }
         }
 
