@@ -26,38 +26,19 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
     }
 
     @Override
-    public void setInventorySlotContents(int slot, ItemStack stack) {
-        inventory[slot] = stack;
-
-        if (stack != null && stack.stackSize > getInventoryStackLimit()) {
-            stack.stackSize = getInventoryStackLimit();
-        }
+    public void setInventorySlotContents(int slotIndex, ItemStack stack) {
+        inventory[slotIndex] = stack;
+        onInventoryChanged();
     }
 
     @Override
     public ItemStack decrStackSize(int slotIndex, int amount) {
-        ItemStack stack = getStackInSlot(slotIndex);
-        if (stack != null) {
-
-            if (stack.stackSize <= amount) {
-                setInventorySlotContents(slotIndex, null);
-            } else {
-                stack = stack.splitStack(amount);
-                if (stack.stackSize == 0) {
-                    setInventorySlotContents(slotIndex, null);
-                }
-            }
-        }
-        return stack;
+        return InventoryUtils.decrStackSize(this, slotIndex, amount);
     }
 
     @Override
     public ItemStack getStackInSlotOnClosing(int slotIndex) {
-        ItemStack stack = getStackInSlot(slotIndex);
-        if (stack != null) {
-            setInventorySlotContents(slotIndex, null);
-        }
-        return stack;
+        return InventoryUtils.getStackInSlotOnClosing(this, slotIndex);
     }
 
     @Override

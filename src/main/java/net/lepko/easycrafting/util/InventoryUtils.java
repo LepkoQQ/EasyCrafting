@@ -214,4 +214,39 @@ public class InventoryUtils {
             }
         }
     }
+
+    public static ItemStack decrStackSize(IInventory inv, int slotIndex, int amount) {
+        ItemStack stack = inv.getStackInSlot(slotIndex);
+        if (stack != null) {
+            if (stack.stackSize <= amount) {
+                inv.setInventorySlotContents(slotIndex, null);
+            } else {
+                ItemStack is = stack.splitStack(amount);
+                if (stack.stackSize == 0) {
+                    inv.setInventorySlotContents(slotIndex, null);
+                } else {
+                    inv.onInventoryChanged();
+                }
+                return is;
+            }
+        }
+        return stack;
+    }
+
+    public static ItemStack getStackInSlotOnClosing(IInventory inv, int slotIndex) {
+        ItemStack stack = inv.getStackInSlot(slotIndex);
+        inv.setInventorySlotContents(slotIndex, null);
+        return stack;
+    }
+
+    /**
+     * Create an array of slot indices (int[]) for use with ISidedInventory. First slot index is inclusive, last index is exclusive.
+     */
+    public static int[] createSlotArray(int first, int last) {
+        int[] slots = new int[last - first];
+        for (int i = first; i < last; i++) {
+            slots[i - first] = i;
+        }
+        return slots;
+    }
 }

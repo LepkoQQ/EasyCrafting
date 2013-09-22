@@ -30,5 +30,4 @@ public class SlotEasyCraftingOutput extends Slot {
     public boolean canTakeStack(EntityPlayer player) {
         return false;
     }
-
 }
