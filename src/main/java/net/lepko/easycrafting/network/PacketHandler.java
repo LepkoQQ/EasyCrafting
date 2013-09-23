@@ -7,6 +7,7 @@ import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.network.packet.EasyPacket;
 import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
+import net.lepko.easycrafting.network.packet.PacketInterfaceChange;
 import net.lepko.easycrafting.network.packet.PacketServerConfig;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
@@ -18,7 +19,8 @@ public class PacketHandler implements IPacketHandler {
 
     public enum PacketTypes {
         PACKETID_EASYCRAFTING(PacketEasyCrafting.class),
-        PACKETID_SERVERCONFIG(PacketServerConfig.class);
+        PACKETID_SERVERCONFIG(PacketServerConfig.class),
+        PACKETID_INTERFACECHANGE(PacketInterfaceChange.class);
 
         public final Class<? extends EasyPacket> clazz;
 

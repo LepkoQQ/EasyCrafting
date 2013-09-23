@@ -7,12 +7,15 @@ import net.lepko.easycrafting.inventory.slot.SlotOutput;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class ContainerAutoCrafting extends Container {
 
-    private final TileEntityAutoCrafting tileEntity;
+    public final TileEntityAutoCrafting tileEntity;
 
     public ContainerAutoCrafting(InventoryPlayer playerInventory, TileEntityAutoCrafting tileEntity) {
         this.tileEntity = tileEntity;
@@ -65,6 +68,7 @@ public class ContainerAutoCrafting extends Container {
     public ItemStack slotClick(int slotIndex, int button, int modifier, EntityPlayer player) {
         if (slotIndex >= 0 && slotIndex < inventorySlots.size() && getSlot(slotIndex) instanceof SlotDummy) {
             ((SlotDummy) getSlot(slotIndex)).clickSlot(button, modifier, player.inventory.getItemStack());
+            tileEntity.checkForRecipe();
             return null;
         }
         return super.slotClick(slotIndex, button, modifier, player);
@@ -98,14 +102,32 @@ public class ContainerAutoCrafting extends Container {
     }
 
     @Override
+    public void addCraftingToCrafters(ICrafting player) {
+        super.addCraftingToCrafters(player);
+
+        player.sendProgressBarUpdate(this, 0, tileEntity.mode.ordinal());
+    }
+
+    private int oldMode;
+
+    @Override
     public void detectAndSendChanges() {
-        // TODO Auto-generated method stub
         super.detectAndSendChanges();
+
+        for (Object player : crafters) {
+            if (tileEntity.mode.ordinal() != oldMode) {
+                ((ICrafting) player).sendProgressBarUpdate(this, 0, tileEntity.mode.ordinal());
+            }
+        }
+
+        oldMode = tileEntity.mode.ordinal();
     }
 
     @Override
-    public void updateProgressBar(int par1, int par2) {
-        // TODO Auto-generated method stub
-        super.updateProgressBar(par1, par2);
+    @SideOnly(Side.CLIENT)
+    public void updateProgressBar(int id, int value) {
+        if (id == 0) {
+            tileEntity.setMode(value);
+        }
     }
 }

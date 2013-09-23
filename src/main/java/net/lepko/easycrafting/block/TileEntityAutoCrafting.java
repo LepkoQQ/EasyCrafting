@@ -1,16 +1,30 @@
 package net.lepko.easycrafting.block;
 
+import java.util.List;
 import java.util.Locale;
 
 import net.lepko.easycrafting.util.InventoryUtils;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityAutoCrafting extends TileEntity implements ISidedInventory {
+
+    private class FakeContainer extends Container {
+        private FakeContainer() {
+        }
+
+        @Override
+        public boolean canInteractWith(EntityPlayer player) {
+            return true;
+        }
+    }
 
     public enum Mode {
         PULSE,
@@ -25,6 +39,9 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         }
     }
 
+    public Mode mode = null;
+    private Mode[] VALID_MODES = Mode.values();
+
     private int UPDATE_INTERVAL = 5;
     private int lastUpdate = 0;
 
@@ -37,33 +54,68 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
     private boolean inventoryChanged = false;
 
     private IRecipe currentRecipe = null;
-    public Mode mode = null;
 
-    public void cycleModes() {
-        Mode[] values = Mode.values();
-        if (mode == null || mode.ordinal() + 1 >= values.length) {
-            mode = values[0];
-        } else {
-            mode = values[mode.ordinal() + 1];
+    public void setMode(int index) {
+        if (index >= 0 && index < VALID_MODES.length) {
+            mode = VALID_MODES[index];
         }
+    }
+
+    public void cycleModes(int mouseButton) {
+        if (mouseButton == 0) {
+            if (mode == null || mode.ordinal() + 1 >= VALID_MODES.length) {
+                setMode(0);
+            } else {
+                setMode(mode.ordinal() + 1);
+            }
+        } else if (mouseButton == 1) {
+            if (mode == null || mode.ordinal() - 1 < 0) {
+                setMode(VALID_MODES.length - 1);
+            } else {
+                setMode(mode.ordinal() - 1);
+            }
+        }
+    }
+
+    public void checkForRecipe() {
+        System.out.println("check recipe");
+
+        @SuppressWarnings("unchecked")
+        List<IRecipe> recipeList = (List<IRecipe>) CraftingManager.getInstance().getRecipeList();
+
+        currentRecipe = null;
+        InventoryCrafting craftingGrid = new InventoryCrafting(new FakeContainer(), 3, 3);
+        InventoryUtils.setContents(craftingGrid, this);
+
+        for (IRecipe recipe : recipeList) {
+            if (recipe.matches(craftingGrid, worldObj)) {
+                currentRecipe = recipe;
+                setInventorySlotContents(9, currentRecipe.getCraftingResult(craftingGrid));
+                return;
+            }
+        }
+
+        setInventorySlotContents(9, null);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tag) {
         super.readFromNBT(tag);
         InventoryUtils.readStacksFromNBT(inventory, tag.getTagList("Inventory"));
+        setMode(tag.getByte("Mode"));
     }
 
     @Override
     public void writeToNBT(NBTTagCompound tag) {
         super.writeToNBT(tag);
         tag.setTag("Inventory", InventoryUtils.writeStacksToNBT(inventory));
+        tag.setByte("Mode", (byte) mode.ordinal());
     }
 
     @Override
     public void validate() {
         super.validate();
-        // TODO:
+
         // checkForRecipe();
     }
 
@@ -76,14 +128,14 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
             pendingRequests++;
         }
 
-        if (inventoryChanged) {
-            inventoryChanged = false;
-            // TODO:
-            // checkForRecipe();
-        }
-
         if (!worldObj.isRemote && ++lastUpdate > UPDATE_INTERVAL) {
             lastUpdate = 0;
+
+            if (inventoryChanged) {
+                // work here
+
+                inventoryChanged = false;
+            }
 
             // TODO:
             // tryCrafting();

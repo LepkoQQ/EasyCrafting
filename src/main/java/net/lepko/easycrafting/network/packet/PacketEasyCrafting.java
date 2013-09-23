@@ -20,6 +20,9 @@ public class PacketEasyCrafting extends EasyPacket {
     private ItemStack[] ingredients;
     private boolean isRightClick = false;
 
+    public PacketEasyCrafting() {
+    }
+
     public PacketEasyCrafting(WrappedRecipe recipe, boolean isRightClick) {
         setRecipe(recipe);
         this.isRightClick = isRightClick;
