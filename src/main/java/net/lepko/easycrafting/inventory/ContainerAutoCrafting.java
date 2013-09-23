@@ -96,4 +96,16 @@ public class ContainerAutoCrafting extends Container {
         }
         return stack;
     }
+
+    @Override
+    public void detectAndSendChanges() {
+        // TODO Auto-generated method stub
+        super.detectAndSendChanges();
+    }
+
+    @Override
+    public void updateProgressBar(int par1, int par2) {
+        // TODO Auto-generated method stub
+        super.updateProgressBar(par1, par2);
+    }
 }

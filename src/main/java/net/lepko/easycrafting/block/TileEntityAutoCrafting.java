@@ -1,5 +1,7 @@
 package net.lepko.easycrafting.block;
 
+import java.util.Locale;
+
 import net.lepko.easycrafting.util.InventoryUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
@@ -11,10 +13,16 @@ import net.minecraft.tileentity.TileEntity;
 public class TileEntityAutoCrafting extends TileEntity implements ISidedInventory {
 
     public enum Mode {
-        POWERED,
-        UNPOWERED,
+        PULSE,
         ALWAYS,
-        PULSE;
+        POWERED,
+        UNPOWERED;
+
+        public final String tooltip;
+
+        Mode() {
+            tooltip = String.format("mode.easycrafting:%s.tooltip", this.toString().toLowerCase(Locale.ENGLISH));
+        }
     }
 
     private int UPDATE_INTERVAL = 5;
@@ -29,7 +37,16 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
     private boolean inventoryChanged = false;
 
     private IRecipe currentRecipe = null;
-    private Mode mode = null;
+    public Mode mode = null;
+
+    public void cycleModes() {
+        Mode[] values = Mode.values();
+        if (mode == null || mode.ordinal() + 1 >= values.length) {
+            mode = values[0];
+        } else {
+            mode = values[mode.ordinal() + 1];
+        }
+    }
 
     @Override
     public void readFromNBT(NBTTagCompound tag) {
@@ -116,7 +133,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
 
     @Override
     public String getInvName() {
-        return "container.easycrafting:table.auto_crafting.name";
+        return "container.easycrafting:table.auto_crafting";
     }
 
     @Override
