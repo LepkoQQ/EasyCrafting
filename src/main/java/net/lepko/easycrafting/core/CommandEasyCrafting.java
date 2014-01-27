@@ -4,12 +4,18 @@ import java.util.List;
 
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.EnumChatFormatting;
 
 public class CommandEasyCrafting extends CommandBase {
+
+    @Override
+    public int compareTo(Object o) {
+        return getCommandName().compareTo(((ICommand) o).getCommandName());
+    }
 
     @Override
     public String getCommandName() {

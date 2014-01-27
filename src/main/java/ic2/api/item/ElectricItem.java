@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 public final class ElectricItem {
 	/**
 	 * IElectricItemManager to use for interacting with IElectricItem ItemStacks.
-	 * 
+	 *
 	 * This manager will act as a gateway and delegate the tasks to the final implementation
 	 * (rawManager or a custom one) as necessary.
 	 */
@@ -33,7 +33,7 @@ public final class ElectricItem {
 	 * @param ignoreTransferLimit ignore the transfer limit specified by getTransferLimit()
 	 * @param simulate don't actually change the item, just determine the return value
 	 * @return Energy transferred into the electric item
-	 * 
+	 *
 	 * @deprecated use manager.charge() instead
 	 */
 	@Deprecated
@@ -50,7 +50,7 @@ public final class ElectricItem {
 	 * @param ignoreTransferLimit ignore the transfer limit specified by getTransferLimit()
 	 * @param simulate don't actually discharge the item, just determine the return value
 	 * @return Energy retrieved from the electric item
-	 * 
+	 *
 	 * @deprecated use manager.discharge() instead
 	 */
 	@Deprecated
@@ -66,7 +66,7 @@ public final class ElectricItem {
 	 * @param itemStack electric item's stack
 	 * @param amount minimum amount of energy required
 	 * @return true if there's enough energy
-	 * 
+	 *
 	 * @deprecated use manager.canUse() instead
 	 */
 	@Deprecated
@@ -82,7 +82,7 @@ public final class ElectricItem {
 	 * @param amount amount of energy to discharge in EU
 	 * @param player player holding the item
 	 * @return true if the operation succeeded
-	 * 
+	 *
 	 * @deprecated use manager.use() instead
 	 */
 	@Deprecated
@@ -97,7 +97,7 @@ public final class ElectricItem {
 	 *
 	 * @param itemStack electric item's stack
 	 * @param player player holding the item
-	 * 
+	 *
 	 * @deprecated use manager.chargeFromArmor() instead
 	 */
 	@Deprecated

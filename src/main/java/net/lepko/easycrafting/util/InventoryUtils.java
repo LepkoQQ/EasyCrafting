@@ -39,7 +39,19 @@ public class InventoryUtils {
      */
     public static int getEmptySlot(IInventory inventory) {
         int invSize = getMainInventorySize(inventory);
-        for (int i = 0; i < invSize; i++) {
+        return getEmptySlot(inventory, 0, invSize);
+    }
+
+    /**
+     * Get the first empty slot in the inventory inside the provided slot index range.
+     * 
+     * @param inventory - inventory to check
+     * @param start - first slot index (inclusive)
+     * @param end - last slot index (exclusive)
+     * @return slot index of the first empty slot, -1 if none found
+     */
+    public static int getEmptySlot(IInventory inventory, int start, int end) {
+        for (int i = start; i < end; i++) {
             if (inventory.getStackInSlot(i) == null) {
                 return i;
             }
@@ -97,17 +109,32 @@ public class InventoryUtils {
      * @return whether or not the itemstack was added to the inventory
      */
     public static boolean addItemToInventory(IInventory inventory, ItemStack itemstack) {
-        List<ItemStack> contents = storeContents(inventory);
         int invSize = getMainInventorySize(inventory);
+        return addItemToInventory(inventory, itemstack, 0, invSize);
+    }
+
+    /**
+     * Add the specified itemstack to inventory. Try stacking it with existing stacks first. If that fails try to put it in an empty slot. Constrain
+     * to the provided slot index range.
+     * 
+     * @param inventory - inventory to add to
+     * @param itemstack - item to add
+     * @param start - first slot index (inclusive)
+     * @param end - last slot index (exclusive)
+     * @return whether or not the itemstack was added to the inventory
+     */
+    public static boolean addItemToInventory(IInventory inventory, ItemStack itemstack, int start, int end) {
+        List<ItemStack> contents = InventoryUtils.storeContents(inventory);
         int maxStack = Math.min(inventory.getInventoryStackLimit(), itemstack.getMaxStackSize());
-        for (int i = 0; i < invSize; i++) {
-            if (ItemStack.areItemStacksEqual(itemstack, inventory.getStackInSlot(i))) {
+        for (int i = start; i < end; i++) {
+            if (StackUtils.areEqual(itemstack, inventory.getStackInSlot(i))) {
                 ItemStack is = inventory.getStackInSlot(i);
                 if (is.stackSize >= maxStack) {
                     continue;
                 }
                 if (is.stackSize + itemstack.stackSize <= maxStack) {
                     is.stackSize += itemstack.stackSize;
+                    inventory.onInventoryChanged();
                     return true;
                 } else {
                     itemstack.stackSize -= maxStack - is.stackSize;
@@ -116,10 +143,11 @@ public class InventoryUtils {
             }
         }
         while (true) {
-            int slot = getEmptySlot(inventory);
+            int slot = InventoryUtils.getEmptySlot(inventory, start, end);
             if (slot != -1) {
                 if (itemstack.stackSize <= maxStack) {
                     inventory.setInventorySlotContents(slot, itemstack.copy());
+                    inventory.onInventoryChanged();
                     return true;
                 } else {
                     ItemStack is = itemstack.copy();
@@ -131,7 +159,7 @@ public class InventoryUtils {
                 break;
             }
         }
-        setContents(inventory, contents);
+        InventoryUtils.setContents(inventory, contents);
         return false;
     }
 

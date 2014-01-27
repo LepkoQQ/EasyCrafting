@@ -205,4 +205,13 @@ public class StackUtils {
         }
         return collated;
     }
+
+    public static ItemStack copyStack(ItemStack stack, int size) {
+        if (stack != null) {
+            ItemStack stackCopy = stack.copy();
+            stackCopy.stackSize = size;
+            return stackCopy;
+        }
+        return null;
+    }
 }

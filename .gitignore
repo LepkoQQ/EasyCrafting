@@ -1,7 +1,4 @@
+# os garbage
 Thumbs.db
 Desktop.ini
 .DS_Store
-
-build/
-.gradle/
-minecraft/

@@ -35,7 +35,7 @@ public class GuiAutoCrafting extends GuiContainer {
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
 
         // Button
-        button.render(mouseX, mouseY, tileEntity.mode);
+        button.render(mouseX, mouseY, tileEntity.getMode());
     }
 
     @Override
@@ -49,7 +49,7 @@ public class GuiAutoCrafting extends GuiContainer {
     public void drawScreen(int mouseX, int mouseY, float tickTime) {
         super.drawScreen(mouseX, mouseY, tickTime);
 
-        button.renderTooltip(mouseX, mouseY, tileEntity.mode);
+        button.renderTooltip(mouseX, mouseY, tileEntity.getMode());
     }
 
     @Override

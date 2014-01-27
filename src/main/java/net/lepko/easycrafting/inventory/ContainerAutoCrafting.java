@@ -68,7 +68,7 @@ public class ContainerAutoCrafting extends Container {
     public ItemStack slotClick(int slotIndex, int button, int modifier, EntityPlayer player) {
         if (slotIndex >= 0 && slotIndex < inventorySlots.size() && getSlot(slotIndex) instanceof SlotDummy) {
             ((SlotDummy) getSlot(slotIndex)).clickSlot(button, modifier, player.inventory.getItemStack());
-            tileEntity.checkForRecipe();
+            tileEntity.scheduledRecipeCheck = true;
             return null;
         }
         return super.slotClick(slotIndex, button, modifier, player);
@@ -105,22 +105,22 @@ public class ContainerAutoCrafting extends Container {
     public void addCraftingToCrafters(ICrafting player) {
         super.addCraftingToCrafters(player);
 
-        player.sendProgressBarUpdate(this, 0, tileEntity.mode.ordinal());
+        player.sendProgressBarUpdate(this, 0, tileEntity.getMode().ordinal());
     }
 
-    private int oldMode;
+    private int oldMode = -1;
 
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
 
         for (Object player : crafters) {
-            if (tileEntity.mode.ordinal() != oldMode) {
-                ((ICrafting) player).sendProgressBarUpdate(this, 0, tileEntity.mode.ordinal());
+            if (tileEntity.getMode().ordinal() != oldMode) {
+                ((ICrafting) player).sendProgressBarUpdate(this, 0, tileEntity.getMode().ordinal());
             }
         }
 
-        oldMode = tileEntity.mode.ordinal();
+        oldMode = tileEntity.getMode().ordinal();
     }
 
     @Override

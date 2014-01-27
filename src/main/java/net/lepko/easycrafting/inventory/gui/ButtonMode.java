@@ -50,7 +50,7 @@ public class ButtonMode {
     public void click(int mouseX, int mouseY, int mouseButton, TileEntityAutoCrafting tileEntity) {
         if (isMouseOver(mouseX, mouseY)) {
             tileEntity.cycleModes(mouseButton);
-            PacketHandler.sendPacket(new PacketInterfaceChange(0, tileEntity.mode.ordinal()));
+            PacketHandler.sendPacket(new PacketInterfaceChange(0, tileEntity.getMode().ordinal()));
         }
     }
 }

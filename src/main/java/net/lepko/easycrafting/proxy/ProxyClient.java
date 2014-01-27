@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.lepko.easycrafting.block.Blocks;
+import net.lepko.easycrafting.core.CommandEasyCrafting;
 import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.core.TickHandlerClient;
 import net.lepko.easycrafting.recipe.RecipeManager;
@@ -12,6 +13,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -24,6 +26,9 @@ public class ProxyClient extends Proxy {
     public void onLoad() {
         // Register Client Tick Handler
         TickRegistry.registerTickHandler(new TickHandlerClient(), Side.CLIENT);
+        
+        // Register Client Commands
+        ClientCommandHandler.instance.registerCommand(new CommandEasyCrafting());
     }
 
     @Override

@@ -3,9 +3,12 @@ package net.lepko.easycrafting.block;
 import java.util.List;
 import java.util.Locale;
 
+import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.util.InventoryUtils;
+import net.lepko.easycrafting.util.StackUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -13,10 +16,13 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.FakePlayer;
+import net.minecraftforge.common.FakePlayerFactory;
+import cpw.mods.fml.common.registry.GameRegistry;
 
 public class TileEntityAutoCrafting extends TileEntity implements ISidedInventory {
 
-    private class FakeContainer extends Container {
+    private static class FakeContainer extends Container {
         private FakeContainer() {
         }
 
@@ -26,7 +32,25 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         }
     }
 
-    public enum Mode {
+    private static class StackReference {
+        public final IInventory inv;
+        public final int slot;
+
+        public StackReference(IInventory inv, int slot) {
+            this.inv = inv;
+            this.slot = slot;
+        }
+
+        public ItemStack getCopy(int size) {
+            return StackUtils.copyStack(inv.getStackInSlot(slot), size);
+        }
+
+        public ItemStack decrStackSize(int amt) {
+            return InventoryUtils.decrStackSize(inv, slot, amt);
+        }
+    }
+
+    public static enum Mode {
         PULSE,
         ALWAYS,
         POWERED,
@@ -39,10 +63,10 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         }
     }
 
-    public Mode mode = null;
-    private Mode[] VALID_MODES = Mode.values();
+    private static final Mode[] VALID_MODES = Mode.values();
+    private static final int UPDATE_INTERVAL = 5;
 
-    private int UPDATE_INTERVAL = 5;
+    private Mode mode = Mode.ALWAYS;
     private int lastUpdate = 0;
 
     private ItemStack[] inventory = new ItemStack[26];
@@ -50,15 +74,20 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
 
     private boolean poweredNow = false;
     private boolean poweredPrev = false;
-    private int pendingRequests = 0;
     private boolean inventoryChanged = false;
 
+    public boolean scheduledRecipeCheck = false;
+    private InventoryCrafting craftingGrid = new InventoryCrafting(new FakeContainer(), 3, 3);
     private IRecipe currentRecipe = null;
 
     public void setMode(int index) {
         if (index >= 0 && index < VALID_MODES.length) {
             mode = VALID_MODES[index];
         }
+    }
+
+    public Mode getMode() {
+        return mode;
     }
 
     public void cycleModes(int mouseButton) {
@@ -77,14 +106,10 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         }
     }
 
-    public void checkForRecipe() {
-        System.out.println("check recipe");
-
+    private void checkForRecipe() {
         @SuppressWarnings("unchecked")
         List<IRecipe> recipeList = (List<IRecipe>) CraftingManager.getInstance().getRecipeList();
 
-        currentRecipe = null;
-        InventoryCrafting craftingGrid = new InventoryCrafting(new FakeContainer(), 3, 3);
         InventoryUtils.setContents(craftingGrid, this);
 
         for (IRecipe recipe : recipeList) {
@@ -95,8 +120,90 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
             }
         }
 
+        currentRecipe = null;
         setInventorySlotContents(9, null);
     }
+
+    private boolean isReplacableInCraftingGridSlot(int slot, ItemStack stack) {
+        craftingGrid.setInventorySlotContents(slot, stack);
+        boolean result = currentRecipe.matches(craftingGrid, worldObj) && StackUtils.areIdentical(currentRecipe.getCraftingResult(craftingGrid), getStackInSlot(9));
+        craftingGrid.setInventorySlotContents(slot, getStackInSlot(slot));
+        return result;
+    }
+
+    private void tryCrafting() {
+        if (currentRecipe == null || getStackInSlot(9) == null) {
+            return;
+        }
+
+        boolean[] found = new boolean[9];
+        StackReference[] refs = new StackReference[9];
+
+        for (int o = 0; o < 9; o++) {
+            found[o] = craftingGrid.getStackInSlot(o) == null;
+        }
+
+        invLoop: for (int invSlot = 10; invSlot < 18; invSlot++) {
+            ItemStack stack = ItemStack.copyItemStack(getStackInSlot(invSlot));
+            if (stack != null && stack.stackSize > 0) {
+                for (int gridSlot = 0; gridSlot < 9; gridSlot++) {
+                    if (!found[gridSlot]) {
+                        if (isReplacableInCraftingGridSlot(gridSlot, stack)) {
+                            refs[gridSlot] = new StackReference(this, invSlot);
+                            found[gridSlot] = true;
+                            if (--stack.stackSize <= 0) {
+                                continue invLoop;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (boolean b : found) {
+            if (!b) {
+                return;
+            }
+        }
+
+        // replace all ingredients with found stacks
+        for (int i = 0; i < 9; i++) {
+            if (craftingGrid.getStackInSlot(i) != null) {
+                ItemStack is = refs[i].getCopy(1);
+                craftingGrid.setInventorySlotContents(i, is);
+            }
+        }
+
+        // test the recipe to make sure all replacements play nice with each other
+        ItemStack result = currentRecipe.getCraftingResult(craftingGrid);
+        if (currentRecipe.matches(craftingGrid, worldObj) && StackUtils.areIdentical(result, getStackInSlot(9))) {
+            if (InventoryUtils.addItemToInventory(this, result, 18, 26)) {
+                FakePlayer fakePlayer = FakePlayerFactory.get(worldObj, "[" + VersionHelper.MOD_ID + "]");
+                GameRegistry.onItemCrafted(fakePlayer, result, craftingGrid);
+                result.onCrafting(worldObj, fakePlayer, result.stackSize);
+
+                for (StackReference ref : refs) {
+                    if (ref != null) {
+                        ItemStack stack = ref.decrStackSize(1);
+                        if (stack != null && stack.getItem() != null && stack.getItem().hasContainerItem()) {
+                            ItemStack container = stack.getItem().getContainerItemStack(stack);
+                            if (container.isItemStackDamageable() && container.getItemDamage() > container.getMaxDamage()) {
+                                container = null;
+                            }
+                            if (container != null) {
+                                // TODO: add container items back to inv they came from
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // restore original items from ghost slots
+        InventoryUtils.setContents(craftingGrid, this);
+    }
+
+    /* TileEntity */
 
     @Override
     public void readFromNBT(NBTTagCompound tag) {
@@ -115,47 +222,43 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
     @Override
     public void validate() {
         super.validate();
-
-        // checkForRecipe();
+        checkForRecipe();
     }
 
     @Override
     public void updateEntity() {
+        if (scheduledRecipeCheck) {
+            scheduledRecipeCheck = false;
+            checkForRecipe();
+        }
+
         poweredPrev = poweredNow;
-        poweredNow = isGettingPowered(this);
+        poweredNow = worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
 
         if (!poweredPrev && poweredNow) {
-            pendingRequests++;
+            // pendingRequests++;
         }
 
         if (!worldObj.isRemote && ++lastUpdate > UPDATE_INTERVAL) {
             lastUpdate = 0;
 
             if (inventoryChanged) {
-                // work here
-
                 inventoryChanged = false;
+                // work here
             }
 
-            // TODO:
-            // tryCrafting();
+            // TODO: limit this if it doesn't have ingredients to only check after an inventory change
+            tryCrafting();
         }
     }
-
-    public static boolean isGettingPowered(TileEntity te) {
-        if (te.worldObj.isBlockIndirectlyGettingPowered(te.xCoord, te.yCoord, te.zCoord)) {
-            return true;
-        }
-        return false;
-    }
-
-    /* IInventory */
 
     @Override
     public void onInventoryChanged() {
         super.onInventoryChanged();
         inventoryChanged = true;
     }
+
+    /* IInventory */
 
     @Override
     public int getSizeInventory() {
@@ -180,7 +283,6 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
     @Override
     public void setInventorySlotContents(int slotIndex, ItemStack stack) {
         inventory[slotIndex] = stack;
-        onInventoryChanged();
     }
 
     @Override
