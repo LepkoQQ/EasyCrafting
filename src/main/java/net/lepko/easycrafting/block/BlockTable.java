@@ -1,34 +1,36 @@
 package net.lepko.easycrafting.block;
 
-import java.util.List;
-
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.lepko.easycrafting.core.GuiHandler;
 import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.recipe.RecipeManager;
 import net.lepko.easycrafting.util.InventoryUtils;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+
+import java.util.List;
 
 public class BlockTable extends BlockContainer {
 
     public static String[] names = { "easy_crafting", "auto_crafting" };
-    private Icon[][] icons = new Icon[2][4];
+    private IIcon[][] icons = new IIcon[2][4];
 
-    public BlockTable(int blockID) {
-        super(blockID, Material.wood);
+    public BlockTable() {
+        super(Material.wood);
         setHardness(2.5F);
-        setStepSound(soundWoodFootstep);
-        setUnlocalizedName(VersionHelper.MOD_ID + ":table");
-        setTextureName(VersionHelper.MOD_ID + ":table");
+        setStepSound(soundTypeWood);
+        setBlockName(VersionHelper.MOD_ID + ":table");
+        setBlockTextureName(VersionHelper.MOD_ID + ":table");
         setCreativeTab(CreativeTabs.tabDecorations);
     }
 
@@ -39,7 +41,7 @@ public class BlockTable extends BlockContainer {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void registerIcons(IconRegister iconRegister) {
+    public void registerBlockIcons(IIconRegister iconRegister) {
         // Easy Crafting Table
         icons[0][0] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "easyCraftingTable_bottom");
         icons[0][1] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "easyCraftingTable_top");
@@ -55,7 +57,7 @@ public class BlockTable extends BlockContainer {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public Icon getIcon(int side, int meta) {
+    public IIcon getIcon(int side, int meta) {
         if (meta < 0 || meta > icons.length) {
             meta = 0;
         }
@@ -74,15 +76,15 @@ public class BlockTable extends BlockContainer {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public void getSubBlocks(int id, CreativeTabs tab, List list) {
+    public void getSubBlocks(Item item, CreativeTabs tab, List list) {
         for (int meta = 0; meta < names.length; meta++) {
-            list.add(new ItemStack(id, 1, meta));
+            list.add(new ItemStack(item, 1, meta));
         }
     }
 
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        TileEntity te = world.getBlockTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(x, y, z);
 
         if (te == null || player.isSneaking()) {
             return false;
@@ -102,23 +104,18 @@ public class BlockTable extends BlockContainer {
     }
 
     @Override
-    public void breakBlock(World world, int x, int y, int z, int i, int j) {
-        InventoryUtils.dropItems(world.getBlockTileEntity(x, y, z));
-        super.breakBlock(world, x, y, z, i, j);
+    public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
+        InventoryUtils.dropItems(world.getTileEntity(x, y, z));
+        super.breakBlock(world, x, y, z, block, meta);
     }
 
     @Override
-    public TileEntity createTileEntity(World world, int metadata) {
-        switch (metadata) {
+    public TileEntity createNewTileEntity(World world, int meta) {
+        switch (meta) {
             case 1:
                 return new TileEntityAutoCrafting();
             default:
                 return new TileEntityEasyCrafting();
         }
-    }
-
-    @Override
-    public TileEntity createNewTileEntity(World world) {
-        return createTileEntity(world, -1);
     }
 }

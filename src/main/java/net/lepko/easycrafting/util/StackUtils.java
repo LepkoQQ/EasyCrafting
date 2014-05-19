@@ -1,17 +1,18 @@
 package net.lepko.easycrafting.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StackUtils {
 
     /**
      * Checks if the two provided ItemStacks can stack together.
-     * 
+     *
      * @return -1 if not stackable or any stack is null, the number of items leftover in the second stack otherwise
      */
     public static int canStack(ItemStack first, ItemStack second) {
@@ -31,7 +32,7 @@ public class StackUtils {
         if (first == null || second == null) {
             return first == second;
         }
-        if (first.itemID != second.itemID || first.stackSize != second.stackSize) {
+        if (first.getItem() != second.getItem() || first.stackSize != second.stackSize) {
             return false;
         }
         if (rawDamage(first) != rawDamage(second) || !areNBTsEqual(first, second)) {
@@ -47,7 +48,7 @@ public class StackUtils {
         if (first == null || second == null) {
             return first == second;
         }
-        if (first.itemID != second.itemID) {
+        if (first.getItem() != second.getItem()) {
             return false;
         }
         if (first.getHasSubtypes() && first.getItemDamage() != second.getItemDamage()) {
@@ -70,7 +71,7 @@ public class StackUtils {
         if (first == null || second == null) {
             return first == second;
         }
-        if (first.itemID != second.itemID) {
+        if (first.getItem() != second.getItem()) {
             return false;
         }
         if (first.getHasSubtypes() && !isDamageEquivalent(first.getItemDamage(), second.getItemDamage())) {
@@ -89,7 +90,7 @@ public class StackUtils {
         if (areSameOre(first, second)) {
             return true;
         }
-        if (first.itemID != second.itemID) {
+        if (first.getItem() != second.getItem()) {
             return false;
         }
         if (!isDamageEquivalent(first.getItemDamage(), second.getItemDamage())) {
@@ -126,10 +127,11 @@ public class StackUtils {
         List<Integer> ids = new ArrayList<Integer>();
         if (stack != null) {
             String[] oreNames = OreDictionary.getOreNames();
-            names: for (String oreName : oreNames) {
+            names:
+            for (String oreName : oreNames) {
                 List<ItemStack> ores = OreDictionary.getOres(oreName);
                 for (ItemStack ore : ores) {
-                    if (ore.itemID == stack.itemID && isDamageEquivalent(ore.getItemDamage(), stack.getItemDamage())) {
+                    if (ore.getItem() == stack.getItem() && isDamageEquivalent(ore.getItemDamage(), stack.getItemDamage())) {
                         ids.add(OreDictionary.getOreID(oreName));
                         continue names;
                     }
@@ -143,14 +145,14 @@ public class StackUtils {
      * Returns the raw value: stack.itemDamage
      */
     public static int rawDamage(ItemStack stack) {
-        return Item.arrow.getDamage(stack);
+        return Items.arrow.getDamage(stack);
     }
 
     /**
      * Returns a hash based on the item id and damage
      */
     public static int itemHash(ItemStack stack) {
-        return stack.itemID << 16 | (stack.getItemDamage() & 0xffff);
+        return Item.getIdFromItem(stack.getItem()) << 16 | (stack.getItemDamage() & 0xffff);
     }
 
     /**
@@ -179,7 +181,7 @@ public class StackUtils {
         }
         String name = stack.getItem() == null ? "null" : stack.getItem().getUnlocalizedName(stack);
         String nbt = stack.stackTagCompound == null ? "null" : stack.stackTagCompound.toString();
-        return String.format("ItemStack [id=%d, meta=%d, size=%d, name=%s, nbt=%s]", stack.itemID, rawDamage(stack), stack.stackSize, name, nbt);
+        return String.format("ItemStack [id=%d, meta=%d, size=%d, name=%s, nbt=%s]", stack.getItem(), rawDamage(stack), stack.stackSize, name, nbt);
     }
 
     /**
@@ -188,7 +190,8 @@ public class StackUtils {
     @SuppressWarnings("unchecked")
     public static List<WrappedStack> collateStacks(List<Object> inputs) {
         List<WrappedStack> collated = new ArrayList<WrappedStack>();
-        inputs: for (Object o : inputs) {
+        inputs:
+        for (Object o : inputs) {
             WrappedStack ws = null;
             if (o instanceof List) {
                 ws = new WrappedStack(((List<ItemStack>) o).get(0));

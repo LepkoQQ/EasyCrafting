@@ -1,32 +1,35 @@
 package net.lepko.easycrafting.proxy;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import net.lepko.easycrafting.block.Blocks;
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.registry.GameRegistry;
+import net.lepko.easycrafting.block.ModBlocks;
 import net.lepko.easycrafting.core.CommandEasyCrafting;
+import net.lepko.easycrafting.core.ConnectionHandler;
 import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.core.TickHandlerClient;
 import net.lepko.easycrafting.recipe.RecipeManager;
-import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.oredict.OreDictionary;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.TickRegistry;
-import cpw.mods.fml.relauncher.Side;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class ProxyClient extends Proxy {
 
     @Override
     public void onLoad() {
         // Register Client Tick Handler
-        TickRegistry.registerTickHandler(new TickHandlerClient(), Side.CLIENT);
-        
+        FMLCommonHandler.instance().bus().register(new TickHandlerClient());
+        FMLCommonHandler.instance().bus().register(new ConnectionHandler());
+
         // Register Client Commands
         ClientCommandHandler.instance.registerCommand(new CommandEasyCrafting());
     }
@@ -35,7 +38,7 @@ public class ProxyClient extends Proxy {
     public void printMessageToChat(String msg) {
         if (msg != null) {
             if (FMLClientHandler.instance().getClient().ingameGUI != null) {
-                FMLClientHandler.instance().getClient().ingameGUI.getChatGUI().printChatMessage(msg);
+                FMLClientHandler.instance().getClient().ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(msg));
             } else {
                 EasyLog.log("[CHAT] " + msg);
             }
@@ -44,7 +47,7 @@ public class ProxyClient extends Proxy {
 
     @Override
     public void replaceRecipe(String itemIDs) {
-        ItemStack is = new ItemStack(Blocks.table, 1, 0);
+        ItemStack is = new ItemStack(ModBlocks.table, 1, 0);
 
         @SuppressWarnings("unchecked")
         List<IRecipe> recipes = CraftingManager.getInstance().getRecipeList();
@@ -60,14 +63,14 @@ public class ProxyClient extends Proxy {
         Object[] array = new Object[items.length];
         for (int i = 0; i < items.length; i++) {
             try {
-                array[i] = new ItemStack(Integer.parseInt(items[i]), 1, OreDictionary.WILDCARD_VALUE);
+                array[i] = new ItemStack(Item.getItemById(Integer.parseInt(items[i])), 1, OreDictionary.WILDCARD_VALUE);
             } catch (NumberFormatException nfe) {
                 EasyLog.warning("customRecipeItems: '" + itemIDs + "' is not valid; Using default!");
-                array = new Object[] { Block.workbench, Item.book, Item.redstone };
+                array = new Object[] { Blocks.crafting_table, Items.book, Items.redstone };
                 break;
             }
         }
-        GameRegistry.addShapelessRecipe(new ItemStack(Blocks.table, 1, 0), array);
+        GameRegistry.addShapelessRecipe(new ItemStack(ModBlocks.table, 1, 0), array);
 
         RecipeManager.scanRecipes();
     }

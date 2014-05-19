@@ -1,27 +1,23 @@
 package net.lepko.easycrafting;
 
-import net.lepko.easycrafting.block.Blocks;
-import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.core.ConnectionHandler;
-import net.lepko.easycrafting.core.EasyLog;
-import net.lepko.easycrafting.core.EventHandlerEC;
-import net.lepko.easycrafting.core.GuiHandler;
-import net.lepko.easycrafting.core.VersionHelper;
-import net.lepko.easycrafting.network.PacketHandler;
-import net.lepko.easycrafting.proxy.Proxy;
-import net.lepko.easycrafting.recipe.RecipeManager;
-import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import net.lepko.easycrafting.block.ModBlocks;
+import net.lepko.easycrafting.config.ConfigHandler;
+import net.lepko.easycrafting.core.EasyLog;
+import net.lepko.easycrafting.core.EventHandlerEC;
+import net.lepko.easycrafting.core.GuiHandler;
+import net.lepko.easycrafting.core.VersionHelper;
+import net.lepko.easycrafting.proxy.Proxy;
+import net.lepko.easycrafting.recipe.RecipeManager;
+import net.minecraftforge.common.MinecraftForge;
 
 @Mod(modid = VersionHelper.MOD_ID, name = VersionHelper.MOD_NAME, version = VersionHelper.VERSION)
-@NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = { VersionHelper.MOD_ID }, packetHandler = PacketHandler.class, connectionHandler = ConnectionHandler.class)
 public class ModEasyCrafting {
 
     @Instance(VersionHelper.MOD_ID)
@@ -36,10 +32,10 @@ public class ModEasyCrafting {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        Blocks.setupBlocks();
+        ModBlocks.setupBlocks();
         Proxy.proxy.onLoad();
 
-        NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
+        NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
         MinecraftForge.EVENT_BUS.register(new EventHandlerEC());
     }
 

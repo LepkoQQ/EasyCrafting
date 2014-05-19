@@ -42,7 +42,7 @@ public class WrappedRecipe {
             return null;
         }
         if (recipe.getRecipeOutput().getItem() == null) {
-            warn("recipe output item is null [id=" + recipe.getRecipeOutput().itemID + "]", recipe);
+            warn("recipe output item is null [id=" + recipe.getRecipeOutput().getItem() + "]", recipe);
             return null;
         }
         List<Object> inputs = null;
@@ -76,7 +76,7 @@ public class WrappedRecipe {
                         if (p instanceof ItemStack) {
                             ItemStack stack = (ItemStack) p;
                             if (stack.getItem() == null) {
-                                warn("one of recipe input items is null [id=" + stack.itemID + "]", recipe);
+                                warn("one of recipe input items is null [id=" + stack.getItem() + "]", recipe);
                                 return null;
                             }
                             stack.stackSize = 1;
@@ -90,7 +90,7 @@ public class WrappedRecipe {
                 if (o instanceof ItemStack) {
                     ItemStack stack = (ItemStack) o;
                     if (stack.getItem() == null) {
-                        warn("one of recipe input items is null [id=" + stack.itemID + "]", recipe);
+                        warn("one of recipe input items is null [id=" + stack.getItem() + "]", recipe);
                         return null;
                     }
                     stack.stackSize = 1;

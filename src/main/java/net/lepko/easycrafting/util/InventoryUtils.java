@@ -1,9 +1,5 @@
 package net.lepko.easycrafting.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import net.lepko.easycrafting.core.EasyLog;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -14,13 +10,17 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class InventoryUtils {
 
     private static final int PLAYER_INVENTORY_SIZE = 36;
 
     /**
      * Get the size of the main inventory, without armor slots.
-     * 
+     *
      * @param inv - the inventory to check
      * @return size of the inventory, or in case of {@link InventoryPlayer} PLAYER_INVENTORY_SIZE
      */
@@ -33,7 +33,7 @@ public class InventoryUtils {
 
     /**
      * Get the first empty slot in the inventory.
-     * 
+     *
      * @param inventory - inventory to check
      * @return slot index of the first empty slot, -1 if none found
      */
@@ -44,10 +44,10 @@ public class InventoryUtils {
 
     /**
      * Get the first empty slot in the inventory inside the provided slot index range.
-     * 
+     *
      * @param inventory - inventory to check
-     * @param start - first slot index (inclusive)
-     * @param end - last slot index (exclusive)
+     * @param start     - first slot index (inclusive)
+     * @param end       - last slot index (exclusive)
      * @return slot index of the first empty slot, -1 if none found
      */
     public static int getEmptySlot(IInventory inventory, int start, int end) {
@@ -61,7 +61,7 @@ public class InventoryUtils {
 
     /**
      * Store the contents of an inventory in a list.
-     * 
+     *
      * @param inventory - inventory to store
      */
     public static List<ItemStack> storeContents(IInventory inventory) {
@@ -74,9 +74,9 @@ public class InventoryUtils {
 
     /**
      * Replace the contents of an inventory with the ones of the list. List and inventory sizes must be the same!
-     * 
+     *
      * @param inventory - inventory to replace
-     * @param list - list of itemstacks
+     * @param list      - list of itemstacks
      */
     public static void setContents(IInventory inventory, List<ItemStack> list) {
         if (inventory.getSizeInventory() != list.size()) {
@@ -90,8 +90,8 @@ public class InventoryUtils {
 
     /**
      * Replace the contents of an inventory with the contents of another inventory.
-     * 
-     * @param to - inventory to set contents to
+     *
+     * @param to   - inventory to set contents to
      * @param from - inventory to read contents from
      */
     public static void setContents(IInventory to, IInventory from) {
@@ -103,7 +103,7 @@ public class InventoryUtils {
 
     /**
      * Add the specified itemstack to inventory. Try stacking it with existing stacks first. If that fails try to put it in an empty slot.
-     * 
+     *
      * @param inventory - inventory to add to
      * @param itemstack - item to add
      * @return whether or not the itemstack was added to the inventory
@@ -116,11 +116,11 @@ public class InventoryUtils {
     /**
      * Add the specified itemstack to inventory. Try stacking it with existing stacks first. If that fails try to put it in an empty slot. Constrain
      * to the provided slot index range.
-     * 
+     *
      * @param inventory - inventory to add to
      * @param itemstack - item to add
-     * @param start - first slot index (inclusive)
-     * @param end - last slot index (exclusive)
+     * @param start     - first slot index (inclusive)
+     * @param end       - last slot index (exclusive)
      * @return whether or not the itemstack was added to the inventory
      */
     public static boolean addItemToInventory(IInventory inventory, ItemStack itemstack, int start, int end) {
@@ -134,7 +134,7 @@ public class InventoryUtils {
                 }
                 if (is.stackSize + itemstack.stackSize <= maxStack) {
                     is.stackSize += itemstack.stackSize;
-                    inventory.onInventoryChanged();
+                    inventory.markDirty();
                     return true;
                 } else {
                     itemstack.stackSize -= maxStack - is.stackSize;
@@ -147,7 +147,7 @@ public class InventoryUtils {
             if (slot != -1) {
                 if (itemstack.stackSize <= maxStack) {
                     inventory.setInventorySlotContents(slot, itemstack.copy());
-                    inventory.onInventoryChanged();
+                    inventory.markDirty();
                     return true;
                 } else {
                     ItemStack is = itemstack.copy();
@@ -166,17 +166,17 @@ public class InventoryUtils {
     /**
      * Decreases the stack size in the inventoryIndex slot in the inventory by 1 and gives back any container items (bucket, etc.). Also adds the
      * consumed item to the usedIngredients list.
-     * 
-     * @param inventory - inventory to take from
-     * @param inventoryIndex - slot index to take from
+     *
+     * @param inventory       - inventory to take from
+     * @param inventoryIndex  - slot index to take from
      * @param usedIngredients - a list to which the consumed ingredient will be added
      * @return true if successful, false if there is no space for container items or cannot take from stack
      */
     public static boolean consumeItemForCrafting(IInventory inventory, int inventoryIndex, List<ItemStack> usedIngredients) {
         ItemStack stack = inventory.decrStackSize(inventoryIndex, 1);
         if (stack != null) {
-            if (stack.getItem().hasContainerItem()) {
-                ItemStack containerStack = stack.getItem().getContainerItemStack(stack);
+            if (stack.getItem().hasContainerItem(stack)) {
+                ItemStack containerStack = stack.getItem().getContainerItem(stack);
                 if (containerStack.isItemStackDamageable() && containerStack.getItemDamage() > containerStack.getMaxDamage()) {
                     containerStack = null;
                 }
@@ -197,7 +197,7 @@ public class InventoryUtils {
 
     public static void readStacksFromNBT(ItemStack[] stacks, NBTTagList nbt) {
         for (int i = 0; i < nbt.tagCount(); i++) {
-            NBTTagCompound tag = (NBTTagCompound) nbt.tagAt(i);
+            NBTTagCompound tag = nbt.getCompoundTagAt(i);
             byte slot = tag.getByte("Slot");
             if (slot >= 0 && slot < stacks.length) {
                 stacks[slot] = ItemStack.loadItemStackFromNBT(tag);
@@ -224,7 +224,7 @@ public class InventoryUtils {
             double x = te.xCoord + 0.5;
             double y = te.yCoord + 0.5;
             double z = te.zCoord + 0.5;
-            World world = te.worldObj;
+            World world = te.getWorldObj();
 
             IInventory inv = (IInventory) te;
             Random rng = new Random();
@@ -253,7 +253,7 @@ public class InventoryUtils {
                 if (stack.stackSize == 0) {
                     inv.setInventorySlotContents(slotIndex, null);
                 } else {
-                    inv.onInventoryChanged();
+                    inv.markDirty();
                 }
                 return is;
             }

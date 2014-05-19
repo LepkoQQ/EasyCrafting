@@ -1,8 +1,7 @@
 package net.lepko.easycrafting.block;
 
-import java.util.List;
-import java.util.Locale;
-
+import com.mojang.authlib.GameProfile;
+import cpw.mods.fml.common.registry.GameRegistry;
 import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.util.InventoryUtils;
 import net.lepko.easycrafting.util.StackUtils;
@@ -16,9 +15,13 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.FakePlayer;
-import net.minecraftforge.common.FakePlayerFactory;
-import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.FakePlayerFactory;
+
+import java.util.List;
+import java.util.Locale;
 
 public class TileEntityAutoCrafting extends TileEntity implements ISidedInventory {
 
@@ -143,7 +146,8 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
             found[o] = craftingGrid.getStackInSlot(o) == null;
         }
 
-        invLoop: for (int invSlot = 10; invSlot < 18; invSlot++) {
+        invLoop:
+        for (int invSlot = 10; invSlot < 18; invSlot++) {
             ItemStack stack = ItemStack.copyItemStack(getStackInSlot(invSlot));
             if (stack != null && stack.stackSize > 0) {
                 for (int gridSlot = 0; gridSlot < 9; gridSlot++) {
@@ -178,15 +182,15 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         ItemStack result = currentRecipe.getCraftingResult(craftingGrid);
         if (currentRecipe.matches(craftingGrid, worldObj) && StackUtils.areIdentical(result, getStackInSlot(9))) {
             if (InventoryUtils.addItemToInventory(this, result, 18, 26)) {
-                FakePlayer fakePlayer = FakePlayerFactory.get(worldObj, "[" + VersionHelper.MOD_ID + "]");
-                GameRegistry.onItemCrafted(fakePlayer, result, craftingGrid);
+                FakePlayer fakePlayer = FakePlayerFactory.get((WorldServer) worldObj, new GameProfile("easy.crafting.fake.player", "[" + VersionHelper.MOD_ID + "]"));//TODO: fakeplayer util
+                //GameRegistry.onItemCrafted(fakePlayer, result, craftingGrid);//TODO: is this event now?
                 result.onCrafting(worldObj, fakePlayer, result.stackSize);
 
                 for (StackReference ref : refs) {
                     if (ref != null) {
                         ItemStack stack = ref.decrStackSize(1);
                         if (stack != null && stack.getItem() != null && stack.getItem().hasContainerItem()) {
-                            ItemStack container = stack.getItem().getContainerItemStack(stack);
+                            ItemStack container = stack.getItem().getContainerItem(stack);
                             if (container.isItemStackDamageable() && container.getItemDamage() > container.getMaxDamage()) {
                                 container = null;
                             }
@@ -208,7 +212,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
     @Override
     public void readFromNBT(NBTTagCompound tag) {
         super.readFromNBT(tag);
-        InventoryUtils.readStacksFromNBT(inventory, tag.getTagList("Inventory"));
+        InventoryUtils.readStacksFromNBT(inventory, tag.getTagList("Inventory", Constants.NBT.TAG_COMPOUND));
         setMode(tag.getByte("Mode"));
     }
 
@@ -253,8 +257,8 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
     }
 
     @Override
-    public void onInventoryChanged() {
-        super.onInventoryChanged();
+    public void markDirty() {
+        super.markDirty();
         inventoryChanged = true;
     }
 
@@ -286,12 +290,12 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
     }
 
     @Override
-    public String getInvName() {
+    public String getInventoryName() {
         return "container.easycrafting:table.auto_crafting";
     }
 
     @Override
-    public boolean isInvNameLocalized() {
+    public boolean hasCustomInventoryName() {
         return false;
     }
 
@@ -302,15 +306,15 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
 
     @Override
     public boolean isUseableByPlayer(EntityPlayer player) {
-        return worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) == this && player.getDistanceSq(xCoord + 0.5, yCoord + 0.5, zCoord + 0.5) < 64;
+        return worldObj.getTileEntity(xCoord, yCoord, zCoord) == this && player.getDistanceSq(xCoord + 0.5, yCoord + 0.5, zCoord + 0.5) < 64;
     }
 
     @Override
-    public void openChest() {
+    public void openInventory() {
     }
 
     @Override
-    public void closeChest() {
+    public void closeInventory() {
     }
 
     @Override

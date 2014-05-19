@@ -6,6 +6,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.Constants;
 
 public class TileEntityEasyCrafting extends TileEntity implements IInventory {
 
@@ -28,7 +29,7 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
     @Override
     public void setInventorySlotContents(int slotIndex, ItemStack stack) {
         inventory[slotIndex] = stack;
-        onInventoryChanged();
+        markDirty();
     }
 
     @Override
@@ -48,21 +49,21 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
 
     @Override
     public boolean isUseableByPlayer(EntityPlayer player) {
-        return worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) == this && player.getDistanceSq(xCoord + 0.5, yCoord + 0.5, zCoord + 0.5) < 64;
+        return worldObj.getTileEntity(xCoord, yCoord, zCoord) == this && player.getDistanceSq(xCoord + 0.5, yCoord + 0.5, zCoord + 0.5) < 64;
     }
 
     @Override
-    public void openChest() {
+    public void openInventory() {
     }
 
     @Override
-    public void closeChest() {
+    public void closeInventory() {
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
-        InventoryUtils.readStacksFromNBT(inventory, tagCompound.getTagList("Inventory"));
+        InventoryUtils.readStacksFromNBT(inventory, tagCompound.getTagList("Inventory", Constants.NBT.TAG_COMPOUND));
     }
 
     @Override
@@ -72,12 +73,12 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
     }
 
     @Override
-    public String getInvName() {
+    public String getInventoryName() {
         return "TileEntityEasyCrafting";
     }
 
     @Override
-    public boolean isInvNameLocalized() {
+    public boolean hasCustomInventoryName() {
         return false;
     }
 

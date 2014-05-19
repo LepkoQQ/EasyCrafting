@@ -1,15 +1,13 @@
 package net.lepko.easycrafting.core;
 
-import java.util.EnumSet;
-
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
 import net.lepko.easycrafting.recipe.RecipeWorker;
 import net.minecraft.client.Minecraft;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
 
-public class TickHandlerClient implements ITickHandler {
+public class TickHandlerClient {
 
     private Minecraft mc = FMLClientHandler.instance().getClient();
     private static boolean updateEasyCraftingOutput = false;
@@ -25,13 +23,9 @@ public class TickHandlerClient implements ITickHandler {
         count = c;
     }
 
-    @Override
-    public void tickStart(EnumSet<TickType> type, Object... tickData) {
-    }
-
-    @Override
-    public void tickEnd(EnumSet<TickType> type, Object... tickData) {
-        if (updateEasyCraftingOutput && count <= 0 && type.equals(EnumSet.of(TickType.CLIENT))) {
+    @SubscribeEvent
+    public void tickEnd(TickEvent event) {
+        if (updateEasyCraftingOutput && count <= 0 && event.type == TickEvent.Type.CLIENT && event.phase == TickEvent.Phase.END) {
             if (RecipeWorker.lock.tryLock()) {
                 try {
                     RecipeWorker.instance().requestNewRecipeList();
@@ -61,15 +55,5 @@ public class TickHandlerClient implements ITickHandler {
                 RecipeWorker.lock.unlock();
             }
         }
-    }
-
-    @Override
-    public EnumSet<TickType> ticks() {
-        return EnumSet.of(TickType.CLIENT);
-    }
-
-    @Override
-    public String getLabel() {
-        return VersionHelper.MOD_ID + "-" + this.getClass().getSimpleName();
     }
 }

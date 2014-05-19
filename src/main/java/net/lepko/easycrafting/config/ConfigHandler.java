@@ -1,16 +1,12 @@
 package net.lepko.easycrafting.config;
 
-import java.io.File;
+import net.minecraftforge.common.config.Configuration;
 
-import net.minecraftforge.common.Configuration;
+import java.io.File;
 
 public class ConfigHandler {
 
     private static Configuration config;
-
-    // Properties
-    public static int EASYCRAFTINGTABLE_ID;
-    public static int EASYCRAFTINGTABLE_ID_DEFAULT = 2500;
 
     public static boolean UPDATE_CHECK_ENABLED;
     public static boolean UPDATE_CHECK_ENABLED_DEFAULT = true;
@@ -30,8 +26,6 @@ public class ConfigHandler {
         }
 
         config.load();
-
-        EASYCRAFTINGTABLE_ID = config.getBlock("EasyCraftingTable", EASYCRAFTINGTABLE_ID_DEFAULT).getInt(EASYCRAFTINGTABLE_ID_DEFAULT);
 
         UPDATE_CHECK_ENABLED = config.get(Configuration.CATEGORY_GENERAL, "checkForUpdates", UPDATE_CHECK_ENABLED_DEFAULT, UPDATE_CHECK_ENABLED_COMMENT).getBoolean(UPDATE_CHECK_ENABLED_DEFAULT);
         MAX_RECURSION = config.get(Configuration.CATEGORY_GENERAL, "recipeRecursion", MAX_RECURSION_DEFAULT, MAX_RECURSION_COMMENT).getInt(MAX_RECURSION_DEFAULT);

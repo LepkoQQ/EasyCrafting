@@ -1,9 +1,6 @@
 package net.lepko.easycrafting.inventory.gui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.lepko.easycrafting.block.Blocks;
+import net.lepko.easycrafting.block.ModBlocks;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.core.EasyLog;
@@ -22,18 +19,20 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.oredict.OreDictionary;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GuiEasyCrafting extends GuiTabbed {
 
@@ -75,7 +74,7 @@ public class GuiEasyCrafting extends GuiTabbed {
     public void initGui() {
         super.initGui();
         Keyboard.enableRepeatEvents(true);
-        searchField = new GuiTextField(fontRenderer, guiLeft + 82, guiTop + 6, 89, fontRenderer.FONT_HEIGHT);
+        searchField = new GuiTextField(fontRendererObj, guiLeft + 82, guiTop + 6, 89, fontRendererObj.FONT_HEIGHT);
         searchField.setMaxStringLength(32);
         searchField.setEnableBackgroundDrawing(false);
         searchField.setVisible(true);
@@ -87,8 +86,8 @@ public class GuiEasyCrafting extends GuiTabbed {
 
     @Override
     public void initTabs() {
-        tabGroup.addTab(new TabEasyCrafting(new ItemStack(Blocks.table), "Available"));
-        tabGroup.addTab(new TabEasyCrafting(new ItemStack(Item.compass), "Search"));
+        tabGroup.addTab(new TabEasyCrafting(new ItemStack(ModBlocks.table), "Available"));
+        tabGroup.addTab(new TabEasyCrafting(new ItemStack(Items.compass), "Search"));
     }
 
     @Override
@@ -162,7 +161,7 @@ public class GuiEasyCrafting extends GuiTabbed {
         if (WORKER_LOCKED) {
             title = "Searching...";
         }
-        fontRenderer.drawString(title, 7, 6, 0x404040);
+        fontRendererObj.drawString(title, 7, 6, 0x404040);
 
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
     }
@@ -341,25 +340,26 @@ public class GuiEasyCrafting extends GuiTabbed {
     }
 
     @Override
-    protected void drawItemStackTooltip(ItemStack stack, int mouseX, int mouseY) {
+    protected void renderToolTip(ItemStack stack, int mouseX, int mouseY) {
         if (isCtrlKeyDown()) {
             for (int j = 0; j < 40; j++) {
                 Slot slot = inventorySlots.getSlot(j);
-                if (isPointInRegion(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
+                //isPointInRegion
+                if (func_146978_c(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
                     List<String> list = new ArrayList<String>();
                     String itemName = (String) stack.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips).get(0);
-                    list.add("\u00a7" + Integer.toHexString(stack.getRarity().rarityColor) + itemName);
+                    list.add(stack.getRarity().rarityColor + itemName);
 
                     FontRenderer font = stack.getItem().getFontRenderer(stack);
-                    drawHoveringText(list, mouseX, mouseY, font == null ? fontRenderer : font);
+                    drawHoveringText(list, mouseX, mouseY, font == null ? fontRendererObj : font);
 
-                    boolean leftSide = mouseX + 12 + fontRenderer.getStringWidth(itemName) > width;
+                    boolean leftSide = mouseX + 12 + fontRendererObj.getStringWidth(itemName) > width;
                     drawIngredientTooltip(j, mouseX, mouseY, leftSide);
                     return;
                 }
             }
         }
-        super.drawItemStackTooltip(stack, mouseX, mouseY);
+        super.renderToolTip(stack, mouseX, mouseY);
     }
 
     // TODO: simplify
@@ -401,7 +401,7 @@ public class GuiEasyCrafting extends GuiTabbed {
             int borderColorDark = (borderColor & 0xFEFEFE) >> 1 | borderColor & 0xFF000000;
 
             zLevel = 300.0F;
-            itemRenderer.zLevel = 300.0F;
+            itemRender.zLevel = 300.0F;
 
             RenderHelper.disableStandardItemLighting();
             GL11.glDisable(GL11.GL_LIGHTING);
@@ -430,11 +430,11 @@ public class GuiEasyCrafting extends GuiTabbed {
                     ItemStack is2 = is.copy();
                     is2.setItemDamage(0);
                     // TODO: rotate display of all possible stacks
-                    itemRenderer.renderItemAndEffectIntoGUI(fontRenderer, mc.renderEngine, is2, xPos, yPos);
-                    itemRenderer.renderItemOverlayIntoGUI(fontRenderer, mc.renderEngine, is2, xPos, yPos);
+                    itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
+                    itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
                 } else {
-                    itemRenderer.renderItemAndEffectIntoGUI(fontRenderer, mc.renderEngine, is, xPos, yPos);
-                    itemRenderer.renderItemOverlayIntoGUI(fontRenderer, mc.renderEngine, is, xPos, yPos);
+                    itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, is, xPos, yPos);
+                    itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, is, xPos, yPos);
                 }
 
                 xPos += 18;
@@ -445,7 +445,7 @@ public class GuiEasyCrafting extends GuiTabbed {
             GL11.glDisable(GL11.GL_LIGHTING);
 
             zLevel = 0.0F;
-            itemRenderer.zLevel = 0.0F;
+            itemRender.zLevel = 0.0F;
         }
     }
 }

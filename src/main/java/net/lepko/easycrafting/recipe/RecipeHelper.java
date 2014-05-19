@@ -213,7 +213,7 @@ public class RecipeHelper {
                             continue allLoop;
                         }
                     } else if (wr.inputs.get(i) instanceof List) {
-                        if (ingredients[i].itemID == 0) {
+                        if (ingredients[i].getItem() == null) {
                             return null;
                         }
                         @SuppressWarnings("unchecked")

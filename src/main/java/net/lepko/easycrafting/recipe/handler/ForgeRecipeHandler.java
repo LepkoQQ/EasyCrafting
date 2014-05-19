@@ -32,7 +32,7 @@ public class ForgeRecipeHandler implements IRecipeHandler {
         if (candidate == null || target == null) {
             return candidate == target;
         }
-        if (target.itemID != candidate.itemID) {
+        if (target.getItem() != candidate.getItem()) {
             return false;
         }
         if (target.getItemDamage() != OreDictionary.WILDCARD_VALUE && target.getItemDamage() != candidate.getItemDamage()) {

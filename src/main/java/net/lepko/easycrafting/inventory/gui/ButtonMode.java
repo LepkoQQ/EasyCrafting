@@ -5,7 +5,6 @@ import net.lepko.easycrafting.block.TileEntityAutoCrafting.Mode;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.network.packet.PacketInterfaceChange;
 import net.minecraft.client.resources.I18n;
-
 import org.lwjgl.opengl.GL11;
 
 public class ButtonMode {
@@ -43,7 +42,7 @@ public class ButtonMode {
 
     public void renderTooltip(int mouseX, int mouseY, Mode mode) {
         if (isMouseOver(mouseX, mouseY) && mode != null) {
-            gui.drawHoverText(I18n.getString(mode.tooltip), mouseX, mouseY);
+            gui.drawHoverText(I18n.format(mode.tooltip), mouseX, mouseY);
         }
     }
 

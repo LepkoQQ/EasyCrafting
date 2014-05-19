@@ -42,7 +42,7 @@ public class GuiAutoCrafting extends GuiContainer {
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        fontRenderer.drawString(I18n.getString(tileEntity.getInvName()), 8, 6, 0x404040);
+        fontRendererObj.drawString(I18n.format(tileEntity.getInventoryName()), 8, 6, 0x404040);
     }
 
     @Override

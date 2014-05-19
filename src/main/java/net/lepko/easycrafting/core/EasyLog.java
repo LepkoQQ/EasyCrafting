@@ -1,16 +1,15 @@
 package net.lepko.easycrafting.core;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import cpw.mods.fml.common.FMLLog;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class EasyLog {
 
     private static final Logger logger;
+
     static {
-        logger = Logger.getLogger(VersionHelper.MOD_ID);
-        logger.setParent(FMLLog.getLogger());
+        logger = LogManager.getLogger(VersionHelper.MOD_ID);
     }
 
     public static void log(String msg) {
@@ -18,14 +17,14 @@ public class EasyLog {
     }
 
     public static void warning(String msg) {
-        logger.log(Level.WARNING, msg + " == T:" + Thread.currentThread().getName());
+        logger.log(Level.WARN, msg + " == T:" + Thread.currentThread().getName());
     }
 
     public static void warning(String msg, Throwable throwable) {
-        logger.log(Level.WARNING, msg + " == T:" + Thread.currentThread().getName(), throwable);
+        logger.log(Level.WARN, msg + " == T:" + Thread.currentThread().getName(), throwable);
     }
 
     public static void severe(String msg) {
-        logger.log(Level.SEVERE, msg + " == T:" + Thread.currentThread().getName());
+        logger.log(Level.FATAL, msg + " == T:" + Thread.currentThread().getName());
     }
 }

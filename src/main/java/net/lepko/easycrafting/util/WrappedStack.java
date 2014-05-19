@@ -1,9 +1,10 @@
 package net.lepko.easycrafting.util;
 
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.item.ItemStack;
 
 public class WrappedStack {
 
@@ -24,7 +25,7 @@ public class WrappedStack {
     public int hashCode() {
         final int prime = 92821;
         int result = 1;
-        result = prime * result + stack.itemID;
+        result = prime * result + Item.getIdFromItem(stack.getItem());
         result = prime * result + StackUtils.rawDamage(stack);
         result = prime * result + stack.stackSize;
         result = prime * result + (stack.stackTagCompound == null ? 0 : stack.stackTagCompound.hashCode());
@@ -66,7 +67,7 @@ public class WrappedStack {
             }
         }
         //
-        if (stack.itemID != other.stack.itemID) {
+        if (stack.getItem() != other.stack.getItem()) {
             return false;
         }
         if (!StackUtils.isDamageEquivalent(StackUtils.rawDamage(stack), StackUtils.rawDamage(other.stack))) {

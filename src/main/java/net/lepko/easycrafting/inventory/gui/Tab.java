@@ -1,6 +1,6 @@
 package net.lepko.easycrafting.inventory.gui;
 
-import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 
 public class Tab {
@@ -9,7 +9,7 @@ public class Tab {
     public final int height = 28;
     public int index = 0;
     public TabGroup group;
-    public ItemStack iconStack = new ItemStack(Block.stone);
+    public ItemStack iconStack = new ItemStack(Blocks.stone);
     public String tooltip = "tab";
 
     public Tab(ItemStack iconStack, String tooltip) {

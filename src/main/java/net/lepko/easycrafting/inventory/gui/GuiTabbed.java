@@ -59,7 +59,7 @@ public abstract class GuiTabbed extends GuiContainer {
     }
 
     public RenderItem itemRenderer() {
-        return itemRenderer;
+        return itemRender;
     }
 
     public Minecraft mc() {

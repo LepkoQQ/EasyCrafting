@@ -75,7 +75,7 @@ public class IC2RecipeHandler implements IRecipeHandler {
         if (candidate == null || target == null) {
             return candidate == target;
         }
-        if (target.itemID != candidate.itemID) {
+        if (target.getItem() != candidate.getItem()) {
             return false;
         }
         if (candidate.getItem() instanceof IElectricItem) {
