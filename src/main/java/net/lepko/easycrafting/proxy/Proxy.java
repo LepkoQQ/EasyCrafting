@@ -11,7 +11,7 @@ public class Proxy {
     @SidedProxy(clientSide = "net.lepko.easycrafting.proxy.ProxyClient", serverSide = "net.lepko.easycrafting.proxy.Proxy")
     public static Proxy proxy;
 
-    public void onLoad() {
+    public void init() {
         FMLCommonHandler.instance().bus().register(ConnectionHandler.INSTANCE);
     }
 

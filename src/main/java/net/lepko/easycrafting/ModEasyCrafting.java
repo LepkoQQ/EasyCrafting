@@ -29,12 +29,13 @@ public class ModEasyCrafting {
         EasyLog.log("Loading " + VersionHelper.MOD_NAME + " version " + VersionHelper.VERSION + ".");
         ConfigHandler.initialize(event.getSuggestedConfigurationFile());
         VersionHelper.performCheck();
+
+        ModBlocks.setupBlocks();
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        ModBlocks.setupBlocks();
-        Proxy.proxy.onLoad();
+        Proxy.proxy.init();
 
         PacketHandler.init();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());

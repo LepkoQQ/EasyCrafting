@@ -25,7 +25,7 @@ import java.util.List;
 public class ProxyClient extends Proxy {
 
     @Override
-    public void onLoad() {
+    public void init() {
         // Register Client Tick Handler
         FMLCommonHandler.instance().bus().register(TickHandlerClient.INSTANCE);
 

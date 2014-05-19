@@ -9,9 +9,9 @@ public class ModBlocks {
 
     public static void setupBlocks() {
         table = new BlockTable();
-        GameRegistry.registerBlock(table, ItemBlockTable.class, table.getUnlocalizedName());
+        GameRegistry.registerBlock(table, ItemBlockTable.class, "table");
 
-        GameRegistry.registerTileEntityWithAlternatives(TileEntityEasyCrafting.class, "EasyCraftingTableTE", "tileEntityEasyCrafting");
+        GameRegistry.registerTileEntity(TileEntityEasyCrafting.class, "EasyCraftingTableTE");
         GameRegistry.registerTileEntity(TileEntityAutoCrafting.class, "AutoCraftingTableTE");
     }
 }
