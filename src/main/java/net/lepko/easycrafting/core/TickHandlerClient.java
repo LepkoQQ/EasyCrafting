@@ -4,30 +4,33 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
 import net.lepko.easycrafting.recipe.RecipeWorker;
 import net.minecraft.client.Minecraft;
 
-public class TickHandlerClient {
+@SideOnly(Side.CLIENT)
+public enum TickHandlerClient {
+    INSTANCE;
 
     private Minecraft mc = FMLClientHandler.instance().getClient();
-    private static boolean updateEasyCraftingOutput = false;
-    private static boolean showUpdateInChat = true;
-    private static int count = 5;
+    private boolean updateEasyCraftingOutput = false;
+    private boolean showUpdateInChat = true;
+    private int count = 5;
 
-    public static void scheduleRecipeUpdate() {
+    public void scheduleRecipeUpdate() {
         scheduleRecipeUpdate(5);
     }
 
-    public static void scheduleRecipeUpdate(int c) {
+    public void scheduleRecipeUpdate(int c) {
         updateEasyCraftingOutput = true;
         count = c;
     }
 
     @SubscribeEvent
-    public void tickEnd(TickEvent event) {
-        if (event.side == Side.CLIENT && event.type == TickEvent.Type.CLIENT) {
-            if (updateEasyCraftingOutput && count <= 0 && event.phase == TickEvent.Phase.END) {
+    public void tickEnd(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            if (updateEasyCraftingOutput && count <= 0) {
                 if (RecipeWorker.lock.tryLock()) {
                     try {
                         RecipeWorker.instance().requestNewRecipeList();

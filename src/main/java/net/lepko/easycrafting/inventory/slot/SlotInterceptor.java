@@ -13,6 +13,6 @@ public class SlotInterceptor extends Slot {
     @Override
     public void onSlotChanged() {
         super.onSlotChanged();
-        TickHandlerClient.scheduleRecipeUpdate();
+        TickHandlerClient.INSTANCE.scheduleRecipeUpdate();
     }
 }

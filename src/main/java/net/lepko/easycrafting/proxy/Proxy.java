@@ -1,9 +1,10 @@
 package net.lepko.easycrafting.proxy;
 
-import net.lepko.easycrafting.core.EasyLog;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.relauncher.Side;
+import net.lepko.easycrafting.core.ConnectionHandler;
+import net.lepko.easycrafting.core.EasyLog;
 
 public class Proxy {
 
@@ -11,6 +12,7 @@ public class Proxy {
     public static Proxy proxy;
 
     public void onLoad() {
+        FMLCommonHandler.instance().bus().register(ConnectionHandler.INSTANCE);
     }
 
     public void printMessageToChat(String msg) {

@@ -27,8 +27,7 @@ public class ProxyClient extends Proxy {
     @Override
     public void onLoad() {
         // Register Client Tick Handler
-        FMLCommonHandler.instance().bus().register(new TickHandlerClient());
-        FMLCommonHandler.instance().bus().register(new ConnectionHandler());
+        FMLCommonHandler.instance().bus().register(TickHandlerClient.INSTANCE);
 
         // Register Client Commands
         ClientCommandHandler.instance.registerCommand(new CommandEasyCrafting());
