@@ -1,7 +1,7 @@
 package net.lepko.easycrafting.core;
 
 import net.lepko.easycrafting.Ref;
-import net.lepko.easycrafting.config.ConfigHandler;
+import net.lepko.easycrafting.core.config.ConfigHandler;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;

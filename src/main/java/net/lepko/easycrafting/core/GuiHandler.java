@@ -2,12 +2,12 @@ package net.lepko.easycrafting.core;
 
 import cpw.mods.fml.common.network.IGuiHandler;
 import net.lepko.easycrafting.EasyCrafting;
-import net.lepko.easycrafting.block.TileEntityAutoCrafting;
-import net.lepko.easycrafting.block.TileEntityEasyCrafting;
-import net.lepko.easycrafting.inventory.ContainerAutoCrafting;
-import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
-import net.lepko.easycrafting.inventory.gui.GuiAutoCrafting;
-import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
+import net.lepko.easycrafting.core.block.TileEntityAutoCrafting;
+import net.lepko.easycrafting.core.block.TileEntityEasyCrafting;
+import net.lepko.easycrafting.core.inventory.ContainerAutoCrafting;
+import net.lepko.easycrafting.core.inventory.ContainerEasyCrafting;
+import net.lepko.easycrafting.core.inventory.gui.GuiAutoCrafting;
+import net.lepko.easycrafting.core.inventory.gui.GuiEasyCrafting;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;

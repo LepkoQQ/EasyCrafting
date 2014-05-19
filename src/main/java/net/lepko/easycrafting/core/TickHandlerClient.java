@@ -5,8 +5,8 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.lepko.easycrafting.inventory.gui.GuiEasyCrafting;
-import net.lepko.easycrafting.recipe.RecipeWorker;
+import net.lepko.easycrafting.core.inventory.gui.GuiEasyCrafting;
+import net.lepko.easycrafting.core.recipe.RecipeWorker;
 import net.minecraft.client.Minecraft;
 
 @SideOnly(Side.CLIENT)

@@ -1,6 +1,8 @@
 package net.lepko.easycrafting;
 
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.SidedProxy;
+import net.lepko.easycrafting.core.proxy.Proxy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,13 +23,16 @@ public final class Ref {
     public static String VERSION;
     public static String URL;
 
+    @SidedProxy(clientSide = "net.lepko.easycrafting.core.proxy.ProxyClient", serverSide = "net.lepko.easycrafting.core.proxy.Proxy")
+    public static Proxy PROXY;
+
     public static void init() {
         MOD_NAME = Loader.instance().activeModContainer().getName();
         VERSION = Loader.instance().activeModContainer().getVersion();
         URL = Loader.instance().activeModContainer().getMetadata().url;
 
-        Ref.LOGGER.info(" > Loading {} | Version {}", MOD_NAME, VERSION);
-        Ref.LOGGER.info(" > {}", URL);
+        LOGGER.info(" > Loading {} | Version {}", MOD_NAME, VERSION);
+        LOGGER.info(" > {}", URL);
     }
 
     public static final String addDomain(String string) {
