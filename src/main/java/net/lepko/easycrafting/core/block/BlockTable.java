@@ -92,11 +92,11 @@ public class BlockTable extends BlockContainer {
 
         if (te instanceof TileEntityEasyCrafting) {
             RecipeManager.scanRecipes();
-            GuiHandler.openGui(GuiHandler.GUI_EASYCRAFTING, player, world, x, y, z);
+            GuiHandler.openGui(GuiHandler.GuiType.EASYCRAFTING, player, world, x, y, z);
             return true;
         }
         if (te instanceof TileEntityAutoCrafting) {
-            GuiHandler.openGui(GuiHandler.GUI_AUTOCRAFTING, player, world, x, y, z);
+            GuiHandler.openGui(GuiHandler.GuiType.AUTOCRAFTING, player, world, x, y, z);
             return true;
         }
 

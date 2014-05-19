@@ -6,8 +6,6 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import net.lepko.easycrafting.core.GuiHandler;
 import net.lepko.easycrafting.core.block.ModBlocks;
 import net.lepko.easycrafting.core.config.ConfigHandler;
 import net.lepko.easycrafting.core.network.PacketHandler;
@@ -29,11 +27,10 @@ public class EasyCrafting {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        Ref.PROXY.registerEventHandlers();
+        Ref.PROXY.registerHandlers();
         Ref.PROXY.registerCommands();
 
         PacketHandler.init();
-        NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
     }
 
     @EventHandler

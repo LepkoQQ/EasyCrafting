@@ -8,8 +8,8 @@ import net.minecraftforge.client.ClientCommandHandler;
 public class ProxyClient extends Proxy {
 
     @Override
-    public void registerEventHandlers() {
-        super.registerEventHandlers();
+    public void registerHandlers() {
+        super.registerHandlers();
 
         FMLCommonHandler.instance().bus().register(TickHandlerClient.INSTANCE);
     }
