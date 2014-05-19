@@ -6,7 +6,7 @@ import net.lepko.easycrafting.core.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.core.config.ConfigHandler;
 import net.lepko.easycrafting.core.inventory.ContainerEasyCrafting;
 import net.lepko.easycrafting.core.network.PacketHandler;
-import net.lepko.easycrafting.core.network.packet.PacketEasyCrafting;
+import net.lepko.easycrafting.core.network.message.MessageEasyCrafting;
 import net.lepko.easycrafting.core.recipe.RecipeHelper;
 import net.lepko.easycrafting.core.recipe.RecipeManager;
 import net.lepko.easycrafting.core.recipe.RecipeWorker;
@@ -246,7 +246,7 @@ public class GuiEasyCrafting extends GuiTabbed {
         if (finalStackSize > 0) {
             boolean isRightClick = button == 1;
 
-            PacketHandler.sendPacket(new PacketEasyCrafting(recipe, isRightClick));
+            PacketHandler.INSTANCE.sendToServer(new MessageEasyCrafting(recipe, isRightClick));
 
             if (isRightClick) { // Right click; craft until max stack
                 int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, heldStack);

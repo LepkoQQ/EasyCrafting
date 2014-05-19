@@ -3,7 +3,7 @@ package net.lepko.easycrafting.core.inventory.gui;
 import net.lepko.easycrafting.core.block.TileEntityAutoCrafting;
 import net.lepko.easycrafting.core.block.TileEntityAutoCrafting.Mode;
 import net.lepko.easycrafting.core.network.PacketHandler;
-import net.lepko.easycrafting.core.network.packet.PacketInterfaceChange;
+import net.lepko.easycrafting.core.network.message.MessageInterfaceChange;
 import net.minecraft.client.resources.I18n;
 import org.lwjgl.opengl.GL11;
 
@@ -49,7 +49,7 @@ public class ButtonMode {
     public void click(int mouseX, int mouseY, int mouseButton, TileEntityAutoCrafting tileEntity) {
         if (isMouseOver(mouseX, mouseY)) {
             tileEntity.cycleModes(mouseButton);
-            PacketHandler.sendPacket(new PacketInterfaceChange(0, tileEntity.getMode().ordinal()));
+            PacketHandler.INSTANCE.sendToServer(new MessageInterfaceChange(0, tileEntity.getMode().ordinal()));
         }
     }
 }

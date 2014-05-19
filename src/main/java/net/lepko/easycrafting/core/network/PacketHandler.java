@@ -1,84 +1,86 @@
 package net.lepko.easycrafting.core.network;
 
 import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.network.FMLEventChannel;
-import cpw.mods.fml.common.network.FMLNetworkEvent;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.network.FMLEmbeddedChannel;
+import cpw.mods.fml.common.network.FMLIndexedMessageToMessageCodec;
+import cpw.mods.fml.common.network.FMLOutboundHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
 import net.lepko.easycrafting.Ref;
-import net.lepko.easycrafting.core.network.packet.EasyPacket;
-import net.lepko.easycrafting.core.network.packet.PacketEasyCrafting;
-import net.lepko.easycrafting.core.network.packet.PacketInterfaceChange;
+import net.lepko.easycrafting.core.network.message.AbstractMessage;
+import net.lepko.easycrafting.core.network.message.MessageEasyCrafting;
+import net.lepko.easycrafting.core.network.message.MessageInterfaceChange;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
 
-public class PacketHandler {
+import java.util.EnumMap;
 
-    public static PacketHandler INSTANCE = new PacketHandler();
-    public static FMLEventChannel CHANNEL = NetworkRegistry.INSTANCE.newEventDrivenChannel(Ref.CHANNEL);
+public final class PacketHandler extends FMLIndexedMessageToMessageCodec<AbstractMessage> {
+    public static final PacketHandler INSTANCE = new PacketHandler();
+    private static final EnumMap<Side, FMLEmbeddedChannel> CHANNELS = NetworkRegistry.INSTANCE.newChannel(Ref.CHANNEL, INSTANCE);
+
+    private PacketHandler() {}
 
     public static void init() {
-        CHANNEL.register(INSTANCE);
+        INSTANCE.addDiscriminator(0, MessageEasyCrafting.class);
+        INSTANCE.addDiscriminator(1, MessageInterfaceChange.class);
     }
 
-    @SubscribeEvent
-    public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
-        ByteBuf buf = event.packet.payload();
-        int id = buf.readByte();
+    @Override
+    public void encodeInto(ChannelHandlerContext ctx, AbstractMessage msg, ByteBuf target) throws Exception {
+        msg.write(target);
+    }
 
-        EasyPacket packet = getPacketType(id);
-        if (packet != null) {
-            packet.read(buf);
-            packet.run(((NetHandlerPlayServer) event.handler).playerEntity);
+    @Override
+    public void decodeInto(ChannelHandlerContext ctx, ByteBuf source, AbstractMessage msg) {
+        msg.read(source);
+
+        EntityPlayer player;
+        switch (FMLCommonHandler.instance().getEffectiveSide()) {
+            case CLIENT:
+                player = FMLClientHandler.instance().getClient().thePlayer;
+                msg.run(player, Side.CLIENT);
+                break;
+            case SERVER:
+                INetHandler netHandler = ctx.channel().attr(NetworkRegistry.NET_HANDLER).get();
+                player = ((NetHandlerPlayServer) netHandler).playerEntity;
+                msg.run(player, Side.SERVER);
+                break;
         }
     }
 
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public void onClientPacket(FMLNetworkEvent.ClientCustomPacketEvent event) {
-        ByteBuf buf = event.packet.payload();
-        int id = buf.readByte();
-
-        EasyPacket packet = getPacketType(id);
-        if (packet != null) {
-            packet.read(buf);
-            packet.run(FMLClientHandler.instance().getClient().thePlayer);
-        }
+    public void sendToAll(AbstractMessage message) {
+        CHANNELS.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.ALL);
+        CHANNELS.get(Side.SERVER).writeAndFlush(message).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     }
 
-    public enum PacketTypes {
-        PACKETID_EASYCRAFTING(PacketEasyCrafting.class),
-        PACKETID_INTERFACECHANGE(PacketInterfaceChange.class);
-
-        public final Class<? extends EasyPacket> clazz;
-
-        PacketTypes(Class<? extends EasyPacket> clazz) {
-            this.clazz = clazz;
-        }
-
-        public static int indexOf(Class<? extends EasyPacket> clazz) {
-            for (PacketTypes typ : PacketTypes.values()) {
-                if (typ.clazz == clazz) {
-                    return typ.ordinal();
-                }
-            }
-            return -1;
-        }
+    public void sendTo(AbstractMessage message, EntityPlayerMP player) {
+        CHANNELS.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
+        CHANNELS.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
+        CHANNELS.get(Side.SERVER).writeAndFlush(message).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     }
 
-    private EasyPacket getPacketType(int id) {
-        try {
-            return PacketTypes.values()[id].clazz.newInstance();
-        } catch (Exception e) {
-            Ref.LOGGER.warn("Bad packet ID: " + id, e);
-            return null;
-        }
+    public void sendToAllAround(AbstractMessage message, NetworkRegistry.TargetPoint point) {
+        CHANNELS.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.ALLAROUNDPOINT);
+        CHANNELS.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(point);
+        CHANNELS.get(Side.SERVER).writeAndFlush(message).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     }
 
-    public static void sendPacket(EasyPacket packet) {
-        CHANNEL.sendToServer(new FMLProxyPacket(packet.getBytes(), Ref.CHANNEL));
+    public void sendToDimension(AbstractMessage message, int dimensionId) {
+        CHANNELS.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.DIMENSION);
+        CHANNELS.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(dimensionId);
+        CHANNELS.get(Side.SERVER).writeAndFlush(message).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+    }
+
+    public void sendToServer(AbstractMessage message) {
+        CHANNELS.get(Side.CLIENT).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.TOSERVER);
+        CHANNELS.get(Side.CLIENT).writeAndFlush(message).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     }
 }
