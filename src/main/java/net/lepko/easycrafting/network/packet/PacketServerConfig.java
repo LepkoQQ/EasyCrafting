@@ -1,30 +1,25 @@
 package net.lepko.easycrafting.network.packet;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
+import cpw.mods.fml.common.network.ByteBufUtils;
+import io.netty.buffer.ByteBuf;
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.proxy.Proxy;
-import cpw.mods.fml.common.network.Player;
+import net.minecraft.entity.player.EntityPlayer;
+
+import java.io.IOException;
 
 public class PacketServerConfig extends EasyPacket {
 
     private String modVersionServer;
-    private int easyCraftingTableID;
     private String customRecipeString;
 
     @Override
-    public void run(Player player) {
+    public void run(EntityPlayer player) {
         if (!modVersionServer.equalsIgnoreCase(VersionHelper.VERSION)) {
             EasyLog.warning("Server is running a different version of the mod than you. Things may break!");
             EasyLog.warning("Server: " + modVersionServer + ", Client: " + VersionHelper.VERSION);
-        }
-        if (easyCraftingTableID != ConfigHandler.EASYCRAFTINGTABLE_ID) {
-            EasyLog.warning("The Block ID for the EasyCraftingTable is different from the server. Change the config to the same value!");
-            EasyLog.warning("Server: " + easyCraftingTableID + ", Client: " + ConfigHandler.EASYCRAFTINGTABLE_ID);
         }
         // Recipe from config
         ConfigHandler.CUSTOM_RECIPE_INGREDIENTS = customRecipeString;
@@ -32,24 +27,20 @@ public class PacketServerConfig extends EasyPacket {
     }
 
     @Override
-    protected void readData(DataInputStream data) throws IOException {
+    protected void readData(ByteBuf buf) throws IOException {
         // Mod version
-        modVersionServer = data.readUTF();
-        // Easy Crafting Table ID
-        easyCraftingTableID = data.readShort();
+        modVersionServer = ByteBufUtils.readUTF8String(buf);
         // Custom recipe string
-        customRecipeString = data.readUTF();
+        customRecipeString = ByteBufUtils.readUTF8String(buf);
     }
 
     @Override
-    protected void writeData(DataOutputStream data) throws IOException {
+    protected void writeData(ByteBuf buf) throws IOException {
         // only send settings that need to be in sync
 
         // Mod version
-        data.writeUTF(VersionHelper.VERSION);
-        // Easy Crafting Table ID
-        data.writeShort(ConfigHandler.EASYCRAFTINGTABLE_ID);
+        ByteBufUtils.writeUTF8String(buf, VersionHelper.VERSION);
         // Custom recipe string
-        data.writeUTF(ConfigHandler.CUSTOM_RECIPE_INGREDIENTS);
+        ByteBufUtils.writeUTF8String(buf, ConfigHandler.CUSTOM_RECIPE_INGREDIENTS);
     }
 }

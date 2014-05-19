@@ -1,13 +1,12 @@
 package net.lepko.easycrafting.network.packet;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.network.PacketHandler.PacketTypes;
-import cpw.mods.fml.common.network.Player;
+import net.minecraft.entity.player.EntityPlayer;
+
+import java.io.IOException;
 
 public abstract class EasyPacket {
 
@@ -17,31 +16,30 @@ public abstract class EasyPacket {
         this.packetID = PacketTypes.indexOf(this.getClass());
     }
 
-    public final void read(DataInputStream data) {
+    public final void read(ByteBuf buf) {
         try {
-            readData(data);
+            readData(buf);
         } catch (IOException e) {
             EasyLog.warning("Exception while reading packet: " + packetID + "!", e);
         }
     }
 
-    public final byte[] getBytes() {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(bos);
+    public final ByteBuf getBytes() {
+        ByteBuf buf = Unpooled.buffer();
 
         try {
-            dos.writeByte(packetID);
-            writeData(dos);
+            buf.writeByte(packetID);
+            writeData(buf);
         } catch (IOException e) {
             EasyLog.warning("Exception while writing to packet: " + packetID + "!", e);
         }
 
-        return bos.toByteArray();
+        return buf;
     }
 
-    public abstract void run(Player player);
+    public abstract void run(EntityPlayer player);
 
-    protected abstract void readData(DataInputStream data) throws IOException;
+    protected abstract void readData(ByteBuf buf) throws IOException;
 
-    protected abstract void writeData(DataOutputStream data) throws IOException;
+    protected abstract void writeData(ByteBuf buf) throws IOException;
 }

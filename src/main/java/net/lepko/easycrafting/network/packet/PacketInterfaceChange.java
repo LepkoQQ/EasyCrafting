@@ -1,13 +1,11 @@
 package net.lepko.easycrafting.network.packet;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
+import io.netty.buffer.ByteBuf;
 import net.lepko.easycrafting.block.TileEntityAutoCrafting;
 import net.lepko.easycrafting.inventory.ContainerAutoCrafting;
 import net.minecraft.entity.player.EntityPlayer;
-import cpw.mods.fml.common.network.Player;
+
+import java.io.IOException;
 
 public class PacketInterfaceChange extends EasyPacket {
 
@@ -22,8 +20,7 @@ public class PacketInterfaceChange extends EasyPacket {
     }
 
     @Override
-    public void run(Player player) {
-        EntityPlayer sender = (EntityPlayer) player;
+    public void run(EntityPlayer sender) {
         if (id == 0) {
             if (sender.openContainer instanceof ContainerAutoCrafting) {
                 TileEntityAutoCrafting te = ((ContainerAutoCrafting) sender.openContainer).tileEntity;
@@ -33,14 +30,14 @@ public class PacketInterfaceChange extends EasyPacket {
     }
 
     @Override
-    protected void readData(DataInputStream data) throws IOException {
-        id = data.readByte();
-        value = data.readByte();
+    protected void readData(ByteBuf buf) throws IOException {
+        id = buf.readByte();
+        value = buf.readByte();
     }
 
     @Override
-    protected void writeData(DataOutputStream data) throws IOException {
-        data.writeByte(id);
-        data.writeByte(value);
+    protected void writeData(ByteBuf buf) throws IOException {
+        buf.writeByte(id);
+        buf.writeByte(value);
     }
 }

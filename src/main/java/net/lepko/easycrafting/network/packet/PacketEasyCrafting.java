@@ -1,18 +1,17 @@
 package net.lepko.easycrafting.network.packet;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.List;
-
+import io.netty.buffer.ByteBuf;
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.lepko.easycrafting.recipe.RecipeHelper;
 import net.lepko.easycrafting.recipe.RecipeManager;
 import net.lepko.easycrafting.recipe.WrappedRecipe;
 import net.lepko.easycrafting.util.StackUtils;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import cpw.mods.fml.common.network.Player;
+
+import java.io.IOException;
+import java.util.List;
 
 public class PacketEasyCrafting extends EasyPacket {
 
@@ -44,14 +43,13 @@ public class PacketEasyCrafting extends EasyPacket {
     }
 
     @Override
-    public void run(Player player) {
+    public void run(EntityPlayer sender) {
 
         WrappedRecipe recipe = RecipeHelper.getValidRecipe(result, ingredients);
         if (recipe == null) {
             return;
         }
 
-        EntityPlayer sender = (EntityPlayer) player;
         ItemStack stack_in_hand = sender.inventory.getItemStack();
 
         // We need this call to canCraft() to populate the output in getCraftingResult() with NBT
@@ -86,44 +84,44 @@ public class PacketEasyCrafting extends EasyPacket {
     }
 
     @Override
-    protected void readData(DataInputStream data) throws IOException {
+    protected void readData(ByteBuf buf) throws IOException {
 
-        isRightClick = data.readBoolean();
+        isRightClick = buf.readBoolean();
 
-        int id = data.readShort();
-        int damage = data.readInt();
-        int size = data.readByte();
+        int id = buf.readShort();
+        int damage = buf.readInt();
+        int size = buf.readByte();
 
-        result = new ItemStack(id, size, damage);
+        result = new ItemStack(Item.getItemById(id), size, damage);
 
-        int length = data.readByte();
+        int length = buf.readByte();
 
         ingredients = new ItemStack[length];
 
         for (int i = 0; i < length; i++) {
-            int _id = data.readShort();
-            int _damage = data.readInt();
-            int _size = data.readByte();
+            int _id = buf.readShort();
+            int _damage = buf.readInt();
+            int _size = buf.readByte();
 
-            ingredients[i] = new ItemStack(_id, _size, _damage);
+            ingredients[i] = new ItemStack(Item.getItemById(_id), _size, _damage);
         }
     }
 
     @Override
-    protected void writeData(DataOutputStream data) throws IOException {
+    protected void writeData(ByteBuf buf) throws IOException {
 
-        data.writeBoolean(isRightClick);
+        buf.writeBoolean(isRightClick);
 
-        data.writeShort(result.itemID);
-        data.writeInt(result.getItemDamage());
-        data.writeByte(result.stackSize);
+        buf.writeShort(Item.getIdFromItem(result.getItem()));
+        buf.writeInt(result.getItemDamage());
+        buf.writeByte(result.stackSize);
 
-        data.writeByte(ingredients.length);
+        buf.writeByte(ingredients.length);
 
         for (ItemStack is : ingredients) {
-            data.writeShort(is.itemID);
-            data.writeInt(is.getItemDamage());
-            data.writeByte(is.stackSize);
+            buf.writeShort(Item.getIdFromItem(is.getItem()));
+            buf.writeInt(is.getItemDamage());
+            buf.writeByte(is.stackSize);
         }
     }
 }

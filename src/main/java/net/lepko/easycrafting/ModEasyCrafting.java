@@ -13,6 +13,7 @@ import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.core.EventHandlerEC;
 import net.lepko.easycrafting.core.GuiHandler;
 import net.lepko.easycrafting.core.VersionHelper;
+import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.proxy.Proxy;
 import net.lepko.easycrafting.recipe.RecipeManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,6 +36,7 @@ public class ModEasyCrafting {
         ModBlocks.setupBlocks();
         Proxy.proxy.onLoad();
 
+        PacketHandler.init();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
         MinecraftForge.EVENT_BUS.register(new EventHandlerEC());
     }

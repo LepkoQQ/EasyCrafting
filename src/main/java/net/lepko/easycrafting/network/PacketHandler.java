@@ -1,21 +1,55 @@
 package net.lepko.easycrafting.network;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.network.FMLEventChannel;
+import cpw.mods.fml.common.network.FMLNetworkEvent;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.internal.FMLProxyPacket;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import io.netty.buffer.ByteBuf;
 import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.network.packet.EasyPacket;
 import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
 import net.lepko.easycrafting.network.packet.PacketInterfaceChange;
 import net.lepko.easycrafting.network.packet.PacketServerConfig;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet250CustomPayload;
-import cpw.mods.fml.common.network.IPacketHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
+import net.minecraft.network.NetHandlerPlayServer;
 
-public class PacketHandler implements IPacketHandler {
+public class PacketHandler {
+
+    public static PacketHandler INSTANCE = new PacketHandler();
+    public static FMLEventChannel CHANNEL = NetworkRegistry.INSTANCE.newEventDrivenChannel(VersionHelper.MOD_ID);
+
+    public static void init() {
+        CHANNEL.register(INSTANCE);
+    }
+
+    @SubscribeEvent
+    public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
+        ByteBuf buf = event.packet.payload();
+        int id = buf.readByte();
+
+        EasyPacket packet = getPacketType(id);
+        if (packet != null) {
+            packet.read(buf);
+            packet.run(((NetHandlerPlayServer) event.handler).playerEntity);
+        }
+    }
+
+    @SubscribeEvent
+    @SideOnly(Side.CLIENT)
+    public void onClientPacket(FMLNetworkEvent.ClientCustomPacketEvent event) {
+        ByteBuf buf = event.packet.payload();
+        int id = buf.readByte();
+
+        EasyPacket packet = getPacketType(id);
+        if (packet != null) {
+            packet.read(buf);
+            packet.run(FMLClientHandler.instance().getClient().thePlayer);
+        }
+    }
 
     public enum PacketTypes {
         PACKETID_EASYCRAFTING(PacketEasyCrafting.class),
@@ -38,19 +72,6 @@ public class PacketHandler implements IPacketHandler {
         }
     }
 
-    @Override
-    public void onPacketData(INetworkManager manager, Packet250CustomPayload packet250, Player player) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(packet250.data);
-        int id = bis.read();
-        DataInputStream dis = new DataInputStream(bis);
-
-        EasyPacket packet = getPacketType(id);
-        if (packet != null) {
-            packet.read(dis);
-            packet.run(player);
-        }
-    }
-
     private EasyPacket getPacketType(int id) {
         try {
             return PacketTypes.values()[id].clazz.newInstance();
@@ -61,7 +82,6 @@ public class PacketHandler implements IPacketHandler {
     }
 
     public static void sendPacket(EasyPacket packet) {
-        Packet250CustomPayload p250 = PacketDispatcher.getPacket(VersionHelper.MOD_ID, packet.getBytes());
-        PacketDispatcher.sendPacketToServer(p250);
+        CHANNEL.sendToServer(new FMLProxyPacket(packet.getBytes(), VersionHelper.MOD_ID));
     }
 }
