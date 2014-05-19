@@ -3,8 +3,8 @@ package net.lepko.easycrafting.proxy;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.relauncher.Side;
+import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.ConnectionHandler;
-import net.lepko.easycrafting.core.EasyLog;
 
 public class Proxy {
 
@@ -18,7 +18,7 @@ public class Proxy {
     public void printMessageToChat(String msg) {
         // Client only; print to console here
         if (msg != null) {
-            EasyLog.log("[CHAT] " + msg);
+            Ref.LOGGER.info("[CHAT] " + msg);
         }
     }
 

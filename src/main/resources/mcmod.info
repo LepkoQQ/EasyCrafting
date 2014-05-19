@@ -1,21 +1,16 @@
-{
-    "modinfoversion": 2,
-    "modlist": [{
-        "modid": "EasyCrafting",
-        "name": "Easy Crafting",
-        "description": "Easily craft items that you have the materials for with just a click of a button!",
-        "version": "@MOD_VERSION@",
-        "mcversion": "@MC_VERSION@",
-        "url": "http://mods.lepko.net/",
-        "updateUrl": "",
-        "authors": [ "Lepko" ],
-        "credits": "Created by Lepko; Idea based on mods by ljdp and Zeldo",
-        "logoFile": "",
-        "screenshots": [],
-        "parent": "",
-        "requiredMods": [ "Forge" ],
-        "dependencies": [],
-        "dependants": [],
-        "useDependencyInformation": "true"
-    }]
-}
+[{
+    "modid": "EasyCrafting",
+    "name": "Easy Crafting",
+    "description": "Easily craft items that you have the materials for with just a click of a button!",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "http://mods.lepko.net/",
+    "updateUrl": "",
+    "authorList": [ "Lepko" ],
+    "credits": "Created by Lepko. Idea based on mods by ljdp and Zeldo.",
+    "parent": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+}]
+

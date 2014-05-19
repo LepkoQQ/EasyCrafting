@@ -1,15 +1,15 @@
 package net.lepko.easycrafting.recipe;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import net.lepko.easycrafting.core.EasyLog;
+import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.recipe.handler.IRecipeHandler;
 import net.lepko.easycrafting.util.StackUtils;
 import net.lepko.easycrafting.util.WrappedStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class WrappedRecipe {
 
@@ -110,6 +110,6 @@ public class WrappedRecipe {
         for (Object o : objs) {
             s += " (" + o.getClass().getCanonicalName() + ")";
         }
-        EasyLog.warning(s);
+        Ref.LOGGER.warn(s);
     }
 }

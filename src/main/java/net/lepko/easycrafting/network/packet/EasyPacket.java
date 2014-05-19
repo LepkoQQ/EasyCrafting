@@ -2,7 +2,7 @@ package net.lepko.easycrafting.network.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.lepko.easycrafting.core.EasyLog;
+import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.network.PacketHandler.PacketTypes;
 import net.minecraft.entity.player.EntityPlayer;
 
@@ -20,7 +20,7 @@ public abstract class EasyPacket {
         try {
             readData(buf);
         } catch (IOException e) {
-            EasyLog.warning("Exception while reading packet: " + packetID + "!", e);
+            Ref.LOGGER.warn("Exception while reading packet: " + packetID + "!", e);
         }
     }
 
@@ -31,7 +31,7 @@ public abstract class EasyPacket {
             buf.writeByte(packetID);
             writeData(buf);
         } catch (IOException e) {
-            EasyLog.warning("Exception while writing to packet: " + packetID + "!", e);
+            Ref.LOGGER.warn("Exception while writing to packet: " + packetID + "!", e);
         }
 
         return buf;

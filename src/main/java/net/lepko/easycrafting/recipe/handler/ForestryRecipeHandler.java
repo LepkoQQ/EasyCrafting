@@ -1,31 +1,32 @@
 package net.lepko.easycrafting.recipe.handler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import net.lepko.easycrafting.core.EasyLog;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.relauncher.ReflectionHelper;
+import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.recipe.WrappedRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.OreDictionary;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.relauncher.ReflectionHelper;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class ForestryRecipeHandler implements IRecipeHandler {
 
     private static Class<? super IRecipe> shapedRecipeClass = null;
+
     static {
         if (Loader.isModLoaded("Forestry")) {
             try {
                 shapedRecipeClass = (Class<? super IRecipe>) Class.forName("forestry.core.utils.ShapedRecipeCustom");
             } catch (Exception e) {
-                EasyLog.warning("[Forestry Recipe Scan] Forestry ShapedRecipeCustom.class could not be obtained!", e);
+                Ref.LOGGER.warn("[Forestry Recipe Scan] Forestry ShapedRecipeCustom.class could not be obtained!", e);
             }
         } else {
-            EasyLog.log("[Forestry Recipe Scan] Disabled.");
+            Ref.LOGGER.info("[Forestry Recipe Scan] Disabled.");
         }
     }
 
@@ -37,7 +38,7 @@ public class ForestryRecipeHandler implements IRecipeHandler {
                 Object[] input = (Object[]) shapedRecipeClass.getMethod("getIngredients").invoke(recipe);
                 ingredients = new ArrayList<Object>(Arrays.asList(input));
             } catch (Exception e) {
-                EasyLog.warning("[Forestry Recipe Scan] " + recipe.getClass().getName() + " failed!", e);
+                Ref.LOGGER.warn("[Forestry Recipe Scan] " + recipe.getClass().getName() + " failed!", e);
                 return null;
             }
         }

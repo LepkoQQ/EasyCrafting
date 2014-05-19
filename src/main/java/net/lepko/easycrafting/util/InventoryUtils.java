@@ -1,6 +1,6 @@
 package net.lepko.easycrafting.util;
 
-import net.lepko.easycrafting.core.EasyLog;
+import net.lepko.easycrafting.Ref;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
@@ -80,7 +80,7 @@ public class InventoryUtils {
      */
     public static void setContents(IInventory inventory, List<ItemStack> list) {
         if (inventory.getSizeInventory() != list.size()) {
-            EasyLog.warning("Tried to set inventory contents from a list that is not the same size as the inventory; Aborted!");
+            Ref.LOGGER.warn("Tried to set inventory contents from a list that is not the same size as the inventory; Aborted!");
             return;
         }
         for (int i = 0; i < list.size(); i++) {

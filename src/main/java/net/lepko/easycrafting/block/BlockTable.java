@@ -2,8 +2,8 @@ package net.lepko.easycrafting.block;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.GuiHandler;
-import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.recipe.RecipeManager;
 import net.lepko.easycrafting.util.InventoryUtils;
 import net.minecraft.block.Block;
@@ -29,8 +29,8 @@ public class BlockTable extends BlockContainer {
         super(Material.wood);
         setHardness(2.5F);
         setStepSound(soundTypeWood);
-        setBlockName(VersionHelper.MOD_ID + ":table");
-        setBlockTextureName(VersionHelper.MOD_ID + ":table");
+        setBlockName(Ref.addDomain("table"));
+        setBlockTextureName(Ref.addDomain("table"));
         setCreativeTab(CreativeTabs.tabDecorations);
     }
 
@@ -43,16 +43,16 @@ public class BlockTable extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister iconRegister) {
         // Easy Crafting Table
-        icons[0][0] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "easyCraftingTable_bottom");
-        icons[0][1] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "easyCraftingTable_top");
-        icons[0][2] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "easyCraftingTable_side1");
-        icons[0][3] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "easyCraftingTable_side2");
+        icons[0][0] = iconRegister.registerIcon(Ref.addDomain("easyCraftingTable_bottom"));
+        icons[0][1] = iconRegister.registerIcon(Ref.addDomain("easyCraftingTable_top"));
+        icons[0][2] = iconRegister.registerIcon(Ref.addDomain("easyCraftingTable_side1"));
+        icons[0][3] = iconRegister.registerIcon(Ref.addDomain("easyCraftingTable_side2"));
 
         // Auto Crafting Table
-        icons[1][0] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "autoCraftingTable_bottom");
-        icons[1][1] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "autoCraftingTable_top");
-        icons[1][2] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "autoCraftingTable_side1");
-        icons[1][3] = iconRegister.registerIcon(VersionHelper.MOD_ID + ":" + "autoCraftingTable_side2");
+        icons[1][0] = iconRegister.registerIcon(Ref.addDomain("autoCraftingTable_bottom"));
+        icons[1][1] = iconRegister.registerIcon(Ref.addDomain("autoCraftingTable_top"));
+        icons[1][2] = iconRegister.registerIcon(Ref.addDomain("autoCraftingTable_side1"));
+        icons[1][3] = iconRegister.registerIcon(Ref.addDomain("autoCraftingTable_side2"));
     }
 
     @Override

@@ -9,26 +9,23 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import net.lepko.easycrafting.block.ModBlocks;
 import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.core.EventHandlerEC;
 import net.lepko.easycrafting.core.GuiHandler;
-import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.proxy.Proxy;
 import net.lepko.easycrafting.recipe.RecipeManager;
 import net.minecraftforge.common.MinecraftForge;
 
-@Mod(modid = VersionHelper.MOD_ID, name = VersionHelper.MOD_NAME, version = VersionHelper.VERSION)
-public class ModEasyCrafting {
+@Mod(modid = Ref.MOD_ID, useMetadata = true)
+public class EasyCrafting {
 
-    @Instance(VersionHelper.MOD_ID)
-    public static ModEasyCrafting instance;
+    @Instance(Ref.MOD_ID)
+    public static EasyCrafting instance;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        EasyLog.log("Loading " + VersionHelper.MOD_NAME + " version " + VersionHelper.VERSION + ".");
+        Ref.init();
         ConfigHandler.initialize(event.getSuggestedConfigurationFile());
-        VersionHelper.performCheck();
 
         ModBlocks.setupBlocks();
     }
@@ -44,6 +41,7 @@ public class ModEasyCrafting {
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
+        //TODO: VersionHelper.performCheck();
         RecipeManager.scanRecipes();
     }
 }

@@ -1,5 +1,6 @@
 package net.lepko.easycrafting.core;
 
+import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.config.ConfigHandler;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommand;
@@ -71,6 +72,6 @@ public class CommandEasyCrafting extends CommandBase {
     }
 
     private void processVersionCommand(ICommandSender sender, String[] args) {
-        sender.addChatMessage(new ChatComponentText(EnumChatFormatting.YELLOW + "> " + VersionHelper.MOD_NAME + " version " + VersionHelper.VERSION));
+        sender.addChatMessage(new ChatComponentText(EnumChatFormatting.YELLOW + "> " + Ref.MOD_NAME + " version " + Ref.VERSION));
     }
 }

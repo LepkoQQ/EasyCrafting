@@ -14,7 +14,7 @@ public class RecipeHelper {
 
     /**
      * Returns a list of recipes that can be crafted using ingredients from the specified inventory.
-     * 
+     *
      * @param inventory - inventory to check with
      * @param maxRecursion - how deep to recurse when trying to craft
      * @param recipesToCheck - a list of recipes to be checked
@@ -72,7 +72,7 @@ public class RecipeHelper {
 
     /**
      * Check if a recipe can be crafted with the ingredients from the inventory. If an ingredient is missing try to craft it from a list of recipes.
-     * 
+     *
      * @param recipe - recipe to check
      * @param inventory - inventory to use the ingredients from
      * @param recipesToCheck - a list of recipes to try and craft from if an ingredient is missing
@@ -237,7 +237,7 @@ public class RecipeHelper {
 
     /**
      * How many times can we fit the resulting itemstack in players hand.
-     * 
+     *
      * @param result itemstack we are trying to fit
      * @param inHand itemstack currently in hand
      */

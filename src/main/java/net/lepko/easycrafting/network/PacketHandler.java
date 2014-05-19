@@ -9,18 +9,16 @@ import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
-import net.lepko.easycrafting.core.EasyLog;
-import net.lepko.easycrafting.core.VersionHelper;
+import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.network.packet.EasyPacket;
 import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
 import net.lepko.easycrafting.network.packet.PacketInterfaceChange;
-import net.lepko.easycrafting.network.packet.PacketServerConfig;
 import net.minecraft.network.NetHandlerPlayServer;
 
 public class PacketHandler {
 
     public static PacketHandler INSTANCE = new PacketHandler();
-    public static FMLEventChannel CHANNEL = NetworkRegistry.INSTANCE.newEventDrivenChannel(VersionHelper.MOD_ID);
+    public static FMLEventChannel CHANNEL = NetworkRegistry.INSTANCE.newEventDrivenChannel(Ref.CHANNEL);
 
     public static void init() {
         CHANNEL.register(INSTANCE);
@@ -53,7 +51,6 @@ public class PacketHandler {
 
     public enum PacketTypes {
         PACKETID_EASYCRAFTING(PacketEasyCrafting.class),
-        PACKETID_SERVERCONFIG(PacketServerConfig.class),
         PACKETID_INTERFACECHANGE(PacketInterfaceChange.class);
 
         public final Class<? extends EasyPacket> clazz;
@@ -76,12 +73,12 @@ public class PacketHandler {
         try {
             return PacketTypes.values()[id].clazz.newInstance();
         } catch (Exception e) {
-            EasyLog.warning("Bad packet ID: " + id, e);
+            Ref.LOGGER.warn("Bad packet ID: " + id, e);
             return null;
         }
     }
 
     public static void sendPacket(EasyPacket packet) {
-        CHANNEL.sendToServer(new FMLProxyPacket(packet.getBytes(), VersionHelper.MOD_ID));
+        CHANNEL.sendToServer(new FMLProxyPacket(packet.getBytes(), Ref.CHANNEL));
     }
 }

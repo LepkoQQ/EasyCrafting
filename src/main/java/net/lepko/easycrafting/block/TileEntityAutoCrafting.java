@@ -1,8 +1,7 @@
 package net.lepko.easycrafting.block;
 
 import com.mojang.authlib.GameProfile;
-import cpw.mods.fml.common.registry.GameRegistry;
-import net.lepko.easycrafting.core.VersionHelper;
+import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.util.InventoryUtils;
 import net.lepko.easycrafting.util.StackUtils;
 import net.minecraft.entity.player.EntityPlayer;
@@ -182,7 +181,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         ItemStack result = currentRecipe.getCraftingResult(craftingGrid);
         if (currentRecipe.matches(craftingGrid, worldObj) && StackUtils.areIdentical(result, getStackInSlot(9))) {
             if (InventoryUtils.addItemToInventory(this, result, 18, 26)) {
-                FakePlayer fakePlayer = FakePlayerFactory.get((WorldServer) worldObj, new GameProfile("easy.crafting.fake.player", "[" + VersionHelper.MOD_ID + "]"));//TODO: fakeplayer util
+                FakePlayer fakePlayer = FakePlayerFactory.get((WorldServer) worldObj, new GameProfile("easy.crafting.fake.player", "[" + Ref.MOD_ID + "]"));//TODO: fakeplayer util
                 //GameRegistry.onItemCrafted(fakePlayer, result, craftingGrid);//TODO: is this event now?
                 result.onCrafting(worldObj, fakePlayer, result.stackSize);
 

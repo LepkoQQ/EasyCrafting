@@ -1,19 +1,18 @@
 package net.lepko.easycrafting.recipe.handler;
 
+import cpw.mods.fml.common.Loader;
 import ic2.api.item.ElectricItem;
 import ic2.api.item.IElectricItem;
+import net.lepko.easycrafting.Ref;
+import net.lepko.easycrafting.recipe.WrappedRecipe;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraftforge.oredict.OreDictionary;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import net.lepko.easycrafting.core.EasyLog;
-import net.lepko.easycrafting.recipe.WrappedRecipe;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraftforge.oredict.OreDictionary;
-import cpw.mods.fml.common.Loader;
 
 @SuppressWarnings("unchecked")
 public class IC2RecipeHandler implements IRecipeHandler {
@@ -21,6 +20,7 @@ public class IC2RecipeHandler implements IRecipeHandler {
     private static Class<? super IRecipe> shapedRecipeClass = null;
     private static Class<? super IRecipe> shapelessRecipeClass = null;
     private static Method resolveOreDict = null;
+
     static {
         if (Loader.isModLoaded("IC2")) {
             try {
@@ -28,10 +28,10 @@ public class IC2RecipeHandler implements IRecipeHandler {
                 shapelessRecipeClass = (Class<? super IRecipe>) Class.forName("ic2.core.AdvShapelessRecipe");
                 resolveOreDict = shapedRecipeClass.getMethod("resolveOreDict", Object.class);
             } catch (Exception e) {
-                EasyLog.warning("[IC2 Recipe Scan] Adv(Shapeless)Recipe.class could not be obtained!", e);
+                Ref.LOGGER.warn("[IC2 Recipe Scan] Adv(Shapeless)Recipe.class could not be obtained!", e);
             }
         } else {
-            EasyLog.log("[IC2 Recipe Scan] Disabled.");
+            Ref.LOGGER.info("[IC2 Recipe Scan] Disabled.");
         }
     }
 
@@ -56,7 +56,7 @@ public class IC2RecipeHandler implements IRecipeHandler {
                         }
                         List<ItemStack> resolved = (List<ItemStack>) resolveOreDict.invoke(null, o);
                         if (resolved == null || resolved.isEmpty()) {
-                            EasyLog.warning("[IC2 Recipe Scan] could not resolve one of the recipe inputs [string=" + (String) o + "]");
+                            Ref.LOGGER.warn("[IC2 Recipe Scan] could not resolve one of the recipe inputs [string=" + (String) o + "]");
                             return null;
                         }
                         ingredients.set(i, resolved);
@@ -64,7 +64,7 @@ public class IC2RecipeHandler implements IRecipeHandler {
                 }
             }
         } catch (Exception e) {
-            EasyLog.warning("[IC2 Recipe Scan] " + recipe.getClass().getName() + " failed!", e);
+            Ref.LOGGER.warn("[IC2 Recipe Scan] " + recipe.getClass().getName() + " failed!", e);
             return null;
         }
         return ingredients;

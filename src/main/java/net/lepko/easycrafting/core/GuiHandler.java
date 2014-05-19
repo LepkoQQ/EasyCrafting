@@ -1,7 +1,7 @@
 package net.lepko.easycrafting.core;
 
 import cpw.mods.fml.common.network.IGuiHandler;
-import net.lepko.easycrafting.ModEasyCrafting;
+import net.lepko.easycrafting.EasyCrafting;
 import net.lepko.easycrafting.block.TileEntityAutoCrafting;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.inventory.ContainerAutoCrafting;
@@ -18,7 +18,7 @@ public class GuiHandler implements IGuiHandler {
     public static int GUI_AUTOCRAFTING = 1;
 
     public static void openGui(int guiID, EntityPlayer player, World world, int x, int y, int z) {
-        player.openGui(ModEasyCrafting.instance, guiID, world, x, y, z);
+        player.openGui(EasyCrafting.instance, guiID, world, x, y, z);
     }
 
     @Override

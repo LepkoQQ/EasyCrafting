@@ -15,7 +15,6 @@ public enum TickHandlerClient {
 
     private Minecraft mc = FMLClientHandler.instance().getClient();
     private boolean updateEasyCraftingOutput = false;
-    private boolean showUpdateInChat = true;
     private int count = 5;
 
     public void scheduleRecipeUpdate() {
@@ -38,10 +37,6 @@ public enum TickHandlerClient {
                     } finally {
                         RecipeWorker.lock.unlock();
                     }
-                }
-                if (showUpdateInChat) {
-                    VersionHelper.printToChat();
-                    showUpdateInChat = false;
                 }
             } else if (count > 0) {
                 count--;

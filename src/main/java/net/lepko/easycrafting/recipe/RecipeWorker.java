@@ -1,17 +1,15 @@
 package net.lepko.easycrafting.recipe;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
-
+import com.google.common.collect.ImmutableList;
+import cpw.mods.fml.client.FMLClientHandler;
+import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.core.EasyLog;
 import net.lepko.easycrafting.proxy.Proxy;
 import net.minecraft.entity.player.InventoryPlayer;
 
-import com.google.common.collect.ImmutableList;
-
-import cpw.mods.fml.client.FMLClientHandler;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RecipeWorker implements Runnable {
 
@@ -32,7 +30,7 @@ public class RecipeWorker implements Runnable {
         // Collections.sort(tmp, new RecipeComparator());
 
         craftableRecipes = tmp;
-        EasyLog.log(String.format("%d/%d craftable | %.8f seconds", craftableRecipes.size(), RecipeManager.getAllRecipes().size(), (System.nanoTime() - beforeTime) / 1000000000.0D));
+        Ref.LOGGER.info(String.format("%d/%d craftable | %.8f seconds", craftableRecipes.size(), RecipeManager.getAllRecipes().size(), (System.nanoTime() - beforeTime) / 1000000000.0D));
     }
 
     @Override
@@ -88,13 +86,13 @@ public class RecipeWorker implements Runnable {
             workerThread = new Thread(instance, "EasyCrafting-WorkerThread");
             workerThread.setDaemon(true);
             workerThread.start();
-            EasyLog.log("Started Worker Thread");
+            Ref.LOGGER.info("Started Worker Thread");
         }
         if (!lock.isHeldByCurrentThread()) {
-            EasyLog.warning("Trying to access RecipeWorker instance without acquiring a thread lock!");
+            Ref.LOGGER.warn("Trying to access RecipeWorker instance without acquiring a thread lock!");
         }
         if (lock.getHoldCount() > 1) {
-            EasyLog.warning("Current thread holds more than one lock!");
+            Ref.LOGGER.warn("Current thread holds more than one lock!");
         }
         return instance;
     }

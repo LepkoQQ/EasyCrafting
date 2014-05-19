@@ -1,7 +1,7 @@
 package net.lepko.easycrafting.inventory.gui;
 
+import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.block.TileEntityAutoCrafting;
-import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.inventory.ContainerAutoCrafting;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.resources.I18n;
@@ -10,7 +10,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiAutoCrafting extends GuiContainer {
 
-    private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(VersionHelper.MOD_ID, "textures/gui/autocraftinggui.png");
+    private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(Ref.RES_DOMAIN, "textures/gui/autocraftinggui.png");
 
     private final TileEntityAutoCrafting tileEntity;
     private ButtonMode button;

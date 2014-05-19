@@ -1,10 +1,9 @@
 package net.lepko.easycrafting.inventory.gui;
 
+import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.block.ModBlocks;
 import net.lepko.easycrafting.block.TileEntityEasyCrafting;
 import net.lepko.easycrafting.config.ConfigHandler;
-import net.lepko.easycrafting.core.EasyLog;
-import net.lepko.easycrafting.core.VersionHelper;
 import net.lepko.easycrafting.inventory.ContainerEasyCrafting;
 import net.lepko.easycrafting.network.PacketHandler;
 import net.lepko.easycrafting.network.packet.PacketEasyCrafting;
@@ -47,7 +46,7 @@ public class GuiEasyCrafting extends GuiTabbed {
         }
     }
 
-    private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(VersionHelper.MOD_ID, "textures/gui/easycraftinggui.png");
+    private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(Ref.RES_DOMAIN, "textures/gui/easycraftinggui.png");
     private static String LAST_SEARCH = "";
     private static boolean WORKER_LOCKED = false;
 
@@ -212,7 +211,7 @@ public class GuiEasyCrafting extends GuiTabbed {
     }
 
     private void onCraftingSlotClick(Slot slot, int slotIndex, int button, int action) {
-        EasyLog.log("Clicked: " + slot.getClass().getSimpleName() + "@" + slotIndex + ", button=" + button + ", action=" + action + ", stack=" + slot.getStack());
+        Ref.LOGGER.info("Clicked: " + slot.getClass().getSimpleName() + "@" + slotIndex + ", button=" + button + ", action=" + action + ", stack=" + slot.getStack());
 
         if (action > 1 || button > 1 || slot == null || !slot.getHasStack()) {
             return;

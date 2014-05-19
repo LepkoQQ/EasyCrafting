@@ -1,22 +1,18 @@
 package net.lepko.easycrafting.recipe;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import net.lepko.easycrafting.core.EasyLog;
-import net.lepko.easycrafting.recipe.handler.ForestryRecipeHandler;
-import net.lepko.easycrafting.recipe.handler.ForgeRecipeHandler;
-import net.lepko.easycrafting.recipe.handler.IC2RecipeHandler;
-import net.lepko.easycrafting.recipe.handler.IRecipeHandler;
-import net.lepko.easycrafting.recipe.handler.VanillaRecipeHandler;
+import com.google.common.collect.ImmutableList;
+import net.lepko.easycrafting.Ref;
+import net.lepko.easycrafting.recipe.handler.*;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 
-import com.google.common.collect.ImmutableList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class RecipeManager {
 
     public static final List<IRecipeHandler> HANDLERS = new LinkedList<IRecipeHandler>();
+
     static {
         // Mod recipe classes could extend vanilla classes so scan them first
         HANDLERS.add(new IC2RecipeHandler());
@@ -66,7 +62,7 @@ public class RecipeManager {
         }
         // TODO: Sort the list?
 
-        EasyLog.log(String.format("Scanned %d recipes (%d failed) in %.8f seconds", recipes.size(), fails, (System.nanoTime() - startTime) / 1000000000.0D));
+        Ref.LOGGER.info(String.format("Scanned %d recipes (%d failed) in %.8f seconds", recipes.size(), fails, (System.nanoTime() - startTime) / 1000000000.0D));
     }
 
     public static List<WrappedRecipe> getAllRecipes() {

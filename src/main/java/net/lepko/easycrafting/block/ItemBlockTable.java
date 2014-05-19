@@ -1,6 +1,6 @@
 package net.lepko.easycrafting.block;
 
-import net.lepko.easycrafting.core.VersionHelper;
+import net.lepko.easycrafting.Ref;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -9,7 +9,7 @@ public class ItemBlockTable extends ItemBlock {
 
     public ItemBlockTable(Block block) {
         super(block);
-        setUnlocalizedName(VersionHelper.MOD_ID + ":table");
+        setUnlocalizedName(Ref.addDomain("table"));
         setHasSubtypes(true);
     }
 
