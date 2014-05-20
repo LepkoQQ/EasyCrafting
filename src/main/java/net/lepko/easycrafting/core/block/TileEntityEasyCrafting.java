@@ -74,7 +74,7 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
 
     @Override
     public String getInventoryName() {
-        return "TileEntityEasyCrafting";
+        return "container.easycrafting:table.easy_crafting";
     }
 
     @Override

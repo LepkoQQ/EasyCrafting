@@ -177,11 +177,11 @@ public class StackUtils {
 
     public static String toString(ItemStack stack) {
         if (stack == null) {
-            return "[null]";
+            return "ItemStack [null]";
         }
         String name = stack.getItem() == null ? "null" : stack.getItem().getUnlocalizedName(stack);
         String nbt = stack.stackTagCompound == null ? "null" : stack.stackTagCompound.toString();
-        return String.format("ItemStack [id=%d, meta=%d, size=%d, name=%s, nbt=%s]", stack.getItem(), rawDamage(stack), stack.stackSize, name, nbt);
+        return String.format("ItemStack [item=%s, meta=%d, size=%d, name=%s, nbt=%s]", stack.getItem(), rawDamage(stack), stack.stackSize, name, nbt);
     }
 
     /**
@@ -192,7 +192,7 @@ public class StackUtils {
         List<WrappedStack> collated = new ArrayList<WrappedStack>();
         inputs:
         for (Object o : inputs) {
-            WrappedStack ws = null;
+            WrappedStack ws;
             if (o instanceof List) {
                 ws = new WrappedStack(((List<ItemStack>) o).get(0));
             } else {

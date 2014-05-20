@@ -1,4 +1,6 @@
+tile.easycrafting:table.easy_crafting.name=Easy Crafting Table
 tile.easycrafting:table.auto_crafting.name=Auto Crafting Table
+
 container.easycrafting:table.auto_crafting=Auto Crafting Table
 
 mode.easycrafting:pulse.tooltip=Craft once every pulse
