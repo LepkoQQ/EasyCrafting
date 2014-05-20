@@ -16,7 +16,7 @@ public class Proxy {
         MinecraftForge.EVENT_BUS.register(WorldLoadHandler.INSTANCE);
 
         // Gui Handlers
-        NetworkRegistry.INSTANCE.registerGuiHandler(EasyCrafting.instance, GuiHandler.INSTANCE);
+        NetworkRegistry.INSTANCE.registerGuiHandler(EasyCrafting.INSTANCE, GuiHandler.INSTANCE);
     }
 
     public void registerCommands() {

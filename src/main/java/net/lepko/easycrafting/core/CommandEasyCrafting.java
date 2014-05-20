@@ -37,7 +37,7 @@ public class CommandEasyCrafting extends CommandBase {
     @SuppressWarnings("rawtypes")
     public List addTabCompletionOptions(ICommandSender commandSender, String[] args) {
         if (args.length == 1) {
-            return getListOfStringsMatchingLastWord(args, new String[] { "version", "recursion" });
+            return getListOfStringsMatchingLastWord(args, "version", "recursion");
         }
         return null;
     }
@@ -49,7 +49,7 @@ public class CommandEasyCrafting extends CommandBase {
         }
 
         if (args[0].equalsIgnoreCase("version")) {
-            processVersionCommand(sender, args);
+            processVersionCommand(sender);
         } else if (args[0].equalsIgnoreCase("recursion")) {
             processRecursionCommand(sender, args);
         } else {
@@ -71,7 +71,7 @@ public class CommandEasyCrafting extends CommandBase {
         }
     }
 
-    private void processVersionCommand(ICommandSender sender, String[] args) {
+    private void processVersionCommand(ICommandSender sender) {
         sender.addChatMessage(new ChatComponentText(EnumChatFormatting.YELLOW + "> " + Ref.MOD_NAME + " version " + Ref.VERSION));
     }
 }

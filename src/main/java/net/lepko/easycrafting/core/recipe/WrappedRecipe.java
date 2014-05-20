@@ -100,9 +100,7 @@ public class WrappedRecipe {
                 }
             }
         }
-        WrappedStack output = new WrappedStack(recipe.getRecipeOutput());
-        WrappedRecipe wr = new WrappedRecipe(recipe, inputs, output, handler);
-        return wr;
+        return new WrappedRecipe(recipe, inputs, new WrappedStack(recipe.getRecipeOutput()), handler);
     }
 
     private static void warn(String msg, Object... objs) {

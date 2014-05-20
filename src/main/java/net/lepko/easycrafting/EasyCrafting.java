@@ -15,7 +15,7 @@ import net.lepko.easycrafting.core.recipe.RecipeManager;
 public class EasyCrafting {
 
     @Instance(Ref.MOD_ID)
-    public static EasyCrafting instance;
+    public static EasyCrafting INSTANCE;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {

@@ -18,7 +18,6 @@ public class SlotEasyCraftingOutput extends Slot {
 
     @Override
     public void putStack(ItemStack stack) {
-        return;
     }
 
     @Override

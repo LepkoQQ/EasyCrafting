@@ -35,7 +35,7 @@ public final class Ref {
         LOGGER.info(" > {}", URL);
     }
 
-    public static final String addDomain(String string) {
+    public static String addDomain(String string) {
         return String.format(Locale.ENGLISH, "%s%s", RES_PREFIX, string);
     }
 }

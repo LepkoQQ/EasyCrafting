@@ -38,7 +38,7 @@ public enum GuiHandler implements IGuiHandler {
     }
 
     public static void openGui(GuiType gui, EntityPlayer player, World world, int x, int y, int z) {
-        FMLNetworkHandler.openGui(player, EasyCrafting.instance, gui.id, world, x, y, z);
+        FMLNetworkHandler.openGui(player, EasyCrafting.INSTANCE, gui.id, world, x, y, z);
     }
 
     @Override
