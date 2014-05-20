@@ -16,6 +16,7 @@ import java.util.Random;
 
 public class InventoryUtils {
 
+    private static final Random RNG = new Random();
     private static final int PLAYER_INVENTORY_SIZE = 36;
 
     /**
@@ -224,22 +225,22 @@ public class InventoryUtils {
             double x = te.xCoord + 0.5;
             double y = te.yCoord + 0.5;
             double z = te.zCoord + 0.5;
-            World world = te.getWorldObj();
-
             IInventory inv = (IInventory) te;
-            Random rng = new Random();
 
             for (int i = 0; i < inv.getSizeInventory(); i++) {
-                ItemStack stack = inv.getStackInSlot(i);
-                if (stack != null) {
-                    EntityItem drop = new EntityItem(world, x, y, z, stack.copy());
-                    float speed = 0.05F;
-                    drop.motionX = (float) rng.nextGaussian() * speed;
-                    drop.motionY = (float) rng.nextGaussian() * speed + 0.2F;
-                    drop.motionZ = (float) rng.nextGaussian() * speed;
-                    world.spawnEntityInWorld(drop);
-                }
+                dropItem(te.getWorldObj(), x, y, z, inv.getStackInSlot(i));
             }
+        }
+    }
+
+    public static void dropItem(World world, double x, double y, double z, ItemStack stack) {
+        if (stack != null) {
+            EntityItem drop = new EntityItem(world, x, y, z, stack.copy());
+            float speed = 0.05F;
+            drop.motionX = (float) RNG.nextGaussian() * speed;
+            drop.motionY = (float) RNG.nextGaussian() * speed + 0.2F;
+            drop.motionZ = (float) RNG.nextGaussian() * speed;
+            world.spawnEntityInWorld(drop);
         }
     }
 

@@ -1,5 +1,6 @@
 package net.lepko.easycrafting;
 
+import com.mojang.authlib.GameProfile;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.SidedProxy;
 import net.lepko.easycrafting.core.proxy.Proxy;
@@ -25,6 +26,8 @@ public final class Ref {
 
     @SidedProxy(clientSide = "net.lepko.easycrafting.core.proxy.ProxyClient", serverSide = "net.lepko.easycrafting.core.proxy.Proxy")
     public static Proxy PROXY;
+
+    public static GameProfile GAME_PROFILE = new GameProfile("easycrafting.fake.player.profile", "[" + Ref.MOD_ID + "]");
 
     public static void init() {
         MOD_NAME = Loader.instance().activeModContainer().getName();

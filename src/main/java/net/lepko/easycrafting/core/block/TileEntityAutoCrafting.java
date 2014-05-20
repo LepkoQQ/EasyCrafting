@@ -1,6 +1,6 @@
 package net.lepko.easycrafting.core.block;
 
-import com.mojang.authlib.GameProfile;
+import cpw.mods.fml.common.FMLCommonHandler;
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.lepko.easycrafting.core.util.StackUtils;
@@ -47,7 +47,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
             return StackUtils.copyStack(inv.getStackInSlot(slot), size);
         }
 
-        public ItemStack decrStackSize(int amt) {
+        public ItemStack decreaseStackSize(int amt) {
             return InventoryUtils.decrStackSize(inv, slot, amt);
         }
     }
@@ -126,7 +126,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         setInventorySlotContents(9, null);
     }
 
-    private boolean isReplacableInCraftingGridSlot(int slot, ItemStack stack) {
+    private boolean isReplaceableInCraftingGridSlot(int slot, ItemStack stack) {
         craftingGrid.setInventorySlotContents(slot, stack);
         boolean result = currentRecipe.matches(craftingGrid, worldObj) && StackUtils.areIdentical(currentRecipe.getCraftingResult(craftingGrid), getStackInSlot(9));
         craftingGrid.setInventorySlotContents(slot, getStackInSlot(slot));
@@ -151,7 +151,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
             if (stack != null && stack.stackSize > 0) {
                 for (int gridSlot = 0; gridSlot < 9; gridSlot++) {
                     if (!found[gridSlot]) {
-                        if (isReplacableInCraftingGridSlot(gridSlot, stack)) {
+                        if (isReplaceableInCraftingGridSlot(gridSlot, stack)) {
                             refs[gridSlot] = new StackReference(this, invSlot);
                             found[gridSlot] = true;
                             if (--stack.stackSize <= 0) {
@@ -181,20 +181,21 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         ItemStack result = currentRecipe.getCraftingResult(craftingGrid);
         if (currentRecipe.matches(craftingGrid, worldObj) && StackUtils.areIdentical(result, getStackInSlot(9))) {
             if (InventoryUtils.addItemToInventory(this, result, 18, 26)) {
-                FakePlayer fakePlayer = FakePlayerFactory.get((WorldServer) worldObj, new GameProfile("easy.crafting.fake.player", "[" + Ref.MOD_ID + "]"));//TODO: fakeplayer util
-                //GameRegistry.onItemCrafted(fakePlayer, result, craftingGrid);//TODO: is this event now?
+                FakePlayer fakePlayer = FakePlayerFactory.get((WorldServer) worldObj, Ref.GAME_PROFILE);
+                FMLCommonHandler.instance().firePlayerCraftingEvent(fakePlayer, result, craftingGrid);
                 result.onCrafting(worldObj, fakePlayer, result.stackSize);
 
                 for (StackReference ref : refs) {
                     if (ref != null) {
-                        ItemStack stack = ref.decrStackSize(1);
-                        if (stack != null && stack.getItem() != null && stack.getItem().hasContainerItem()) {
+                        ItemStack stack = ref.decreaseStackSize(1);
+                        if (stack != null && stack.getItem() != null && stack.getItem().hasContainerItem(stack)) {
                             ItemStack container = stack.getItem().getContainerItem(stack);
                             if (container.isItemStackDamageable() && container.getItemDamage() > container.getMaxDamage()) {
                                 container = null;
                             }
-                            if (container != null) {
-                                // TODO: add container items back to inv they came from
+                            if (container != null && !InventoryUtils.addItemToInventory(this, container, 18, 26)) {
+                                InventoryUtils.dropItem(worldObj, xCoord + 0.5, yCoord + 1, zCoord + 0.5, container);
+                                // TODO: try other inventories
                             }
                         }
                     }
