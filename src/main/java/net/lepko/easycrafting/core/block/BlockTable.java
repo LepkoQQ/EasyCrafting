@@ -105,7 +105,12 @@ public class BlockTable extends BlockContainer {
 
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
-        InventoryUtils.dropItems(world.getTileEntity(x, y, z));
+        TileEntity te = world.getTileEntity(x, y, z);
+        if (te instanceof TileEntityAutoCrafting) {
+            InventoryUtils.dropItems(world.getTileEntity(x, y, z), ((TileEntityAutoCrafting) te).SLOTS);
+        } else {
+            InventoryUtils.dropItems(world.getTileEntity(x, y, z));
+        }
         super.breakBlock(world, x, y, z, block, meta);
     }
 

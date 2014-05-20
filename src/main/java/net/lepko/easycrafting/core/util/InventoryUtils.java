@@ -191,6 +191,7 @@ public class InventoryUtils {
                 }
             }
             usedIngredients.add(stack);
+            inventory.markDirty();
             return true;
         }
         return false;
@@ -222,13 +223,19 @@ public class InventoryUtils {
 
     public static void dropItems(TileEntity te) {
         if (te instanceof IInventory) {
+            dropItems(te, createSlotArray(0, ((IInventory) te).getSizeInventory()));
+        }
+    }
+
+    public static void dropItems(TileEntity te, int[] slots) {
+        if (te instanceof IInventory) {
             double x = te.xCoord + 0.5;
             double y = te.yCoord + 0.5;
             double z = te.zCoord + 0.5;
             IInventory inv = (IInventory) te;
 
-            for (int i = 0; i < inv.getSizeInventory(); i++) {
-                dropItem(te.getWorldObj(), x, y, z, inv.getStackInSlot(i));
+            for (int slot : slots) {
+                dropItem(te.getWorldObj(), x, y, z, inv.getStackInSlot(slot));
             }
         }
     }
@@ -244,7 +251,7 @@ public class InventoryUtils {
         }
     }
 
-    public static ItemStack decrStackSize(IInventory inv, int slotIndex, int amount) {
+    public static ItemStack decreaseStackSize(IInventory inv, int slotIndex, int amount) {
         ItemStack stack = inv.getStackInSlot(slotIndex);
         if (stack != null) {
             if (stack.stackSize <= amount) {
@@ -256,8 +263,10 @@ public class InventoryUtils {
                 } else {
                     inv.markDirty();
                 }
+                inv.markDirty();
                 return is;
             }
+            inv.markDirty();
         }
         return stack;
     }

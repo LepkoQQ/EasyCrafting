@@ -34,7 +34,7 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
 
     @Override
     public ItemStack decrStackSize(int slotIndex, int amount) {
-        return InventoryUtils.decrStackSize(this, slotIndex, amount);
+        return InventoryUtils.decreaseStackSize(this, slotIndex, amount);
     }
 
     @Override

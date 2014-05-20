@@ -48,7 +48,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         }
 
         public ItemStack decreaseStackSize(int amt) {
-            return InventoryUtils.decrStackSize(inv, slot, amt);
+            return InventoryUtils.decreaseStackSize(inv, slot, amt);
         }
     }
 
@@ -72,15 +72,17 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
     private int lastUpdate = 0;
 
     private ItemStack[] inventory = new ItemStack[26];
-    private final int[] SLOTS = InventoryUtils.createSlotArray(0, inventory.length);
+    public final int[] SLOTS = InventoryUtils.createSlotArray(10, inventory.length);
 
     private boolean poweredNow = false;
     private boolean poweredPrev = false;
     private boolean inventoryChanged = false;
+    private int pendingRequests = 0;
 
     public boolean scheduledRecipeCheck = false;
     private InventoryCrafting craftingGrid = new InventoryCrafting(new FakeContainer(), 3, 3);
     private IRecipe currentRecipe = null;
+    private boolean lastCraftingSuccess = true;
 
     public void setMode(int index) {
         if (index >= 0 && index < VALID_MODES.length) {
@@ -133,9 +135,9 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         return result;
     }
 
-    private void tryCrafting() {
+    private boolean tryCrafting() {
         if (currentRecipe == null || getStackInSlot(9) == null) {
-            return;
+            return false;
         }
 
         boolean[] found = new boolean[9];
@@ -165,7 +167,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
 
         for (boolean b : found) {
             if (!b) {
-                return;
+                return false;
             }
         }
 
@@ -176,6 +178,8 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
                 craftingGrid.setInventorySlotContents(i, is);
             }
         }
+
+        boolean craftingCompleted = false;
 
         // test the recipe to make sure all replacements play nice with each other
         ItemStack result = currentRecipe.getCraftingResult(craftingGrid);
@@ -200,11 +204,14 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
                         }
                     }
                 }
+
+                craftingCompleted = true;
             }
         }
 
         // restore original items from ghost slots
         InventoryUtils.setContents(craftingGrid, this);
+        return craftingCompleted;
     }
 
     /* TileEntity */
@@ -240,19 +247,23 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         poweredNow = worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
 
         if (!poweredPrev && poweredNow) {
-            // pendingRequests++;
+            pendingRequests++;
         }
 
         if (!worldObj.isRemote && ++lastUpdate > UPDATE_INTERVAL) {
             lastUpdate = 0;
 
-            if (inventoryChanged) {
+            if (lastCraftingSuccess || (!lastCraftingSuccess && inventoryChanged)) {
                 inventoryChanged = false;
-                // work here
-            }
 
-            // TODO: limit this if it doesn't have ingredients to only check after an inventory change
-            tryCrafting();
+                if (mode == Mode.ALWAYS || (mode == Mode.POWERED && poweredNow) || (mode == Mode.UNPOWERED && !poweredNow)) {
+                    lastCraftingSuccess = tryCrafting();
+                } else if (mode == Mode.PULSE && pendingRequests > 0) {
+                    if (lastCraftingSuccess = tryCrafting()) {
+                        pendingRequests--;
+                    }
+                }
+            }
         }
     }
 
@@ -276,7 +287,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
 
     @Override
     public ItemStack decrStackSize(int slotIndex, int amount) {
-        return InventoryUtils.decrStackSize(this, slotIndex, amount);
+        return InventoryUtils.decreaseStackSize(this, slotIndex, amount);
     }
 
     @Override
