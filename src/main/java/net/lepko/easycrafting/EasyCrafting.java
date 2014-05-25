@@ -37,7 +37,7 @@ public class EasyCrafting {
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         ModBlocks.setupRecipes();
-        //TODO: VersionHelper.performCheck();
+        //XXX: VersionHelper.performCheck();
     }
 
     @EventHandler

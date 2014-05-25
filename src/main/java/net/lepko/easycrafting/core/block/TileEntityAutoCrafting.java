@@ -199,7 +199,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
                             }
                             if (container != null && !InventoryUtils.addItemToInventory(this, container, 18, 26)) {
                                 InventoryUtils.dropItem(worldObj, xCoord + 0.5, yCoord + 1, zCoord + 0.5, container);
-                                // TODO: try other inventories
+                                // XXX: try other inventories
                             }
                         }
                     }

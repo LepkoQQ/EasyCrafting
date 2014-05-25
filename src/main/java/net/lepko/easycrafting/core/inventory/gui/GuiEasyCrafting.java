@@ -1,5 +1,6 @@
 package net.lepko.easycrafting.core.inventory.gui;
 
+import com.google.common.collect.ImmutableList;
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.block.ModBlocks;
 import net.lepko.easycrafting.core.block.TileEntityEasyCrafting;
@@ -7,9 +8,9 @@ import net.lepko.easycrafting.core.config.ConfigHandler;
 import net.lepko.easycrafting.core.inventory.ContainerEasyCrafting;
 import net.lepko.easycrafting.core.network.PacketHandler;
 import net.lepko.easycrafting.core.network.message.MessageEasyCrafting;
+import net.lepko.easycrafting.core.recipe.RecipeChecker;
 import net.lepko.easycrafting.core.recipe.RecipeHelper;
 import net.lepko.easycrafting.core.recipe.RecipeManager;
-import net.lepko.easycrafting.core.recipe.RecipeWorker;
 import net.lepko.easycrafting.core.recipe.WrappedRecipe;
 import net.lepko.easycrafting.core.util.StackUtils;
 import net.lepko.easycrafting.core.util.WrappedStack;
@@ -51,7 +52,7 @@ public class GuiEasyCrafting extends GuiTabbed {
     private static boolean WORKER_LOCKED = false;
 
     public List<WrappedRecipe> shownRecipes;
-    public List<WrappedRecipe> craftableRecipes;
+    public List<WrappedRecipe> craftableRecipes = ImmutableList.of();
 
     private int currentRowOffset = 0;
     private int maxRowOffset = 0;
@@ -97,8 +98,8 @@ public class GuiEasyCrafting extends GuiTabbed {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float time) {
-        // Check lock on worker thread
-        WORKER_LOCKED = RecipeWorker.lock.isLocked();
+        // XXX: Check lock on worker thread
+        WORKER_LOCKED = !RecipeChecker.INSTANCE.done;
 
         // Handle scrollbar dragging
         boolean leftMouseDown = Mouse.isButtonDown(0);
@@ -300,7 +301,7 @@ public class GuiEasyCrafting extends GuiTabbed {
     }
 
     public void refreshCraftingOutput() {
-        craftableRecipes = RecipeWorker.instance().getCraftableRecipes();
+        craftableRecipes = ImmutableList.copyOf(RecipeChecker.INSTANCE.recipes);
         updateSearch();
     }
 

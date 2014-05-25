@@ -1,6 +1,6 @@
 package net.lepko.easycrafting.core.inventory.slot;
 
-import net.lepko.easycrafting.core.TickHandlerClient;
+import net.lepko.easycrafting.core.recipe.RecipeChecker;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 
@@ -13,6 +13,6 @@ public class SlotInterceptor extends Slot {
     @Override
     public void onSlotChanged() {
         super.onSlotChanged();
-        TickHandlerClient.INSTANCE.scheduleRecipeUpdate();
+        RecipeChecker.INSTANCE.requested = true;
     }
 }

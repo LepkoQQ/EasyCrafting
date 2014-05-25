@@ -1,8 +1,5 @@
 package net.lepko.easycrafting.core.recipe;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import net.lepko.easycrafting.core.recipe.handler.IRecipeHandler;
 import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.lepko.easycrafting.core.util.StackUtils;
@@ -10,51 +7,10 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class RecipeHelper {
-
-    /**
-     * Returns a list of recipes that can be crafted using ingredients from the specified inventory.
-     *
-     * @param inventory - inventory to check with
-     * @param maxRecursion - how deep to recurse when trying to craft
-     * @param recipesToCheck - a list of recipes to be checked
-     */
-    public static List<WrappedRecipe> getCraftableRecipes(IInventory inventory, int maxRecursion, List<WrappedRecipe> recipesToCheck) {
-        List<WrappedRecipe> craftable = new LinkedList<WrappedRecipe>();
-        List<WrappedRecipe> tmpAll = new LinkedList<WrappedRecipe>(recipesToCheck);
-
-        // TODO: timeout
-        // TODO: on gui when you press shift calc all the base ingredinets from the inventory you need for all crafting
-        // steps not just the last recipe (also color overlay the slots you take from)
-
-        for (WrappedRecipe wr : tmpAll) {
-            if (canCraft(wr, inventory)) {
-                craftable.add(wr);
-            }
-        }
-        tmpAll.removeAll(craftable);
-
-        if (!craftable.isEmpty()) {
-            for (int recursion = 0; recursion < maxRecursion; recursion++) {
-                if (tmpAll.isEmpty()) {
-                    break;
-                }
-
-                List<WrappedRecipe> tmpCraftable = new LinkedList<WrappedRecipe>(craftable);
-                for (WrappedRecipe wr : tmpAll) {
-                    if (canCraft(wr, inventory, tmpCraftable, maxRecursion)) {
-                        craftable.add(wr);
-                    }
-                }
-                tmpAll.removeAll(craftable);
-
-                if (tmpCraftable.size() == craftable.size()) {
-                    break;
-                }
-            }
-        }
-        return craftable;
-    }
 
     /**
      * Check if a recipe can be crafted with the ingredients from the inventory.
@@ -73,11 +29,11 @@ public class RecipeHelper {
     /**
      * Check if a recipe can be crafted with the ingredients from the inventory. If an ingredient is missing try to craft it from a list of recipes.
      *
-     * @param recipe - recipe to check
-     * @param inventory - inventory to use the ingredients from
+     * @param recipe         - recipe to check
+     * @param inventory      - inventory to use the ingredients from
      * @param recipesToCheck - a list of recipes to try and craft from if an ingredient is missing
-     * @param take - whether or not to take the ingredients from the inventory
-     * @param recursion - how deep to recurse while trying to craft an ingredient (must be nonnegative)
+     * @param take           - whether or not to take the ingredients from the inventory
+     * @param recursion      - how deep to recurse while trying to craft an ingredient (must be nonnegative)
      */
     public static int canCraft(WrappedRecipe recipe, IInventory inventory, List<WrappedRecipe> recipesToCheck, boolean take, int maxTimes, int recursion) {
         if (recursion < 0) {
@@ -92,8 +48,10 @@ public class RecipeHelper {
         InventoryUtils.setContents(tmp, inventory);
 
         int timesCrafted = 0;
-        timesLoop: while (timesCrafted < maxTimes) {
-            iiLoop: for (int ii = 0; ii < recipe.inputs.size(); ii++) {
+        timesLoop:
+        while (timesCrafted < maxTimes) {
+            iiLoop:
+            for (int ii = 0; ii < recipe.inputs.size(); ii++) {
                 if (recipe.inputs.get(ii) instanceof ItemStack) {
                     ItemStack ingredient = (ItemStack) recipe.inputs.get(ii);
                     int inventoryIndex = isItemInInventory(ingredient, recipe, tmp);
@@ -204,9 +162,11 @@ public class RecipeHelper {
      */
     public static WrappedRecipe getValidRecipe(ItemStack result, ItemStack[] ingredients) {
         List<WrappedRecipe> all = RecipeManager.getAllRecipes();
-        allLoop: for (WrappedRecipe wr : all) {
+        allLoop:
+        for (WrappedRecipe wr : all) {
             if (StackUtils.areEqualItems(wr.output.stack, result) && wr.inputs.size() == ingredients.length) {
-                ingLoop: for (int i = 0; i < ingredients.length; i++) {
+                ingLoop:
+                for (int i = 0; i < ingredients.length; i++) {
                     if (wr.inputs.get(i) instanceof ItemStack) {
                         ItemStack is = (ItemStack) wr.inputs.get(i);
                         if (!StackUtils.areCraftingEquivalent(is, ingredients[i])) {

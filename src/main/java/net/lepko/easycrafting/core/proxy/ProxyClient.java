@@ -2,7 +2,7 @@ package net.lepko.easycrafting.core.proxy;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.lepko.easycrafting.core.CommandEasyCrafting;
-import net.lepko.easycrafting.core.TickHandlerClient;
+import net.lepko.easycrafting.core.recipe.RecipeChecker;
 import net.minecraftforge.client.ClientCommandHandler;
 
 public class ProxyClient extends Proxy {
@@ -11,7 +11,7 @@ public class ProxyClient extends Proxy {
     public void registerHandlers() {
         super.registerHandlers();
 
-        FMLCommonHandler.instance().bus().register(TickHandlerClient.INSTANCE);
+        FMLCommonHandler.instance().bus().register(RecipeChecker.INSTANCE);
     }
 
     @Override
