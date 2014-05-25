@@ -2,6 +2,7 @@ package net.lepko.easycrafting.core.inventory.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.inventory.Container;
 
@@ -36,6 +37,8 @@ public abstract class GuiTabbed extends GuiContainer {
         if (tab != null) {
             drawCreativeTabHoveringText(tab.tooltip, mouseX - guiLeft, mouseY - guiTop);
         }
+
+        RenderHelper.enableGUIStandardItemLighting();
     }
 
     @Override
