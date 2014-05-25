@@ -32,7 +32,9 @@ public class RecipeManager {
         if (allRecipes.isEmpty()) {
             return true;
         }
+        // XXX: Investigate issues with mods adding recipes too late at some point in the future.
         if (prevListSize != recipes.size() || (!recipes.isEmpty() && prevLastElement != recipes.get(recipes.size() - 1))) {
+            Ref.LOGGER.warn("|~| A MOD IS ADDING RECIPES TOO LATE |~| Class=" + recipes.get(recipes.size() - 1).getClass().getCanonicalName());
             return true;
         }
         return false;
@@ -60,7 +62,7 @@ public class RecipeManager {
                 fails++;
             }
         }
-        // TODO: Sort the list?
+        // XXX: Sort the list (how)?
 
         Ref.LOGGER.info(String.format("Scanned %d recipes (%d failed) in %.8f seconds", recipes.size(), fails, (System.nanoTime() - startTime) / 1000000000.0D));
     }

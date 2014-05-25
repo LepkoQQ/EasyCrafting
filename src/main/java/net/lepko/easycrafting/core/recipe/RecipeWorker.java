@@ -20,16 +20,8 @@ public class RecipeWorker implements Runnable {
     // TODO: if a new request comes before we finish this one, abort and start again
     private void setCraftableRecipes() {
         long beforeTime = System.nanoTime();
-
         InventoryPlayer player_inventory = FMLClientHandler.instance().getClient().thePlayer.inventory;
-
-        int maxRecursion = ConfigHandler.MAX_RECURSION;
-        List<WrappedRecipe> tmp = RecipeHelper.getCraftableRecipes(player_inventory, maxRecursion, RecipeManager.getAllRecipes());
-
-        // TODO: sort the list
-        // Collections.sort(tmp, new RecipeComparator());
-
-        craftableRecipes = tmp;
+        craftableRecipes = RecipeHelper.getCraftableRecipes(player_inventory, ConfigHandler.MAX_RECURSION, RecipeManager.getAllRecipes());
         Ref.LOGGER.info(String.format("%d/%d craftable | %.8f seconds", craftableRecipes.size(), RecipeManager.getAllRecipes().size(), (System.nanoTime() - beforeTime) / 1000000000.0D));
     }
 

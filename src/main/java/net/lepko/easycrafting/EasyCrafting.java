@@ -4,6 +4,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.lepko.easycrafting.core.block.ModBlocks;
@@ -35,7 +36,13 @@ public class EasyCrafting {
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
+        ModBlocks.setupRecipes();
         //TODO: VersionHelper.performCheck();
+    }
+
+    @EventHandler
+    public void available(FMLLoadCompleteEvent event) {
+        // This fires after the recipes are sorted by forge; Mods should not add/remove recipes after this point!!
         RecipeManager.scanRecipes();
     }
 }

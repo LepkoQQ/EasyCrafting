@@ -1,7 +1,11 @@
 package net.lepko.easycrafting.core.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.lepko.easycrafting.Ref;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 
 public class ModBlocks {
 
@@ -10,8 +14,19 @@ public class ModBlocks {
     public static void setupBlocks() {
         table = new BlockTable();
         GameRegistry.registerBlock(table, ItemBlockTable.class, "table");
+        GameRegistry.registerCustomItemStack("easyCraftingTable", new ItemStack(table, 1, 0));
+        GameRegistry.registerCustomItemStack("autoCraftingTable", new ItemStack(table, 1, 1));
 
         GameRegistry.registerTileEntity(TileEntityEasyCrafting.class, "EasyCraftingTableTE");
         GameRegistry.registerTileEntity(TileEntityAutoCrafting.class, "AutoCraftingTableTE");
+    }
+
+    public static void setupRecipes() {
+        GameRegistry.addShapelessRecipe(get("easyCraftingTable"), Blocks.crafting_table, Items.redstone, Items.book);
+        GameRegistry.addShapedRecipe(get("autoCraftingTable"), "rsr", "scs", "rsr", 'r', Items.redstone, 's', Blocks.stone, 'c', Blocks.crafting_table);
+    }
+
+    private static ItemStack get(String name) {
+        return GameRegistry.findItemStack(Ref.MOD_ID, name, 1);
     }
 }
