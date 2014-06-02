@@ -22,7 +22,7 @@ group= "net.lepko.easycrafting"
 archivesBaseName = "EasyCrafting"
 
 minecraft {
-    version = "1.7.2-10.12.1.1083"
+    version = "1.7.2-10.12.1.1103"
 
     if (file("../run").exists()) {
 		assetDir = "../run/assets"
