@@ -407,7 +407,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
             return;
         }
 
-        List<WrappedStack> ingredientList = recipe.collatedInputs;
+        List<WrappedStack> ingredientList = recipe.usedIngredients.isEmpty() ? recipe.collatedInputs : StackUtils.collateStacks(recipe.usedIngredients);
 
         if (ingredientList != null && !ingredientList.isEmpty()) {
             int width = 16;
@@ -454,7 +454,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 
             for (WrappedStack ws : ingredientList) {
                 ItemStack is = ws.stack;
-                if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
+                if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE && is.getHasSubtypes()) {
                     ItemStack is2 = is.copy();
                     is2.setItemDamage(0);
                     // TODO: rotate display of all possible stacks

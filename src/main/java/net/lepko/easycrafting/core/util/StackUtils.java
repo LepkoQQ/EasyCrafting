@@ -188,7 +188,7 @@ public class StackUtils {
      * Assumes List contains an ItemStack or a List of ItemStacks with at least one entry!
      */
     @SuppressWarnings("unchecked")
-    public static List<WrappedStack> collateStacks(List<Object> inputs) {
+    public static List<WrappedStack> collateStacks(List<? extends Object> inputs) {
         List<WrappedStack> collated = new ArrayList<WrappedStack>();
         inputs:
         for (Object o : inputs) {

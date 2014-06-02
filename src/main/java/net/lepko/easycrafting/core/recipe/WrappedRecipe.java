@@ -64,8 +64,7 @@ public class WrappedRecipe {
             warn("recipe input list is empty", recipe);
             return null;
         }
-        for (int i = 0; i < inputs.size(); i++) {
-            Object o = inputs.get(i);
+        for (Object o : inputs) {
             if (o instanceof List) {
                 List<?> list = (List<?>) o;
                 if (list.isEmpty()) {
