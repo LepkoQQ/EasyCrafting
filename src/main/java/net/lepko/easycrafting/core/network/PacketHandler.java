@@ -1,20 +1,20 @@
 package net.lepko.easycrafting.core.network;
 
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.FMLEmbeddedChannel;
 import cpw.mods.fml.common.network.FMLIndexedMessageToMessageCodec;
 import cpw.mods.fml.common.network.FMLOutboundHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.network.message.AbstractMessage;
 import net.lepko.easycrafting.core.network.message.MessageEasyCrafting;
 import net.lepko.easycrafting.core.network.message.MessageInterfaceChange;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.INetHandler;
@@ -24,7 +24,7 @@ import java.util.EnumMap;
 
 public final class PacketHandler extends FMLIndexedMessageToMessageCodec<AbstractMessage> {
     public static final PacketHandler INSTANCE = new PacketHandler();
-    private static final EnumMap<Side, FMLEmbeddedChannel> CHANNELS = NetworkRegistry.INSTANCE.newChannel(Ref.CHANNEL, INSTANCE);
+    private static final EnumMap<Side, FMLEmbeddedChannel> CHANNELS = NetworkRegistry.INSTANCE.newChannel(Ref.CHANNEL, INSTANCE, PacketExecutor.INSTANCE);
 
     private PacketHandler() {}
 
@@ -41,18 +41,30 @@ public final class PacketHandler extends FMLIndexedMessageToMessageCodec<Abstrac
     @Override
     public void decodeInto(ChannelHandlerContext ctx, ByteBuf source, AbstractMessage msg) {
         msg.read(source);
+    }
 
-        EntityPlayer player;
-        switch (FMLCommonHandler.instance().getEffectiveSide()) {
-            case CLIENT:
-                player = FMLClientHandler.instance().getClient().thePlayer;
-                msg.run(player, Side.CLIENT);
-                break;
-            case SERVER:
+    @Sharable
+    private static class PacketExecutor extends SimpleChannelInboundHandler<AbstractMessage> {
+        public static final PacketExecutor INSTANCE = new PacketExecutor();
+
+        private PacketExecutor() {}
+
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, AbstractMessage msg) throws Exception {
+            Side side = ctx.channel().attr(NetworkRegistry.CHANNEL_SOURCE).get();
+            EntityPlayer player;
+            if (side.isClient()) {
+                player = getClientPlayer();
+            } else {
                 INetHandler netHandler = ctx.channel().attr(NetworkRegistry.NET_HANDLER).get();
                 player = ((NetHandlerPlayServer) netHandler).playerEntity;
-                msg.run(player, Side.SERVER);
-                break;
+            }
+            msg.run(player, side);
+        }
+
+        @SideOnly(Side.CLIENT)
+        public EntityPlayer getClientPlayer() {
+            return Minecraft.getMinecraft().thePlayer;
         }
     }
 
