@@ -1,6 +1,8 @@
 package net.lepko.easycrafting.core.inventory.gui;
 
+import codechicken.nei.guihook.IContainerTooltipHandler;
 import com.google.common.collect.ImmutableList;
+import cpw.mods.fml.common.Optional;
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.block.ModBlocks;
 import net.lepko.easycrafting.core.block.TileEntityEasyCrafting;
@@ -17,6 +19,7 @@ import net.lepko.easycrafting.core.util.WrappedStack;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
@@ -34,7 +37,8 @@ import org.lwjgl.opengl.GL12;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiEasyCrafting extends GuiTabbed {
+@Optional.Interface(iface = "codechicken.nei.guihook.IContainerTooltipHandler", modid = "NotEnoughItems")
+public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandler {
 
     private class TabEasyCrafting extends Tab {
         public TabEasyCrafting(ItemStack iconStack, String tooltip) {
@@ -339,30 +343,54 @@ public class GuiEasyCrafting extends GuiTabbed {
         }
     }
 
+    // START NEI
+    @Override
+    public List<String> handleTooltip(GuiContainer gui, int mouseX, int mouseY, List<String> currentTip) {
+        return currentTip;
+    }
+
+    @Override
+    public List<String> handleItemDisplayName(GuiContainer gui, ItemStack stack, List<String> currentTip) {
+        return currentTip;
+    }
+
+    @Override
+    public List<String> handleItemTooltip(GuiContainer gui, ItemStack stack, int mouseX, int mouseY, List<String> currentTip) {
+        if (!drawCustomTooltip(stack, mouseX, mouseY, currentTip)) {
+            return currentTip;
+        }
+        return ImmutableList.of();
+    }
+    // END NEI
+
+    @SuppressWarnings("unchecked")
     @Override
     protected void renderToolTip(ItemStack stack, int mouseX, int mouseY) {
-        if (isCtrlKeyDown()) {
+        if (!drawCustomTooltip(stack, mouseX, mouseY, (List<String>) stack.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips))) {
+            super.renderToolTip(stack, mouseX, mouseY);
+        }
+    }
+
+    private boolean drawCustomTooltip(ItemStack stack, int mouseX, int mouseY, List<String> currentTip) {
+        if (isCtrlKeyDown() && currentTip != null && !currentTip.isEmpty()) {
             for (int j = 0; j < 40; j++) {
                 Slot slot = inventorySlots.getSlot(j);
                 //isPointInRegion
                 if (func_146978_c(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY)) {
-                    List<String> list = new ArrayList<String>();
-                    String itemName = (String) stack.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips).get(0);
-                    list.add(stack.getRarity().rarityColor + itemName);
-
                     FontRenderer font = stack.getItem().getFontRenderer(stack);
+                    String itemName = currentTip.get(0);
+                    List<String> list = ImmutableList.of(stack.getRarity().rarityColor + itemName);
                     drawHoveringText(list, mouseX, mouseY, font == null ? fontRendererObj : font);
 
                     boolean leftSide = mouseX + 12 + fontRendererObj.getStringWidth(itemName) > width;
                     drawIngredientTooltip(j, mouseX, mouseY, leftSide);
-                    return;
+                    return true;
                 }
             }
         }
-        super.renderToolTip(stack, mouseX, mouseY);
+        return false;
     }
 
-    // TODO: simplify
     private void drawIngredientTooltip(int slotIndex, int mouseX, int mouseY, boolean leftSide) {
 
         WrappedRecipe recipe = null;
@@ -395,9 +423,9 @@ public class GuiEasyCrafting extends GuiTabbed {
                 xPos -= 28 + width;
             }
 
-            // TODO: change color from craftcache
+            // red: 0x50FF0000;// green: 0x5000A700;// vanilla purple: 0x505000FF;
             int bgColor = 0xF0100010;
-            int borderColor = 0x5000A700;// red: 0x50FF0000;// green: 0x5000A700;// vanilla purple: 0x505000FF;
+            int borderColor = canCraftCache[slotIndex + (currentRowOffset * 8)] ? 0x5000A700 : 0x50FF0000;
             int borderColorDark = (borderColor & 0xFEFEFE) >> 1 | borderColor & 0xFF000000;
 
             zLevel = 300.0F;
