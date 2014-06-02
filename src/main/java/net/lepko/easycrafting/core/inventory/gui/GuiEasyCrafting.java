@@ -14,6 +14,7 @@ import net.lepko.easycrafting.core.recipe.RecipeChecker;
 import net.lepko.easycrafting.core.recipe.RecipeHelper;
 import net.lepko.easycrafting.core.recipe.RecipeManager;
 import net.lepko.easycrafting.core.recipe.WrappedRecipe;
+import net.lepko.easycrafting.core.util.ItemMap;
 import net.lepko.easycrafting.core.util.StackUtils;
 import net.lepko.easycrafting.core.util.WrappedStack;
 import net.minecraft.client.gui.FontRenderer;
@@ -407,7 +408,9 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
             return;
         }
 
-        List<WrappedStack> ingredientList = recipe.usedIngredients.isEmpty() ? recipe.collatedInputs : StackUtils.collateStacks(recipe.usedIngredients);
+        //XXX: use canCraftCache
+        //List<WrappedStack> ingredientList = recipe.usedIngredients.isEmpty() ? recipe.collatedInputs : StackUtils.collateStacks(recipe.usedIngredients);
+        List<WrappedStack> ingredientList = recipe.collatedInputs;
 
         if (ingredientList != null && !ingredientList.isEmpty()) {
             int width = 16;
@@ -453,18 +456,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 
             for (WrappedStack ws : ingredientList) {
-                ItemStack is = ws.stack;
-                if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE && is.getHasSubtypes()) {
-                    ItemStack is2 = is.copy();
-                    is2.setItemDamage(0);
-                    // TODO: rotate display of all possible stacks
-                    itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
-                    itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
-                } else {
-                    itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, is, xPos, yPos);
-                    itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, is, xPos, yPos);
-                }
-
+                renderItem(xPos, yPos, ws);
                 xPos += 18;
             }
 
@@ -474,6 +466,47 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 
             zLevel = 0.0F;
             itemRender.zLevel = 0.0F;
+        }
+    }
+
+    //TODO: Refactor this mess (renderItem)
+    private void renderItem(int xPos, int yPos, WrappedStack ws) {
+        ItemStack is = ws.stack;
+        if (!ws.stacks.isEmpty()) {
+            ItemStack is2 = is.copy();
+            if (ws.stacks.size() > 1) {//XXX fix issue with OreDict entries that have WILDCARDS stacks (eg. blockGlass = glass and coloredGlass(all)
+                int xx = (int) ((mc.theWorld.getTotalWorldTime() / 10) % ws.stacks.size());
+                is2 = ws.stacks.get(xx).copy();
+                if (is2.getItemDamage() == OreDictionary.WILDCARD_VALUE && is2.getHasSubtypes()) {
+                    List<ItemStack> itemStacks = ItemMap.get(is2.getItem());
+                    if (itemStacks.size() > 1) {
+                        int xx2 = (int) ((mc.theWorld.getTotalWorldTime() / 10) % itemStacks.size());
+                        is2.setItemDamage(xx2);
+                    } else {
+                        is2.setItemDamage(0);
+                    }
+                } else {
+                    is2.setItemDamage(0);
+                }
+            } else {
+                is2.setItemDamage(0);
+            }
+            itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
+            itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
+        } else if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE && is.getHasSubtypes()) {
+            ItemStack is2 = is.copy();
+            List<ItemStack> itemStacks = ItemMap.get(is2.getItem());
+            if (itemStacks.size() > 1) {
+                int xx = (int) ((mc.theWorld.getTotalWorldTime() / 10) % itemStacks.size());
+                is2.setItemDamage(xx);
+            } else {
+                is2.setItemDamage(0);
+            }
+            itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
+            itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
+        } else {
+            itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, is, xPos, yPos);
+            itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, is, xPos, yPos);
         }
     }
 }

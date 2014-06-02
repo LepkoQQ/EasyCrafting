@@ -1,7 +1,7 @@
 package net.lepko.easycrafting.core.util;
 
+import com.google.common.primitives.Ints;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -124,21 +124,7 @@ public class StackUtils {
      * Returns a List of all OreIDs that this ItemStack is registered under
      */
     public static List<Integer> getOreIDs(ItemStack stack) {
-        List<Integer> ids = new ArrayList<Integer>();
-        if (stack != null) {
-            String[] oreNames = OreDictionary.getOreNames();
-            names:
-            for (String oreName : oreNames) {
-                List<ItemStack> ores = OreDictionary.getOres(oreName);
-                for (ItemStack ore : ores) {
-                    if (ore.getItem() == stack.getItem() && isDamageEquivalent(ore.getItemDamage(), stack.getItemDamage())) {
-                        ids.add(OreDictionary.getOreID(oreName));
-                        continue names;
-                    }
-                }
-            }
-        }
-        return ids;
+        return Ints.asList(OreDictionary.getOreIDs(stack));
     }
 
     /**
@@ -146,20 +132,6 @@ public class StackUtils {
      */
     public static int rawDamage(ItemStack stack) {
         return Items.arrow.getDamage(stack);
-    }
-
-    /**
-     * Returns a hash based on the item id and damage
-     */
-    public static int itemHash(ItemStack stack) {
-        return Item.getIdFromItem(stack.getItem()) << 16 | (stack.getItemDamage() & 0xffff);
-    }
-
-    /**
-     * Returns a hash based on the item id and damage
-     */
-    public static int itemHash(int id, int damage) {
-        return id << 16 | (damage & 0xffff);
     }
 
     public static boolean areNBTsEqual(ItemStack first, ItemStack second) {
@@ -194,7 +166,7 @@ public class StackUtils {
         for (Object o : inputs) {
             WrappedStack ws;
             if (o instanceof List) {
-                ws = new WrappedStack(((List<ItemStack>) o).get(0));
+                ws = new WrappedStack(((List<ItemStack>) o));
             } else {
                 ws = new WrappedStack((ItemStack) o);
             }

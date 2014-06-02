@@ -1,5 +1,6 @@
 package net.lepko.easycrafting.core.util;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -8,12 +9,18 @@ import java.util.List;
 
 public class WrappedStack {
 
-    public final List<Integer> oreIDs;
+    public final List<Integer> oreIDs = ImmutableList.of(); //XXX: user oreIDs in WrappedRecipes?
     public final ItemStack stack;
+    public final List<ItemStack> stacks;
 
     public WrappedStack(ItemStack stack) {
         this.stack = stack == null ? null : stack.copy();
-        oreIDs = StackUtils.getOreIDs(stack);
+        this.stacks = ImmutableList.of();
+    }
+
+    public WrappedStack(List<ItemStack> stacks) {
+        this.stack = stacks.isEmpty() ? null : stacks.get(0);
+        this.stacks = stacks;
     }
 
     @Override

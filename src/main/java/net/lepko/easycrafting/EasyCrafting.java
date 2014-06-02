@@ -11,6 +11,7 @@ import net.lepko.easycrafting.core.block.ModBlocks;
 import net.lepko.easycrafting.core.config.ConfigHandler;
 import net.lepko.easycrafting.core.network.PacketHandler;
 import net.lepko.easycrafting.core.recipe.RecipeManager;
+import net.lepko.easycrafting.core.util.ItemMap;
 
 @Mod(modid = Ref.MOD_ID, useMetadata = true)
 public class EasyCrafting {
@@ -42,6 +43,8 @@ public class EasyCrafting {
 
     @EventHandler
     public void available(FMLLoadCompleteEvent event) {
+        ItemMap.build();
+
         // This fires after the recipes are sorted by forge; Mods should not add/remove recipes after this point!!
         RecipeManager.scanRecipes();
     }
