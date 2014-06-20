@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -114,6 +115,8 @@ public enum RecipeChecker {
                     }
                 }
             }
+
+            Collections.sort(craftable, WrappedRecipe.Sorter.INSTANCE);
 
             Ref.LOGGER.info(String.format("%d/%d craftable | %.4f seconds", craftable.size(), recipesToCheck.size(), (System.currentTimeMillis() - startTime) / 1000.0D));
 

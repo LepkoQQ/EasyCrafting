@@ -6,6 +6,7 @@ import net.lepko.easycrafting.core.recipe.handler.*;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,7 +63,8 @@ public class RecipeManager {
                 fails++;
             }
         }
-        // XXX: Sort the list (how)?
+
+        Collections.sort(allRecipes, WrappedRecipe.Sorter.INSTANCE);
 
         Ref.LOGGER.info(String.format("Scanned %d recipes (%d failed) in %.8f seconds", recipes.size(), fails, (System.nanoTime() - startTime) / 1000000000.0D));
     }

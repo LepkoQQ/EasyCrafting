@@ -1,5 +1,6 @@
 package net.lepko.easycrafting.core.recipe;
 
+import com.google.common.primitives.Ints;
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.recipe.handler.IRecipeHandler;
 import net.lepko.easycrafting.core.util.StackUtils;
@@ -9,6 +10,7 @@ import net.minecraft.item.crafting.IRecipe;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class WrappedRecipe {
@@ -112,5 +114,26 @@ public class WrappedRecipe {
             s += " (" + o.getClass().getCanonicalName() + ")";
         }
         Ref.LOGGER.warn(s);
+    }
+
+    public static enum Sorter implements Comparator<WrappedRecipe> {
+        INSTANCE;
+
+        @Override
+        public int compare(WrappedRecipe first, WrappedRecipe second) {
+            ItemStack is1 = first.getOutput();
+            ItemStack is2 = second.getOutput();
+            int compareName = is1.getItem().getUnlocalizedName(is1).compareTo(is2.getItem().getUnlocalizedName(is2));
+            if (compareName != 0) {
+                return compareName;
+            } else {
+                int compareDamage = Ints.compare(is1.getItemDamage(), is2.getItemDamage());
+                if (compareDamage != 0) {
+                    return compareDamage;
+                } else {
+                    return Ints.compare(is1.stackSize, is2.stackSize) * -1;
+                }
+            }
+        }
     }
 }
