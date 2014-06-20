@@ -8,12 +8,12 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
+@GameRegistry.ObjectHolder(Ref.MOD_ID)
 public class ModBlocks {
 
-    public static Block table;
+    public static final Block table = new BlockTable();
 
     public static void setupBlocks() {
-        table = new BlockTable();
         GameRegistry.registerBlock(table, ItemBlockTable.class, "table");
         GameRegistry.registerCustomItemStack("easyCraftingTable", new ItemStack(table, 1, 0));
         GameRegistry.registerCustomItemStack("autoCraftingTable", new ItemStack(table, 1, 1));

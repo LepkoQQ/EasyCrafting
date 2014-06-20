@@ -471,42 +471,59 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 
     //TODO: Refactor this mess (renderItem)
     private void renderItem(int xPos, int yPos, WrappedStack ws) {
-        ItemStack is = ws.stack;
-        if (!ws.stacks.isEmpty()) {
-            ItemStack is2 = is.copy();
-            if (ws.stacks.size() > 1) {//XXX fix issue with OreDict entries that have WILDCARDS stacks (eg. blockGlass = glass and coloredGlass(all)
-                int xx = (int) ((mc.theWorld.getTotalWorldTime() / 10) % ws.stacks.size());
-                is2 = ws.stacks.get(xx).copy();
-                if (is2.getItemDamage() == OreDictionary.WILDCARD_VALUE && is2.getHasSubtypes()) {
-                    List<ItemStack> itemStacks = ItemMap.get(is2.getItem());
-                    if (itemStacks.size() > 1) {
-                        int xx2 = (int) ((mc.theWorld.getTotalWorldTime() / 10) % itemStacks.size());
-                        is2.setItemDamage(xx2);
+        ItemStack is = null;
+        if (ws.stacks.isEmpty()) {
+            is = ws.stack.copy();
+
+            if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
+                if (is.getHasSubtypes()) {
+                    List<ItemStack> all = ItemMap.get(is.getItem());
+                    if (!all.isEmpty()) {
+                        int num = (int) ((mc.theWorld.getTotalWorldTime() / 10) % all.size());
+                        is = all.get(num).copy();
                     } else {
-                        is2.setItemDamage(0);
+                        is.setItemDamage(0);
                     }
                 } else {
-                    is2.setItemDamage(0);
+                    is.setItemDamage(0);
                 }
-            } else {
-                is2.setItemDamage(0);
             }
-            itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
-            itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
-        } else if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE && is.getHasSubtypes()) {
-            ItemStack is2 = is.copy();
-            List<ItemStack> itemStacks = ItemMap.get(is2.getItem());
-            if (itemStacks.size() > 1) {
-                int xx = (int) ((mc.theWorld.getTotalWorldTime() / 10) % itemStacks.size());
-                is2.setItemDamage(xx);
-            } else {
-                is2.setItemDamage(0);
-            }
-            itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
-            itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, is2, xPos, yPos);
         } else {
+            int count = 0;
+            for (ItemStack stack : ws.stacks) {
+                if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE && stack.getHasSubtypes()) {
+                    count += ItemMap.get(stack.getItem()).size();
+                } else {
+                    count++;
+                }
+            }
+
+            int num = (int) ((mc.theWorld.getTotalWorldTime() / 10) % count);
+
+            count = 0;
+            for (ItemStack stack : ws.stacks) {
+                if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE && stack.getHasSubtypes()) {
+                    List<ItemStack> all = ItemMap.get(stack.getItem());
+                    if (num >= count && num < count + all.size()) {
+                        is = all.get(num - count).copy();
+                        break;
+                    }
+                    count += all.size();
+                } else {
+                    if (num == count) {
+                        is = stack.copy();
+                        break;
+                    }
+                    count++;
+                }
+            }
+        }
+        //
+        if (is != null) {
             itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, is, xPos, yPos);
             itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, is, xPos, yPos);
+        } else {
+            Ref.LOGGER.warn("Error rendering stack in recipe tooltip: is == null");
         }
     }
 }
