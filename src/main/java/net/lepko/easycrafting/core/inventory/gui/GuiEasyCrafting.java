@@ -408,9 +408,8 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
             return;
         }
 
-        //XXX: use canCraftCache
-        //List<WrappedStack> ingredientList = recipe.usedIngredients.isEmpty() ? recipe.collatedInputs : StackUtils.collateStacks(recipe.usedIngredients);
-        List<WrappedStack> ingredientList = recipe.collatedInputs;
+        boolean canCraft = canCraftCache[recipe_index];
+        List<WrappedStack> ingredientList = canCraft && !recipe.usedIngredients.isEmpty() ? StackUtils.collateStacks(recipe.usedIngredients) : recipe.collatedInputs;
 
         if (ingredientList != null && !ingredientList.isEmpty()) {
             int width = 16;
@@ -428,7 +427,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 
             // red: 0x50FF0000;// green: 0x5000A700;// vanilla purple: 0x505000FF;
             int bgColor = 0xF0100010;
-            int borderColor = canCraftCache[slotIndex + (currentRowOffset * 8)] ? 0x5000A700 : 0x50FF0000;
+            int borderColor = canCraft ? 0x5000A700 : 0x50FF0000;
             int borderColorDark = (borderColor & 0xFEFEFE) >> 1 | borderColor & 0xFF000000;
 
             zLevel = 300.0F;
