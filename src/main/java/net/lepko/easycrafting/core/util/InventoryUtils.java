@@ -128,7 +128,7 @@ public class InventoryUtils {
         List<ItemStack> contents = InventoryUtils.storeContents(inventory);
         int maxStack = Math.min(inventory.getInventoryStackLimit(), itemstack.getMaxStackSize());
         for (int i = start; i < end; i++) {
-            if (StackUtils.areEqual(itemstack, inventory.getStackInSlot(i))) {
+            if (StackUtils.areEqualNoSize(itemstack, inventory.getStackInSlot(i))) {
                 ItemStack is = inventory.getStackInSlot(i);
                 if (is.stackSize >= maxStack) {
                     continue;

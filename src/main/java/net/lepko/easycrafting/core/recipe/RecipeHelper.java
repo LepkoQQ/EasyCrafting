@@ -142,7 +142,7 @@ public class RecipeHelper {
     private static List<WrappedRecipe> getRecipesForItemFromList(ItemStack ingredient, IRecipeHandler handler, List<WrappedRecipe> recipesToCheck) {
         List<WrappedRecipe> list = new LinkedList<WrappedRecipe>();
         for (WrappedRecipe wr : recipesToCheck) {
-            if (handler.matchItem(ingredient, wr.output.stack, null)) {
+            if (handler.matchItem(ingredient, wr.getOutput(), null)) {
                 list.add(wr);
             }
         }
@@ -164,7 +164,7 @@ public class RecipeHelper {
         List<WrappedRecipe> all = RecipeManager.getAllRecipes();
         allLoop:
         for (WrappedRecipe wr : all) {
-            if (StackUtils.areEqualItems(wr.output.stack, result) && wr.inputs.size() == ingredients.length) {
+            if (StackUtils.areEqualNoSizeNoNBT(wr.getOutput(), result) && wr.inputs.size() == ingredients.length) {
                 ingLoop:
                 for (int i = 0; i < ingredients.length; i++) {
                     if (wr.inputs.get(i) instanceof ItemStack) {

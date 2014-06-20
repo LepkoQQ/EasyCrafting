@@ -28,7 +28,7 @@ public class MessageEasyCrafting extends AbstractMessage {
     }
 
     private void setRecipe(WrappedRecipe recipe) {
-        result = recipe.output.stack;
+        result = recipe.getOutput();
         ingredients = new ItemStack[recipe.inputs.size()];
 
         for (int i = 0; i < recipe.inputs.size(); i++) {
@@ -37,7 +37,7 @@ public class MessageEasyCrafting extends AbstractMessage {
             } else if (recipe.inputs.get(i) instanceof List) {
                 @SuppressWarnings("unchecked")
                 List<ItemStack> ingList = (List<ItemStack>) recipe.inputs.get(i);
-                ingredients[i] = ((ItemStack) ingList.get(0)).copy();
+                ingredients[i] = ingList.get(0).copy();
             }
         }
     }

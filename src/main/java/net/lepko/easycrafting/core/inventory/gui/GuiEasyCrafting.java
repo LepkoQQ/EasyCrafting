@@ -231,7 +231,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
         int recipeIndex = slotIndex + currentRowOffset * 8;
         if (recipeIndex >= 0 && shownRecipes != null && recipeIndex < shownRecipes.size()) {
             WrappedRecipe r = shownRecipes.get(recipeIndex);
-            if (StackUtils.areEqualItems(r.output.stack, slotStack) && craftableRecipes != null && craftableRecipes.contains(r)) {
+            if (StackUtils.areEqualNoSizeNoNBT(r.getOutput(), slotStack) && craftableRecipes != null && craftableRecipes.contains(r)) {
                 recipe = r;
             }
         }
@@ -285,7 +285,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
         LAST_SEARCH = searchField.getText().toLowerCase();
         if (!LAST_SEARCH.trim().isEmpty()) {
             for (WrappedRecipe recipe : all) {
-                List<String> tips = recipe.output.stack.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
+                List<String> tips = recipe.getOutput().getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
                 for (String tip : tips) {
                     if (tip.toLowerCase().contains(LAST_SEARCH)) {
                         list.add(recipe);
@@ -399,7 +399,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
         int recipe_index = slotIndex + currentRowOffset * 8;
         if (recipe_index >= 0 && shownRecipes != null && recipe_index < shownRecipes.size()) {
             WrappedRecipe r = shownRecipes.get(recipe_index);
-            if (StackUtils.areCraftingEquivalent(r.output.stack, inventorySlots.getSlot(slotIndex).getStack())) {
+            if (StackUtils.areCraftingEquivalent(r.getOutput(), inventorySlots.getSlot(slotIndex).getStack())) {
                 recipe = r;
             }
         }
@@ -469,55 +469,39 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
         }
     }
 
-    //TODO: Refactor this mess (renderItem)
     private void renderItem(int xPos, int yPos, WrappedStack ws) {
         ItemStack is = null;
-        if (ws.stacks.isEmpty()) {
-            is = ws.stack.copy();
 
-            if (is.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
-                if (is.getHasSubtypes()) {
-                    List<ItemStack> all = ItemMap.get(is.getItem());
-                    if (!all.isEmpty()) {
-                        int num = (int) ((mc.theWorld.getTotalWorldTime() / 10) % all.size());
-                        is = all.get(num).copy();
-                    } else {
-                        is.setItemDamage(0);
-                    }
-                } else {
-                    is.setItemDamage(0);
-                }
-            }
-        } else {
-            int count = 0;
-            for (ItemStack stack : ws.stacks) {
-                if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE && stack.getHasSubtypes()) {
-                    count += ItemMap.get(stack.getItem()).size();
-                } else {
-                    count++;
-                }
-            }
-
-            int num = (int) ((mc.theWorld.getTotalWorldTime() / 10) % count);
-
-            count = 0;
-            for (ItemStack stack : ws.stacks) {
-                if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE && stack.getHasSubtypes()) {
-                    List<ItemStack> all = ItemMap.get(stack.getItem());
-                    if (num >= count && num < count + all.size()) {
-                        is = all.get(num - count).copy();
-                        break;
-                    }
-                    count += all.size();
-                } else {
-                    if (num == count) {
-                        is = stack.copy();
-                        break;
-                    }
-                    count++;
-                }
+        //TODO: Refactor this to helper
+        int count = 0;
+        for (ItemStack stack : ws.stacks) {
+            if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE && stack.getHasSubtypes()) {
+                count += ItemMap.get(stack.getItem()).size();
+            } else {
+                count++;
             }
         }
+
+        int num = (int) ((mc.theWorld.getTotalWorldTime() / 10) % count);
+
+        count = 0;
+        for (ItemStack stack : ws.stacks) {
+            if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE && stack.getHasSubtypes()) {
+                List<ItemStack> all = ItemMap.get(stack.getItem());
+                if (num >= count && num < count + all.size()) {
+                    is = StackUtils.copyStack(all.get(num - count), ws.size);
+                    break;
+                }
+                count += all.size();
+            } else {
+                if (num == count) {
+                    is = StackUtils.copyStack(stack, ws.size);
+                    break;
+                }
+                count++;
+            }
+        }
+
         //
         if (is != null) {
             itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, is, xPos, yPos);

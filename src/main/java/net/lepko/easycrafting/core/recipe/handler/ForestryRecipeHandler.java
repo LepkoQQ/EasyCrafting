@@ -65,13 +65,13 @@ public class ForestryRecipeHandler implements IRecipeHandler {
             if (ReflectionHelper.getPrivateValue(shapedRecipeClass, recipe.recipe, "preserveNBT")) {
                 for (ItemStack is : usedIngredients) {
                     if (is.hasTagCompound()) {
-                        ItemStack crafted = recipe.output.stack.copy();
+                        ItemStack crafted = recipe.getOutput();
                         crafted.setTagCompound((NBTTagCompound) is.getTagCompound().copy());
                         return crafted;
                     }
                 }
             }
         }
-        return recipe.output.stack.copy();
+        return recipe.getOutput();
     }
 }

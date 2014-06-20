@@ -1,6 +1,5 @@
 package net.lepko.easycrafting.core.util;
 
-import com.google.common.primitives.Ints;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
@@ -17,7 +16,7 @@ public class StackUtils {
      */
     public static int canStack(ItemStack first, ItemStack second) {
         if (first != null && second != null) {
-            if (first.isStackable() && second.isStackable() && areEqual(first, second)) {
+            if (first.isStackable() && second.isStackable() && areEqualNoSize(first, second)) {
                 int i = first.stackSize + second.stackSize - first.getMaxStackSize();
                 return i < 0 ? 0 : i;
             }
@@ -32,7 +31,17 @@ public class StackUtils {
         if (first == null || second == null) {
             return first == second;
         }
-        if (first.getItem() != second.getItem() || first.stackSize != second.stackSize) {
+        return areIdenticalNoSize(first, second) && first.stackSize != second.stackSize;
+    }
+
+    /**
+     * Check if two stacks are strictly identical. Does NOT check sizes.
+     */
+    public static boolean areIdenticalNoSize(ItemStack first, ItemStack second) {
+        if (first == null || second == null) {
+            return first == second;
+        }
+        if (first.getItem() != second.getItem()) {
             return false;
         }
         if (rawDamage(first) != rawDamage(second) || !areNBTsEqual(first, second)) {
@@ -44,7 +53,7 @@ public class StackUtils {
     /**
      * Checks if two ItemStack items are equal. Does NOT check sizes or NBT!
      */
-    public static boolean areEqualItems(ItemStack first, ItemStack second) {
+    public static boolean areEqualNoSizeNoNBT(ItemStack first, ItemStack second) {
         if (first == null || second == null) {
             return first == second;
         }
@@ -60,8 +69,8 @@ public class StackUtils {
     /**
      * Checks if two ItemStacks are equal. Does NOT check sizes!
      */
-    public static boolean areEqual(ItemStack first, ItemStack second) {
-        return areEqualItems(first, second) && areNBTsEqual(first, second);
+    public static boolean areEqualNoSize(ItemStack first, ItemStack second) {
+        return areEqualNoSizeNoNBT(first, second) && areNBTsEqual(first, second);
     }
 
     /**
@@ -81,25 +90,6 @@ public class StackUtils {
     }
 
     /**
-     * Checks if two ItemStacks are equivalent (Same OreDictionary ID or damage wildcard). Does NOT check sizes or NBT!
-     */
-    public static boolean areEquivalent(ItemStack first, ItemStack second) {
-        if (first == null || second == null) {
-            return first == second;
-        }
-        if (areSameOre(first, second)) {
-            return true;
-        }
-        if (first.getItem() != second.getItem()) {
-            return false;
-        }
-        if (!isDamageEquivalent(first.getItemDamage(), second.getItemDamage())) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Check if the two damage values are the same or any of them is a wildcard.
      */
     public static boolean isDamageEquivalent(int first, int second) {
@@ -107,24 +97,6 @@ public class StackUtils {
             return true;
         }
         return false;
-    }
-
-    public static boolean areSameOre(ItemStack first, ItemStack second) {
-        List<Integer> ids = getOreIDs(first);
-        if (!ids.isEmpty()) {
-            ids.retainAll(getOreIDs(second));
-            if (!ids.isEmpty()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns a List of all OreIDs that this ItemStack is registered under
-     */
-    public static List<Integer> getOreIDs(ItemStack stack) {
-        return Ints.asList(OreDictionary.getOreIDs(stack));
     }
 
     /**
@@ -171,8 +143,8 @@ public class StackUtils {
                 ws = new WrappedStack((ItemStack) o);
             }
             for (WrappedStack stack : collated) {
-                if (stack.isEqualItem(ws)) {
-                    stack.stack.stackSize++;
+                if (stack.equalsNoSize(ws)) {
+                    stack.size++;
                     continue inputs;
                 }
             }

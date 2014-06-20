@@ -16,7 +16,7 @@ public class WrappedRecipe {
     public final IRecipe recipe;
     public final List<Object> inputs;
     public final List<WrappedStack> collatedInputs;
-    public final WrappedStack output;
+    private final WrappedStack output;
     public final IRecipeHandler handler;
     public final List<ItemStack> usedIngredients;
 
@@ -27,6 +27,10 @@ public class WrappedRecipe {
         this.output = output;
         this.handler = handler;
         this.usedIngredients = new ArrayList<ItemStack>(9);
+    }
+
+    public ItemStack getOutput() {
+        return StackUtils.copyStack(output.stacks.get(0), output.size);
     }
 
     /**

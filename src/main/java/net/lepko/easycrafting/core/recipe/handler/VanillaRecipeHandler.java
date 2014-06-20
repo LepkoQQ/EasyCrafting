@@ -40,6 +40,6 @@ public class VanillaRecipeHandler implements IRecipeHandler {
 
     @Override
     public ItemStack getCraftingResult(WrappedRecipe recipe, List<ItemStack> usedIngredients) {
-        return recipe.output.stack.copy();
+        return recipe.getOutput();
     }
 }

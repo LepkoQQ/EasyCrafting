@@ -90,8 +90,8 @@ public class IC2RecipeHandler implements IRecipeHandler {
     @Override
     public ItemStack getCraftingResult(WrappedRecipe recipe, List<ItemStack> usedIngredients) {
         if (recipe.inputs.size() == usedIngredients.size()) {
-            if (recipe.output.stack.getItem() instanceof IElectricItem) {
-                ItemStack crafted = recipe.output.stack.copy();
+            if (recipe.getOutput().getItem() instanceof IElectricItem) {
+                ItemStack crafted = recipe.getOutput();
                 int charge = 0;
                 for (ItemStack is : usedIngredients) {
                     if (is.getItem() instanceof IElectricItem) {
@@ -104,6 +104,6 @@ public class IC2RecipeHandler implements IRecipeHandler {
                 return crafted;
             }
         }
-        return recipe.output.stack.copy();
+        return recipe.getOutput();
     }
 }
