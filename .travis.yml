@@ -1,0 +1,14 @@
+language: java
+
+install: ./gradlew setupCIWorkspace -S
+script: ./gradlew build -S
+
+env:
+  global:
+    - "TERM=dumb"
+    - secure: "ix4lQlBHo9C0g1cPUMjERmoS888V3rIuIPPpJKwREEDpckTslk59QgwNAi+u7P0qGOufVtHWECPirE5Yrg+qU135k5Rt9K21OEY/bXryHlOVBFuf2VHXe23tBdhBDw0uVFg8NSmMP/V0YdHbSyVdVa0VEouJgnsTPT7TOIcReIQ="
+    - secure: "h1LPgMdaWDq1CktbfOKJuP5xWhhaglq0muolya6F12EWt7gA4uaua9ufCaoDfsHLvuFbkLDzfQdhKIvytOntpcqcYpkQHxicgvJiABB1FRG1QTOy9HIdVqhwmJ17gpfFOejmk31aQ/g2qIT3O4dzQHeDEnhYScDNpDbETC1Wk58="
+
+after_success:
+  - "cd ./build/lib"
+  - "find . -type f -exec curl --user $FTP_USER:$FTP_PASSWORD --ftp-create-dirs -T {} ftp://lepko.net/domains/lepko.net/public_html/mods/archive/travis/easycrafting/{} \;"

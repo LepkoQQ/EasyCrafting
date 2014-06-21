@@ -85,7 +85,7 @@ public enum RecipeChecker {
 
             // TODO: if a new request comes before we finish this one, abort and start again
             // TODO: timeout
-            // TODO: on gui when you press shift calc all the base ingredinets from the inventory you need for all crafting
+            // TODO: on gui when you press shift calc all the base ingredients from the inventory you need for all crafting
             // steps not just the last recipe (also color overlay the slots you take from)
 
             for (WrappedRecipe wr : tmpAll) {
