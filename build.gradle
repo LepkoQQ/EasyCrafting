@@ -56,3 +56,18 @@ processResources
         exclude "mcmod.info"
     }
 }
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'src'
+}
+
+// Add in an mcp named jar, for those who wish to run in a development environment (assuming mcp naming matches)
+task devJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'dev'
+}
+
+artifacts {
+    archives sourceJar, devJar
+}
