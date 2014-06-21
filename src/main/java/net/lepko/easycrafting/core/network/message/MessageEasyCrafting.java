@@ -7,6 +7,7 @@ import net.lepko.easycrafting.core.config.ConfigHandler;
 import net.lepko.easycrafting.core.recipe.RecipeHelper;
 import net.lepko.easycrafting.core.recipe.RecipeManager;
 import net.lepko.easycrafting.core.recipe.WrappedRecipe;
+import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.lepko.easycrafting.core.util.StackUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -19,12 +20,14 @@ public class MessageEasyCrafting extends AbstractMessage {
     private ItemStack result;
     private ItemStack[] ingredients;
     private boolean isRightClick = false;
+    private boolean isShiftClick = false;
 
     public MessageEasyCrafting() {}
 
-    public MessageEasyCrafting(WrappedRecipe recipe, boolean isRightClick) {
+    public MessageEasyCrafting(WrappedRecipe recipe, boolean isRightClick, boolean isShiftClick) {
         setRecipe(recipe);
         this.isRightClick = isRightClick;
+        this.isShiftClick = isShiftClick;
     }
 
     private void setRecipe(WrappedRecipe recipe) {
@@ -57,6 +60,8 @@ public class MessageEasyCrafting extends AbstractMessage {
             target.writeInt(is.getItemDamage());
             target.writeByte(is.stackSize);
         }
+
+        target.writeBoolean(isShiftClick);
     }
 
     @Override
@@ -80,6 +85,8 @@ public class MessageEasyCrafting extends AbstractMessage {
 
             ingredients[i] = new ItemStack(Item.getItemById(_id), _size, _damage);
         }
+
+        isShiftClick = source.readBoolean();
     }
 
     @Override
@@ -109,9 +116,20 @@ public class MessageEasyCrafting extends AbstractMessage {
 
         if (return_size > 0) {
             if (!isRightClick) {
-                if (RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), true, 1, ConfigHandler.MAX_RECURSION) > 0) {
-                    return_stack.stackSize = return_size;
-                    player.inventory.setItemStack(return_stack);
+                if (isShiftClick) {
+                    int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, null);
+                    int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
+                    if (timesCrafted > 0) {
+                        return_stack.stackSize *= timesCrafted;
+                        if (InventoryUtils.addItemToInventory(player.inventory, return_stack)) {
+                            RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), true, maxTimes, ConfigHandler.MAX_RECURSION);
+                        }
+                    }
+                } else {
+                    if (RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), true, 1, ConfigHandler.MAX_RECURSION) > 0) {
+                        return_stack.stackSize = return_size;
+                        player.inventory.setItemStack(return_stack);
+                    }
                 }
             } else {
                 int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, stack_in_hand);

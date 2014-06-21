@@ -14,6 +14,7 @@ import net.lepko.easycrafting.core.recipe.RecipeChecker;
 import net.lepko.easycrafting.core.recipe.RecipeHelper;
 import net.lepko.easycrafting.core.recipe.RecipeManager;
 import net.lepko.easycrafting.core.recipe.WrappedRecipe;
+import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.lepko.easycrafting.core.util.ItemMap;
 import net.lepko.easycrafting.core.util.StackUtils;
 import net.lepko.easycrafting.core.util.WrappedStack;
@@ -219,11 +220,10 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
     private void onCraftingSlotClick(Slot slot, int slotIndex, int button, int action) {
         Ref.LOGGER.info("Clicked: " + slot.getClass().getSimpleName() + "@" + slotIndex + ", button=" + button + ", action=" + action + ", stack=" + slot.getStack());
 
-        if (action > 1 || button > 1 || slot == null || !slot.getHasStack()) {
+        if (action > 1 || button > 1 || !slot.getHasStack()) {
             return;
         }
 
-        // TODO: Shift clicking to transfer stack to inventory
         ItemStack heldStack = mc.thePlayer.inventory.getItemStack();
         ItemStack slotStack = slot.getStack();
 
@@ -251,8 +251,9 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 
         if (finalStackSize > 0) {
             boolean isRightClick = button == 1;
+            boolean isShiftClick = action == 1;
 
-            PacketHandler.INSTANCE.sendToServer(new MessageEasyCrafting(recipe, isRightClick));
+            PacketHandler.INSTANCE.sendToServer(new MessageEasyCrafting(recipe, isRightClick, isShiftClick));
 
             if (isRightClick) { // Right click; craft until max stack
                 int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, heldStack);
@@ -260,6 +261,13 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
                 if (timesCrafted > 0) {
                     finalStack.stackSize = finalStackSize + (timesCrafted - 1) * finalStack.stackSize;
                     mc.thePlayer.inventory.setItemStack(finalStack);
+                }
+            } else if (isShiftClick) {
+                int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, null);
+                int timesCrafted = RecipeHelper.canCraft(recipe, mc.thePlayer.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
+                if (timesCrafted > 0) {
+                    finalStack.stackSize *= timesCrafted; //ignore finalStackSize; it might contain heldStack size
+                    InventoryUtils.addItemToInventory(mc.thePlayer.inventory, finalStack);
                 }
             } else { // Left click; craft once
                 finalStack.stackSize = finalStackSize;
@@ -430,8 +438,8 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
             int borderColor = canCraft ? 0x5000A700 : 0x50FF0000;
             int borderColorDark = (borderColor & 0xFEFEFE) >> 1 | borderColor & 0xFF000000;
 
-            zLevel = 300.0F;
-            itemRender.zLevel = 300.0F;
+            zLevel += 500.0F;
+            itemRender.zLevel += 500.0F;
 
             RenderHelper.disableStandardItemLighting();
             GL11.glDisable(GL11.GL_LIGHTING);
@@ -463,15 +471,14 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glDisable(GL11.GL_LIGHTING);
 
-            zLevel = 0.0F;
-            itemRender.zLevel = 0.0F;
+            zLevel -= 500.0F;
+            itemRender.zLevel -= 500.0F;
         }
     }
 
     private void renderItem(int xPos, int yPos, WrappedStack ws) {
         ItemStack is = null;
 
-        //TODO: Refactor this to helper
         int count = 0;
         for (ItemStack stack : ws.stacks) {
             if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE && stack.getHasSubtypes()) {

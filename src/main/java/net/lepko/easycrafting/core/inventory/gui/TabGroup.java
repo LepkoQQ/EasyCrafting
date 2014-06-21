@@ -51,14 +51,14 @@ public class TabGroup {
     }
 
     public void drawForeground() {
-        gui.itemRenderer().zLevel = 100.0F;
+        gui.itemRenderer().zLevel += 100.0F;
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
         for (Tab tab : tabs) {
             tab.drawForeground();
         }
         GL11.glDisable(GL11.GL_LIGHTING);
-        gui.itemRenderer().zLevel = 0.0F;
+        gui.itemRenderer().zLevel -= 100.0F;
     }
 
     public boolean mouseClick(int mouseX, int mouseY) {
