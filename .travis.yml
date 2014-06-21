@@ -14,4 +14,4 @@ env:
 
 after_success:
   - "cd ./build/lib"
-  - "find . -type f -exec curl --user $FTP_USER:$FTP_PASSWORD --ftp-create-dirs -T {} ftp://lepko.net/domains/lepko.net/public_html/mods/archive/travis/easycrafting/{} ;"
+  - "find . -type f -exec curl --user $FTP_USER:$FTP_PASSWORD --ftp-create-dirs -T {} ftp://lepko.net/domains/lepko.net/public_html/mods/archive/travis/easycrafting/{} \\;"
