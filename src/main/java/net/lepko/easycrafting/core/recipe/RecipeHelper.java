@@ -6,6 +6,7 @@ import net.lepko.easycrafting.core.util.StackUtils;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MathHelper;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -202,11 +203,12 @@ public class RecipeHelper {
      * @param inHand itemstack currently in hand
      */
     public static int calculateCraftingMultiplierUntilMaxStack(ItemStack result, ItemStack inHand) {
-        int maxTimes = (int) ((double) result.getMaxStackSize() / (double) result.stackSize);
+        int maxTimes = MathHelper.floor_double(result.getMaxStackSize() / (double) result.stackSize);
         if (inHand != null) {
-            int diff = result.getMaxStackSize() - maxTimes * result.stackSize;
-            if (inHand.stackSize > diff) {
-                maxTimes -= (int) ((double) (inHand.stackSize - diff) / (double) result.stackSize + 1);
+            int diff = result.getMaxStackSize() - (maxTimes * result.stackSize);
+            while (inHand.stackSize > diff) {
+                maxTimes--;
+                diff += result.stackSize;
             }
         }
         return maxTimes;

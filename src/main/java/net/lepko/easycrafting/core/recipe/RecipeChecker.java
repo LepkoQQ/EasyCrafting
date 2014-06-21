@@ -83,7 +83,6 @@ public enum RecipeChecker {
             List<WrappedRecipe> craftable = new LinkedList<WrappedRecipe>();
             List<WrappedRecipe> tmpAll = new LinkedList<WrappedRecipe>(recipesToCheck);
 
-            // TODO: when item is crafted the list scrolls back to top making it hard to make multiple items
             // TODO: if a new request comes before we finish this one, abort and start again
             // TODO: timeout
             // TODO: on gui when you press shift calc all the base ingredinets from the inventory you need for all crafting

@@ -49,7 +49,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 
         @Override
         public void onTabSelected() {
-            updateSearch();
+            updateSearch(true);
         }
     }
 
@@ -176,7 +176,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
     protected void keyTyped(char par1, int par2) {
         if (!checkHotbarKeys(par2)) {
             if (searchField.textboxKeyTyped(par1, par2)) {
-                updateSearch();
+                updateSearch(true);
             } else {
                 super.keyTyped(par1, par2);
             }
@@ -284,7 +284,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
     }
 
     @SuppressWarnings("unchecked")
-    private void updateSearch() {
+    private void updateSearch(boolean scrollToTop) {
         List<WrappedRecipe> all = currentTab == 0 ? craftableRecipes : RecipeManager.getAllRecipes();
         List<WrappedRecipe> list = new ArrayList<WrappedRecipe>();
         if (all == null || searchField == null) {
@@ -310,12 +310,12 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
         maxRowOffset = maxRowOffset < 0 ? 0 : maxRowOffset;
 
         rebuildCanCraftCache();
-        setRowOffset(0);
+        setRowOffset(scrollToTop ? 0 : currentRowOffset);
     }
 
     public void refreshCraftingOutput() {
         craftableRecipes = ImmutableList.copyOf(RecipeChecker.INSTANCE.recipes);
-        updateSearch();
+        updateSearch(false);
     }
 
     private void rebuildCanCraftCache() {
