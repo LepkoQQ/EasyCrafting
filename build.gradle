@@ -14,22 +14,37 @@ buildscript {
         classpath "net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT"
     }
 }
-
+// *** Load ForgeGradle
 apply plugin: "forge"
 
-def buildNumber = (System.getenv("TRAVIS_BUILD_NUMBER") ?: "X")
-version =  "1.7.2-2.0.0." + buildNumber
+// *** Load Build Config
+file("build.properties").withReader {
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse(prop)
+}
 
-group= "net.lepko.easycrafting"
-archivesBaseName = "EasyCrafting"
+// *** Load Environment Variables
+ext.build_number = "${System.getenv("TRAVIS_BUILD_NUMBER") ?: "X"}"
+
+// *** Configure
+version          = "${config.version_mc}-${config.version}.${build_number}"
+group            = "${config.package}"
+archivesBaseName = "${config.filename}"
+
+// *** Print Information
+println "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+println "~ version = ${version}"
+println "~ forge = ${config.version_mc}-${config.version_forge}"
+println "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 minecraft {
-    version = "1.7.2-10.12.2.1128"
+    version = "${config.version_mc}-${config.version_forge}"
 
-    if (file("../run").exists()) {
-		assetDir = "../run/assets"
+	if (file("../run").exists()) {
+		runDir = "../run"
 	} else {
-		assetDir = "run/assets"
+		runDir = "run"
 	}
 }
 
@@ -37,37 +52,59 @@ dependencies {
     //compile "com.mod-buildcraft:buildcraft:6.0.8:dev"  // adds buildcraft to the dev env
 }
 
-processResources
-{
+processResources {
     // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
+    inputs.property "version",   project.version
     inputs.property "mcversion", project.minecraft.version
 
-    // replace stuff in mcmod.info, nothing else
+    // expand variables
     from(sourceSets.main.resources.srcDirs) {
-        include "mcmod.info"
+        include "**/*.properties"
+        include "**/*.info"
 
-        // replace version and mcversion
-        expand "version":project.version, "mcversion":project.minecraft.version
+        expand "version": project.version, "mcversion": project.minecraft.version
     }
 
-    // copy everything else, thats not the mcmod.info
+    // copy everything else
     from(sourceSets.main.resources.srcDirs) {
-        exclude "mcmod.info"
+		exclude "**/*.properties"
+        exclude "**/*.info"
     }
 }
 
+// *** Additional Jars
 task sourceJar(type: Jar) {
     from sourceSets.main.allSource
-    classifier = 'src'
+    classifier = "src"
 }
 
-// Add in an mcp named jar, for those who wish to run in a development environment (assuming mcp naming matches)
 task devJar(type: Jar) {
     from sourceSets.main.output
-    classifier = 'dev'
+    classifier = "dev"
 }
 
 artifacts {
     archives sourceJar, devJar
+}
+
+// *** Deploy Jars
+configurations {
+	deployJars
+}
+
+dependencies {
+    deployJars "org.apache.maven.wagon:wagon-ftp:2.2"
+}
+
+uploadArchives {
+	onlyIf {
+		System.getenv("FTP_USER") != null && System.getenv("FTP_PASSWORD") != null &&
+		System.getenv("TRAVIS_BRANCH") == "master" && System.getenv("TRAVIS_PULL_REQUEST") == "false"
+	}
+	repositories.mavenDeployer {
+		configuration = configurations.deployJars
+		repository(url: "${config.ftp_location}"){
+			authentication(userName: "${System.getenv("FTP_USER")}", password: "${System.getenv("FTP_PASSWORD")}")
+		}
+	}
 }

@@ -2,6 +2,9 @@ package net.lepko.easycrafting.core.block;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.lepko.easycrafting.Ref;
+import net.lepko.easycrafting.core.inventory.ContainerAutoCrafting;
+import net.lepko.easycrafting.core.inventory.gui.GuiAutoCrafting;
+import net.lepko.easycrafting.core.inventory.gui.IGuiTile;
 import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.lepko.easycrafting.core.util.StackUtils;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,7 +25,7 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 import java.util.List;
 import java.util.Locale;
 
-public class TileEntityAutoCrafting extends TileEntity implements ISidedInventory {
+public class TileEntityAutoCrafting extends TileEntity implements ISidedInventory, IGuiTile {
 
     private static class FakeContainer extends Container {
         private FakeContainer() {
@@ -348,5 +351,21 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
     @Override
     public boolean canExtractItem(int slotIndex, ItemStack stack, int side) {
         return slotIndex >= 18 && slotIndex < inventory.length;
+    }
+
+    @Override
+    public Object getServerGuiElement(EntityPlayer player, TileEntity tileEntity) {
+        if (tileEntity instanceof TileEntityAutoCrafting) {
+            return new ContainerAutoCrafting(player.inventory, ((TileEntityAutoCrafting) tileEntity));
+        }
+        return null;
+    }
+
+    @Override
+    public Object getClientGuiElement(EntityPlayer player, TileEntity tileEntity) {
+        if (tileEntity instanceof TileEntityAutoCrafting) {
+            return new GuiAutoCrafting(player.inventory, ((TileEntityAutoCrafting) tileEntity));
+        }
+        return null;
     }
 }

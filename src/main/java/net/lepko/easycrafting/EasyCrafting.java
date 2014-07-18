@@ -16,6 +16,12 @@ import net.lepko.easycrafting.core.util.ItemMap;
 @Mod(modid = Ref.MOD_ID, useMetadata = true)
 public class EasyCrafting {
 
+	//TODO: block.shouldCheckWeakPower()
+		//block.onNeighbourTileChange()
+		//RIGHT CLICK SEARCH BAR DELETES ALL TEXT
+		//CREDIT ElementalRobot50 for Auto Crafting Table textures
+
+
     @Instance(Ref.MOD_ID)
     public static EasyCrafting INSTANCE;
 

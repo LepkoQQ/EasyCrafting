@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Locale;
+import java.util.UUID;
 
 public final class Ref {
 
@@ -27,7 +28,7 @@ public final class Ref {
     @SidedProxy(clientSide = "net.lepko.easycrafting.core.proxy.ProxyClient", serverSide = "net.lepko.easycrafting.core.proxy.Proxy")
     public static Proxy PROXY;
 
-    public static GameProfile GAME_PROFILE = new GameProfile("easycrafting.fake.player.profile", "[" + Ref.MOD_ID + "]");
+    public static GameProfile GAME_PROFILE = new GameProfile(UUID.nameUUIDFromBytes("easycrafting.fake.player.profile".getBytes()), "[" + Ref.MOD_ID + "]");
 
     public static void init() {
         MOD_NAME = Loader.instance().activeModContainer().getName();

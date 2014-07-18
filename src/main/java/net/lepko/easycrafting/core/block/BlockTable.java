@@ -4,6 +4,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.GuiHandler;
+import net.lepko.easycrafting.core.inventory.gui.IGuiTile;
 import net.lepko.easycrafting.core.recipe.RecipeManager;
 import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.minecraft.block.Block;
@@ -92,11 +93,10 @@ public class BlockTable extends BlockContainer {
 
         if (te instanceof TileEntityEasyCrafting) {
             RecipeManager.scanRecipes();
-            GuiHandler.openGui(GuiHandler.GuiType.EASYCRAFTING, player, world, x, y, z);
-            return true;
         }
-        if (te instanceof TileEntityAutoCrafting) {
-            GuiHandler.openGui(GuiHandler.GuiType.AUTOCRAFTING, player, world, x, y, z);
+
+        if (te instanceof IGuiTile) {
+            GuiHandler.openGui(player, world, x, y, z);
             return true;
         }
 

@@ -1,5 +1,8 @@
 package net.lepko.easycrafting.core.block;
 
+import net.lepko.easycrafting.core.inventory.ContainerEasyCrafting;
+import net.lepko.easycrafting.core.inventory.gui.GuiEasyCrafting;
+import net.lepko.easycrafting.core.inventory.gui.IGuiTile;
 import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -8,7 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.Constants;
 
-public class TileEntityEasyCrafting extends TileEntity implements IInventory {
+public class TileEntityEasyCrafting extends TileEntity implements IInventory, IGuiTile {
 
     private ItemStack[] inventory;
 
@@ -88,5 +91,21 @@ public class TileEntityEasyCrafting extends TileEntity implements IInventory {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Object getServerGuiElement(EntityPlayer player, TileEntity tileEntity) {
+        if (tileEntity instanceof TileEntityEasyCrafting) {
+            return new ContainerEasyCrafting(player.inventory, ((TileEntityEasyCrafting) tileEntity));
+        }
+        return null;
+    }
+
+    @Override
+    public Object getClientGuiElement(EntityPlayer player, TileEntity tileEntity) {
+        if (tileEntity instanceof TileEntityEasyCrafting) {
+            return new GuiEasyCrafting(player.inventory, ((TileEntityEasyCrafting) tileEntity));
+        }
+        return null;
     }
 }

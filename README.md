@@ -7,7 +7,7 @@ I also plan to extend its functionality and usefulness by implementing new featu
 If you have a mod that Easy Crafting is not working properly with, please submit an issue (and/or a pull request to fix it) and the accompanying crash report (if there is one).
 
 ### Official Builds
-Official builds of the mod can be found [here](http://lepko.net/minecraft/).
+Official builds of the mod can be found [here](http://mods.lepko.net/).
 
 Official Minecraft Forum thread [here](http://www.minecraftforum.net/topic/1558714-).
 
