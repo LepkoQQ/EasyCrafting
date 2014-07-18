@@ -1,14 +1,19 @@
 package net.lepko.easycrafting.core.recipe;
 
-import com.google.common.collect.ImmutableList;
-import net.lepko.easycrafting.Ref;
-import net.lepko.easycrafting.core.recipe.handler.*;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.IRecipe;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import net.lepko.easycrafting.Ref;
+import net.lepko.easycrafting.core.recipe.handler.ForestryRecipeHandler;
+import net.lepko.easycrafting.core.recipe.handler.ForgeRecipeHandler;
+import net.lepko.easycrafting.core.recipe.handler.IC2RecipeHandler;
+import net.lepko.easycrafting.core.recipe.handler.IRecipeHandler;
+import net.lepko.easycrafting.core.recipe.handler.VanillaRecipeHandler;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
+
+import com.google.common.collect.ImmutableList;
 
 public class RecipeManager {
 

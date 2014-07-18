@@ -1,7 +1,8 @@
 package net.lepko.easycrafting.core.block;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import java.util.List;
+
+import net.lepko.easycrafting.EasyCrafting;
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.GuiHandler;
 import net.lepko.easycrafting.core.recipe.RecipeManager;
@@ -17,8 +18,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
-
-import java.util.List;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockTable extends BlockContainer {
 
@@ -37,6 +38,7 @@ public class BlockTable extends BlockContainer {
     @Override
     public int damageDropped(int meta) {
         return meta;
+        
     }
 
     @Override
@@ -92,11 +94,13 @@ public class BlockTable extends BlockContainer {
 
         if (te instanceof TileEntityEasyCrafting) {
             RecipeManager.scanRecipes();
-            GuiHandler.openGui(GuiHandler.GuiType.EASYCRAFTING, player, world, x, y, z);
+          
+            player.openGui(EasyCrafting.INSTANCE, GuiHandler.guiEasyCrafting, world, x, y, z);
             return true;
         }
         if (te instanceof TileEntityAutoCrafting) {
-            GuiHandler.openGui(GuiHandler.GuiType.AUTOCRAFTING, player, world, x, y, z);
+           
+            player.openGui(EasyCrafting.INSTANCE, GuiHandler.guiAutoCrafting, world, x, y, z);
             return true;
         }
 
