@@ -1,5 +1,7 @@
 package net.lepko.easycrafting.core.inventory.slot;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.lepko.easycrafting.core.recipe.RecipeChecker;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -11,6 +13,7 @@ public class SlotInterceptor extends Slot {
     }
 
     @Override
+    @SideOnly (Side.CLIENT)
     public void onSlotChanged() {
         super.onSlotChanged();
         RecipeChecker.INSTANCE.requested = true;
