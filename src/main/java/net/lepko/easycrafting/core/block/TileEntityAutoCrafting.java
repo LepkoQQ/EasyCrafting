@@ -256,7 +256,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
         if (!worldObj.isRemote && ++lastUpdate > UPDATE_INTERVAL) {
             lastUpdate = 0;
 
-            if (lastCraftingSuccess || (!lastCraftingSuccess && inventoryChanged)) {
+            if (lastCraftingSuccess || inventoryChanged) {
                 inventoryChanged = false;
 
                 if (mode == Mode.ALWAYS || (mode == Mode.POWERED && poweredNow) || (mode == Mode.UNPOWERED && !poweredNow)) {

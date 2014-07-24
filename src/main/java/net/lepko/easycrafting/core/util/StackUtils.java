@@ -31,7 +31,7 @@ public class StackUtils {
         if (first == null || second == null) {
             return first == second;
         }
-        return areIdenticalNoSize(first, second) && first.stackSize != second.stackSize;
+        return areIdenticalNoSize(first, second) && first.stackSize == second.stackSize;
     }
 
     /**
