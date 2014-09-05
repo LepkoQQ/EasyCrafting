@@ -91,7 +91,7 @@ public class MessageEasyCrafting extends AbstractMessage {
 
     @Override
     public void run(EntityPlayer player, Side side) {
-        Ref.LOGGER.info("Message: " + this.getClass().getName() + " Side: " + side);
+        Ref.LOGGER.trace("Message: " + this.getClass().getName() + " Side: " + side);
 
         WrappedRecipe recipe = RecipeHelper.getValidRecipe(result, ingredients);
         if (recipe == null) {

@@ -2,6 +2,7 @@ package net.lepko.easycrafting.core.util;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.ArrayList;
@@ -160,5 +161,14 @@ public class StackUtils {
             return stackCopy;
         }
         return null;
+    }
+
+    public static NBTTagCompound getOrCreateNBT(ItemStack stack) {
+        NBTTagCompound ret = stack.getTagCompound();
+        if (ret == null) {
+            ret = new NBTTagCompound();
+            stack.setTagCompound(ret);
+        }
+        return ret;
     }
 }

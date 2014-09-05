@@ -2,11 +2,12 @@ package net.lepko.easycrafting.core.recipe.handler;
 
 import cpw.mods.fml.common.Loader;
 import ic2.api.item.ElectricItem;
-import ic2.api.item.IElectricItem;
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.recipe.WrappedRecipe;
+import net.lepko.easycrafting.core.util.StackUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.lang.reflect.Method;
@@ -19,14 +20,14 @@ public class IC2RecipeHandler implements IRecipeHandler {
 
     private static Class<? super IRecipe> shapedRecipeClass = null;
     private static Class<? super IRecipe> shapelessRecipeClass = null;
-    private static Method resolveOreDict = null;
+    private static Method expandArray = null;
 
     static {
         if (Loader.isModLoaded("IC2")) {
             try {
                 shapedRecipeClass = (Class<? super IRecipe>) Class.forName("ic2.core.AdvRecipe");
                 shapelessRecipeClass = (Class<? super IRecipe>) Class.forName("ic2.core.AdvShapelessRecipe");
-                resolveOreDict = shapedRecipeClass.getMethod("resolveOreDict", Object.class);
+                expandArray = shapedRecipeClass.getMethod("expandArray", Object[].class);
             } catch (Exception e) {
                 Ref.LOGGER.warn("[IC2 Recipe Scan] Adv(Shapeless)Recipe.class could not be obtained!", e);
             }
@@ -39,33 +40,22 @@ public class IC2RecipeHandler implements IRecipeHandler {
     public List<Object> getInputs(IRecipe recipe) {
         List<Object> ingredients = null;
         Object[] input = null;
-        try {
-            if (shapedRecipeClass != null && shapedRecipeClass.isInstance(recipe)) {
-                input = (Object[]) shapedRecipeClass.getField("input").get(recipe);
-            } else if (shapelessRecipeClass != null && shapelessRecipeClass.isInstance(recipe)) {
-                input = (Object[]) shapelessRecipeClass.getField("input").get(recipe);
-            }
-
-            if (input != null) {
-                ingredients = new ArrayList<Object>(Arrays.asList(input));
-                for (int i = 0; i < ingredients.size(); i++) {
-                    Object o = ingredients.get(i);
-                    if (o instanceof String) {
-                        if (resolveOreDict == null) {
-                            return null;
-                        }
-                        List<ItemStack> resolved = (List<ItemStack>) resolveOreDict.invoke(null, o);
-                        if (resolved == null || resolved.isEmpty()) {
-                            Ref.LOGGER.warn("[IC2 Recipe Scan] could not resolve one of the recipe inputs [string=" + (String) o + "]");
-                            return null;
-                        }
-                        ingredients.set(i, resolved);
-                    }
+        if (shapedRecipeClass != null && shapelessRecipeClass != null && expandArray != null) {
+            try {
+                if (shapedRecipeClass.isInstance(recipe)) {
+                    input = (Object[]) shapedRecipeClass.getField("input").get(recipe);
+                } else if (shapelessRecipeClass.isInstance(recipe)) {
+                    input = (Object[]) shapelessRecipeClass.getField("input").get(recipe);
                 }
+
+                if (input != null) {
+                    List<ItemStack>[] expandedInputs = (List<ItemStack>[]) expandArray.invoke(null, new Object[] { input });
+                    ingredients = new ArrayList<Object>(Arrays.asList(expandedInputs));
+                }
+            } catch (Exception e) {
+                Ref.LOGGER.warn("[IC2 Recipe Scan] " + recipe.getClass().getName() + " failed!", e);
+                return null;
             }
-        } catch (Exception e) {
-            Ref.LOGGER.warn("[IC2 Recipe Scan] " + recipe.getClass().getName() + " failed!", e);
-            return null;
         }
         return ingredients;
     }
@@ -78,9 +68,6 @@ public class IC2RecipeHandler implements IRecipeHandler {
         if (target.getItem() != candidate.getItem()) {
             return false;
         }
-        if (candidate.getItem() instanceof IElectricItem) {
-            return true;
-        }
         if (target.getItemDamage() != OreDictionary.WILDCARD_VALUE && target.getItemDamage() != candidate.getItemDamage()) {
             return false;
         }
@@ -89,21 +76,15 @@ public class IC2RecipeHandler implements IRecipeHandler {
 
     @Override
     public ItemStack getCraftingResult(WrappedRecipe recipe, List<ItemStack> usedIngredients) {
-        if (recipe.inputs.size() == usedIngredients.size()) {
-            if (recipe.getOutput().getItem() instanceof IElectricItem) {
-                ItemStack crafted = recipe.getOutput();
-                int charge = 0;
-                for (ItemStack is : usedIngredients) {
-                    if (is.getItem() instanceof IElectricItem) {
-                        charge += ElectricItem.manager.getCharge(is);
-                    }
-                }
-                if (charge > 0) {
-                    ElectricItem.manager.charge(crafted, charge, Integer.MAX_VALUE, true, false);
-                }
-                return crafted;
-            }
+        ItemStack crafted = recipe.getOutput();
+        double charge = 0.0;
+        for (ItemStack is : usedIngredients) {
+            charge += ElectricItem.manager.getCharge(is);
         }
-        return recipe.getOutput();
+        ElectricItem.manager.charge(crafted, charge, Integer.MAX_VALUE, true, false);
+        if ((crafted.getItem() instanceof IFluidContainerItem)) {
+            StackUtils.getOrCreateNBT(crafted);
+        }
+        return crafted;
     }
 }

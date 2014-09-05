@@ -3,6 +3,11 @@ package net.lepko.easycrafting.core.recipe;
 import com.google.common.collect.ImmutableList;
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.recipe.handler.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 
@@ -17,8 +22,8 @@ public class RecipeManager {
     static {
         // Mod recipe classes could extend vanilla classes so scan them first
         HANDLERS.add(new IC2RecipeHandler());
-        // HANDLERS.add(new EE3RecipeHandler());
         HANDLERS.add(new ForestryRecipeHandler());
+        HANDLERS.add(new MekanismRecipeHandler());
 
         // At the end scan vanilla and forge
         HANDLERS.add(new VanillaRecipeHandler());
@@ -71,5 +76,30 @@ public class RecipeManager {
 
     public static List<WrappedRecipe> getAllRecipes() {
         return ImmutableList.copyOf(allRecipes);
+    }
+
+    /**
+     * Only use the inventory that is returned from this method if IRecipe.getCraftingResult() does not check for validity of pattern in crafting inventory slots.
+     */
+    public static InventoryCrafting getCraftingInventory(List<ItemStack> usedIngredients) {
+        InventoryCrafting ic = new InventoryCrafting(new Container() {
+            @Override
+            public boolean canInteractWith(EntityPlayer p_75145_1_) {
+                return false;
+            }
+
+            @Override
+            public void onCraftMatrixChanged(IInventory p_75130_1_) {
+                //NO-OP
+            }
+        }, 3, 3);
+        for (int i = 0; i < 9; i++) {
+            if (i < usedIngredients.size()) {
+                ic.setInventorySlotContents(i, usedIngredients.get(i));
+            } else {
+                ic.setInventorySlotContents(i, null);
+            }
+        }
+        return ic;
     }
 }

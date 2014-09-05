@@ -7,42 +7,44 @@ import net.lepko.easycrafting.core.recipe.WrappedRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
-public class ForestryRecipeHandler implements IRecipeHandler {
+public class MekanismRecipeHandler implements IRecipeHandler {
 
-    private static Class<? super IRecipe> shapedRecipeClass = null;
-    private static Method inputMethod = null;
-    private static Method checkItemMatch = null;
+    private static Class<? super IRecipe> recipeClass = null;
+    private static Method checkItemEquals = null;
+    private static Field inputField = null;
 
     static {
-        if (Loader.isModLoaded("Forestry")) {
+        if (Loader.isModLoaded("Mekanism")) {
             try {
-                shapedRecipeClass = (Class<? super IRecipe>) Class.forName("forestry.core.utils.ShapedRecipeCustom");
-                inputMethod = shapedRecipeClass.getMethod("getIngredients");
-                checkItemMatch = shapedRecipeClass.getDeclaredMethod("checkItemMatch", ItemStack.class, ItemStack.class);
-                checkItemMatch.setAccessible(true);
+                recipeClass = (Class<? super IRecipe>) Class.forName("mekanism.common.recipe.MekanismRecipe");
+                checkItemEquals = recipeClass.getDeclaredMethod("checkItemEquals", ItemStack.class, ItemStack.class);
+                checkItemEquals.setAccessible(true);
+                inputField = recipeClass.getDeclaredField("input");
+                inputField.setAccessible(true);
             } catch (Exception e) {
-                Ref.LOGGER.warn("[Forestry Recipe Scan] Forestry ShapedRecipeCustom.class could not be obtained!", e);
+                Ref.LOGGER.warn("[Mekanism Recipe Scan] MekanismRecipe.class could not be obtained!", e);
             }
         } else {
-            Ref.LOGGER.info("[Forestry Recipe Scan] Disabled.");
+            Ref.LOGGER.info("[Mekanism Recipe Scan] Disabled.");
         }
     }
 
     @Override
     public List<Object> getInputs(IRecipe recipe) {
         List<Object> ingredients = null;
-        if (shapedRecipeClass != null && shapedRecipeClass.isInstance(recipe) && inputMethod != null && checkItemMatch != null) {
+        if (recipeClass != null && recipeClass.isInstance(recipe) && inputField != null && checkItemEquals != null) {
             try {
-                Object[] input = (Object[]) inputMethod.invoke(recipe);
+                Object[] input = (Object[]) inputField.get(recipe);
                 ingredients = new ArrayList<Object>(Arrays.asList(input));
             } catch (Exception e) {
-                Ref.LOGGER.warn("[Forestry Recipe Scan] " + recipe.getClass().getName() + " failed!", e);
+                Ref.LOGGER.warn("[Mekanism Recipe Scan] " + recipe.getClass().getName() + " failed!", e);
                 return null;
             }
         }
@@ -53,9 +55,9 @@ public class ForestryRecipeHandler implements IRecipeHandler {
     public boolean matchItem(ItemStack target, ItemStack candidate, WrappedRecipe recipe) {
         boolean b;
         try {
-            b = (Boolean) checkItemMatch.invoke(recipe.recipe, target, candidate);
+            b = (Boolean) checkItemEquals.invoke(recipe.recipe, target, candidate);
         } catch (Exception e) {
-            Ref.LOGGER.warn("[Forestry Recipe Handler] failed to match item!", e);
+            Ref.LOGGER.warn("[Mekanism Recipe Handler] failed to match item!", e);
             return false;
         }
         return b;

@@ -218,7 +218,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
     }
 
     private void onCraftingSlotClick(Slot slot, int slotIndex, int button, int action) {
-        Ref.LOGGER.info("Clicked: " + slot.getClass().getSimpleName() + "@" + slotIndex + ", button=" + button + ", action=" + action + ", stack=" + slot.getStack());
+        Ref.LOGGER.trace("Clicked: " + slot.getClass().getSimpleName() + "@" + slotIndex + ", button=" + button + ", action=" + action + ", stack=" + slot.getStack());
 
         if (action > 1 || button > 1 || !slot.getHasStack()) {
             return;

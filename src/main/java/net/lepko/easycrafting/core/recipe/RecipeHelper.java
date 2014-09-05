@@ -1,6 +1,5 @@
 package net.lepko.easycrafting.core.recipe;
 
-import net.lepko.easycrafting.core.recipe.handler.IRecipeHandler;
 import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.lepko.easycrafting.core.util.StackUtils;
 import net.minecraft.inventory.IInventory;
@@ -61,7 +60,7 @@ public class RecipeHelper {
                     }
                     // ingredient is not in inventory, can we craft it?
                     if (recipesToCheck != null && recursion > 0) {
-                        List<WrappedRecipe> list = getRecipesForItemFromList(ingredient, recipe.handler, recipesToCheck);
+                        List<WrappedRecipe> list = getRecipesForItemFromList(ingredient, recipe, recipesToCheck);
                         for (WrappedRecipe wr : list) {
                             if (canCraft(wr, tmp, recipesToCheck, true, 1, recursion - 1) > 0) {
                                 ItemStack is = wr.handler.getCraftingResult(wr, wr.usedIngredients);
@@ -87,7 +86,7 @@ public class RecipeHelper {
                     }
                     // ingredient is not in inventory, can we craft it?
                     if (recipesToCheck != null && recursion > 0) {
-                        List<WrappedRecipe> list = getRecipesForItemFromList(ingredients, recipe.handler, recipesToCheck);
+                        List<WrappedRecipe> list = getRecipesForItemFromList(ingredients, recipe, recipesToCheck);
                         for (WrappedRecipe wr : list) {
                             if (canCraft(wr, tmp, recipesToCheck, true, 1, recursion - 1) > 0) {
                                 ItemStack is = wr.handler.getCraftingResult(wr, wr.usedIngredients);
@@ -140,20 +139,20 @@ public class RecipeHelper {
         return -1;
     }
 
-    private static List<WrappedRecipe> getRecipesForItemFromList(ItemStack ingredient, IRecipeHandler handler, List<WrappedRecipe> recipesToCheck) {
+    private static List<WrappedRecipe> getRecipesForItemFromList(ItemStack ingredient, WrappedRecipe recipe, List<WrappedRecipe> recipesToCheck) {
         List<WrappedRecipe> list = new LinkedList<WrappedRecipe>();
         for (WrappedRecipe wr : recipesToCheck) {
-            if (handler.matchItem(ingredient, wr.getOutput(), null)) {
+            if (recipe.handler.matchItem(ingredient, wr.getOutput(), recipe)) {
                 list.add(wr);
             }
         }
         return list;
     }
 
-    private static List<WrappedRecipe> getRecipesForItemFromList(List<ItemStack> ingredients, IRecipeHandler handler, List<WrappedRecipe> recipesToCheck) {
+    private static List<WrappedRecipe> getRecipesForItemFromList(List<ItemStack> ingredients, WrappedRecipe recipe, List<WrappedRecipe> recipesToCheck) {
         List<WrappedRecipe> list = new LinkedList<WrappedRecipe>();
         for (ItemStack is : ingredients) {
-            list.addAll(getRecipesForItemFromList(is, handler, recipesToCheck));
+            list.addAll(getRecipesForItemFromList(is, recipe, recipesToCheck));
         }
         return list;
     }
