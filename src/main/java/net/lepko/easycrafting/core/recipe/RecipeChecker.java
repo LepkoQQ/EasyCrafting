@@ -73,7 +73,7 @@ public enum RecipeChecker {
         }
 
         private void setCraftableRecipes() {
-            InventoryPlayer inventory = FMLClientHandler.instance().getClient().thePlayer.inventory;
+            InventoryPlayer inventory = mc.thePlayer.inventory;
             recipes = getCraftableRecipes(inventory, ConfigHandler.MAX_RECURSION, ConfigHandler.MAX_TIME, RecipeManager.getAllRecipes());
             done = !suspended;
         }

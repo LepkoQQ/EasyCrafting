@@ -15,6 +15,7 @@ buildscript {
     }
 }
 // *** Load ForgeGradle
+apply plugin: "curseforge"
 apply plugin: "forge"
 
 // *** Load Build Config
@@ -107,4 +108,14 @@ uploadArchives {
 			authentication(userName: "${System.getenv("FTP_USER")}", password: "${System.getenv("FTP_PASSWORD")}")
 		}
 	}
+}
+
+curse {
+	onlyIf {
+		System.getenv("TRAVIS_BRANCH") == "master" && System.getenv("TRAVIS_PULL_REQUEST") == "false"
+	}
+    apiKey = System.getenv("CURSEAPI")
+    projectId = "${config.curse_project_id}"
+    changelog = "Build for commit ${System.getenv("TRAVIS_COMMIT")}"
+    releaseType = "release"
 }
