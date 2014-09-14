@@ -18,3 +18,4 @@ script:
 
 after_success:
   - ./gradlew uploadArchives -S
+  - ./gradlew curse -S
