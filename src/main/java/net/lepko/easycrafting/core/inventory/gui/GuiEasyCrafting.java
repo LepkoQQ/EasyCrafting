@@ -37,6 +37,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Optional.Interface(iface = "codechicken.nei.guihook.IContainerTooltipHandler", modid = "NotEnoughItems")
@@ -368,7 +369,13 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
         if (!drawCustomTooltip(stack, mouseX, mouseY, currentTip)) {
             return currentTip;
         }
-        return ImmutableList.of();
+        // Hack to always return empty list
+        return new LinkedList<String>() {
+            @Override
+            public int size() {
+                return 0;
+            }
+        };
     }
     // END NEI
 

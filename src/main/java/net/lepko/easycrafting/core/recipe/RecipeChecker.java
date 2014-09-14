@@ -24,8 +24,8 @@ public enum RecipeChecker {
     private Minecraft mc = FMLClientHandler.instance().getClient();
 
     public volatile boolean requested = false;
-    public volatile boolean displayed = true;
-    public volatile boolean suspend = false;
+    private volatile boolean displayed = true;
+    private volatile boolean suspended = false;
     public volatile boolean done = false;
 
     public volatile List<WrappedRecipe> recipes = ImmutableList.of();
@@ -59,6 +59,7 @@ public enum RecipeChecker {
                 if (requested) {
                     requested = false;
                     displayed = false;
+                    suspended = false;
                     done = false;
 
                     setCraftableRecipes();
@@ -66,7 +67,7 @@ public enum RecipeChecker {
 
                 try {
                     Thread.sleep(50L);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
                 }
             }
         }
@@ -74,7 +75,7 @@ public enum RecipeChecker {
         private void setCraftableRecipes() {
             InventoryPlayer inventory = FMLClientHandler.instance().getClient().thePlayer.inventory;
             recipes = getCraftableRecipes(inventory, ConfigHandler.MAX_RECURSION, ConfigHandler.MAX_TIME, RecipeManager.getAllRecipes());
-            done = true;
+            done = !suspended;
         }
 
         private List<WrappedRecipe> getCraftableRecipes(IInventory inventory, int maxRecursion, long maxTime, List<WrappedRecipe> recipesToCheck) {
@@ -83,12 +84,15 @@ public enum RecipeChecker {
             List<WrappedRecipe> craftable = new LinkedList<WrappedRecipe>();
             List<WrappedRecipe> tmpAll = new LinkedList<WrappedRecipe>(recipesToCheck);
 
-            // TODO: if a new request comes before we finish this one, abort and start again
             // TODO: timeout
             // TODO: on gui when you press shift calc all the base ingredients from the inventory you need for all crafting
             // steps not just the last recipe (also color overlay the slots you take from)
 
             for (WrappedRecipe wr : tmpAll) {
+                if (requested) {
+                    suspended = true;
+                    return ImmutableList.of();
+                }
                 if (RecipeHelper.canCraft(wr, inventory)) {
                     craftable.add(wr);
                 }
@@ -97,12 +101,20 @@ public enum RecipeChecker {
 
             if (!craftable.isEmpty()) {
                 for (int recursion = 0; recursion < maxRecursion; recursion++) {
+                    if (requested) {
+                        suspended = true;
+                        return ImmutableList.of();
+                    }
                     if (tmpAll.isEmpty()) {
                         break;
                     }
 
                     List<WrappedRecipe> tmpCraftable = new LinkedList<WrappedRecipe>(craftable);
                     for (WrappedRecipe wr : tmpAll) {
+                        if (requested) {
+                            suspended = true;
+                            return ImmutableList.of();
+                        }
                         if (RecipeHelper.canCraft(wr, inventory, tmpCraftable, maxRecursion)) {
                             craftable.add(wr);
                         }
@@ -115,10 +127,13 @@ public enum RecipeChecker {
                 }
             }
 
+            if (requested) {
+                suspended = true;
+                return ImmutableList.of();
+            }
+
             Collections.sort(craftable, WrappedRecipe.Sorter.INSTANCE);
-
             Ref.LOGGER.info(String.format("%d/%d craftable | %.4f seconds", craftable.size(), recipesToCheck.size(), (System.currentTimeMillis() - startTime) / 1000.0D));
-
             return craftable;
         }
     }
