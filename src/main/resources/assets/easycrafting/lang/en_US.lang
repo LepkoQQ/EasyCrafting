@@ -7,3 +7,8 @@ mode.easycrafting:pulse.tooltip=Craft once every pulse
 mode.easycrafting:always.tooltip=Always on
 mode.easycrafting:powered.tooltip=Craft with signal
 mode.easycrafting:unpowered.tooltip=Craft without signal
+
+key.focus=Search Focus
+key.categories.easycrafting=Easy Crafting
+
+itemGroup.easyCrafting=Easy Crafting

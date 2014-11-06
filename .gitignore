@@ -7,3 +7,15 @@ Desktop.ini
 *.iml
 *.ipr
 *.iws
+
+# eclipse
+.classpath
+.project
+.settings/*
+bin/*
+
+# gradle
+.gradle/*
+
+# other
+build.bat

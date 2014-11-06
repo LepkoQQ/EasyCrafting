@@ -32,7 +32,6 @@ public class BlockTable extends BlockContainer {
         setStepSound(soundTypeWood);
         setBlockName(Ref.addDomain("table"));
         setBlockTextureName(Ref.addDomain("table"));
-        setCreativeTab(CreativeTabs.tabDecorations);
     }
 
     @Override
@@ -82,7 +81,7 @@ public class BlockTable extends BlockContainer {
             list.add(new ItemStack(item, 1, meta));
         }
     }
-
+    
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         TileEntity te = world.getTileEntity(x, y, z);
