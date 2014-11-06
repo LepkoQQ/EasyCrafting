@@ -7,23 +7,23 @@ import net.minecraft.item.ItemStack;
 
 public class ItemBlockTable extends ItemBlock {
 
-    public ItemBlockTable(Block block) {
-        super(block);
-        setUnlocalizedName(Ref.addDomain("table"));
-        setHasSubtypes(true);
-    }
+	public ItemBlockTable(Block block) {
+		super(block);
+		setUnlocalizedName(Ref.addDomain("table"));
+		setHasSubtypes(true);
+	}
 
-    @Override
-    public int getMetadata(int meta) {
-        return meta;
-    }
+	@Override
+	public int getMetadata(int meta) {
+		return meta;
+	}
 
-    @Override
-    public String getUnlocalizedName(ItemStack stack) {
-        int meta = stack.getItemDamage();
-        if (meta >= 0 && meta < BlockTable.names.length) {
-            return this.getUnlocalizedName() + "." + BlockTable.names[meta];
-        }
-        return "missingno";
-    }
+	@Override
+	public String getUnlocalizedName(ItemStack stack) {
+		int meta = stack.getItemDamage();
+		if (meta >= 0 && meta < BlockTable.names.length) {
+			return this.getUnlocalizedName() + "." + BlockTable.names[meta];
+		}
+		return "missingno";
+	}
 }
