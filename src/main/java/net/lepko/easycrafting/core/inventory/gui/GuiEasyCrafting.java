@@ -132,9 +132,11 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
+        GL11.glColor4f(1, 1, 1, 1);
         // Background
         mc.renderEngine.bindTexture(GUI_TEXTURE);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
+        GL11.glColor4f(1, 1, 1, 1);
 
         // Tabs
         super.drawGuiContainerBackgroundLayer(f, i, j);
