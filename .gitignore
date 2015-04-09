@@ -7,3 +7,8 @@ Desktop.ini
 *.iml
 *.ipr
 *.iws
+/bin/
+.classpath
+/.gradle/
+.project
+/.settings/
