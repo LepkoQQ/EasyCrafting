@@ -17,128 +17,127 @@ import java.util.List;
 
 public class MessageEasyCrafting extends AbstractMessage {
 
-    private ItemStack result;
-    private ItemStack[] ingredients;
-    private boolean isRightClick = false;
-    private boolean isShiftClick = false;
+	private ItemStack result;
+	private ItemStack[] ingredients;
+	private boolean isRightClick = false;
+	private boolean isShiftClick = false;
 
-    public MessageEasyCrafting() {}
+	public MessageEasyCrafting() {}
 
-    public MessageEasyCrafting(WrappedRecipe recipe, boolean isRightClick, boolean isShiftClick) {
-        setRecipe(recipe);
-        this.isRightClick = isRightClick;
-        this.isShiftClick = isShiftClick;
-    }
+	public MessageEasyCrafting(WrappedRecipe recipe, boolean isRightClick, boolean isShiftClick) {
+		setRecipe(recipe);
+		this.isRightClick = isRightClick;
+		this.isShiftClick = isShiftClick;
+	}
 
-    private void setRecipe(WrappedRecipe recipe) {
-        result = recipe.getOutput();
-        ingredients = new ItemStack[recipe.inputs.size()];
+	private void setRecipe(WrappedRecipe recipe) {
+		result = recipe.getOutput();
+		ingredients = new ItemStack[recipe.inputs.size()];
 
-        for (int i = 0; i < recipe.inputs.size(); i++) {
-            if (recipe.inputs.get(i) instanceof ItemStack) {
-                ingredients[i] = ((ItemStack) recipe.inputs.get(i)).copy();
-            } else if (recipe.inputs.get(i) instanceof List) {
-                @SuppressWarnings("unchecked")
-                List<ItemStack> ingList = (List<ItemStack>) recipe.inputs.get(i);
-                ingredients[i] = ingList.get(0).copy();
-            }
-        }
-    }
+		for (int i = 0; i < recipe.inputs.size(); i++) {
+			if (recipe.inputs.get(i) instanceof ItemStack) {
+				ingredients[i] = ((ItemStack) recipe.inputs.get(i)).copy();
+			} else if (recipe.inputs.get(i) instanceof List) {
+				@SuppressWarnings("unchecked")
+				List<ItemStack> ingList = (List<ItemStack>) recipe.inputs.get(i);
+				ingredients[i] = ingList.get(0).copy();
+			}
+		}
+	}
 
-    @Override
-    public void write(ByteBuf target) {
-        target.writeBoolean(isRightClick);
+	@Override
+	public void write(ByteBuf target) {
+		target.writeBoolean(isRightClick);
 
-        target.writeShort(Item.getIdFromItem(result.getItem()));
-        target.writeInt(result.getItemDamage());
-        target.writeByte(result.stackSize);
+		target.writeShort(Item.getIdFromItem(result.getItem()));
+		target.writeInt(result.getItemDamage());
+		target.writeByte(result.stackSize);
 
-        target.writeByte(ingredients.length);
+		target.writeByte(ingredients.length);
 
-        for (ItemStack is : ingredients) {
-            target.writeShort(Item.getIdFromItem(is.getItem()));
-            target.writeInt(is.getItemDamage());
-            target.writeByte(is.stackSize);
-        }
+		for (ItemStack is : ingredients) {
+			target.writeShort(Item.getIdFromItem(is.getItem()));
+			target.writeInt(is.getItemDamage());
+			target.writeByte(is.stackSize);
+		}
 
-        target.writeBoolean(isShiftClick);
-    }
+		target.writeBoolean(isShiftClick);
+	}
 
-    @Override
-    public void read(ByteBuf source) {
-        isRightClick = source.readBoolean();
+	@Override
+	public void read(ByteBuf source) {
+		isRightClick = source.readBoolean();
 
-        int id = source.readShort();
-        int damage = source.readInt();
-        int size = source.readByte();
+		int id = source.readShort();
+		int damage = source.readInt();
+		int size = source.readByte();
 
-        result = new ItemStack(Item.getItemById(id), size, damage);
+		result = new ItemStack(Item.getItemById(id), size, damage);
 
-        int length = source.readByte();
+		int length = source.readByte();
 
-        ingredients = new ItemStack[length];
+		ingredients = new ItemStack[length];
 
-        for (int i = 0; i < length; i++) {
-            int _id = source.readShort();
-            int _damage = source.readInt();
-            int _size = source.readByte();
+		for (int i = 0; i < length; i++) {
+			int _id = source.readShort();
+			int _damage = source.readInt();
+			int _size = source.readByte();
 
-            ingredients[i] = new ItemStack(Item.getItemById(_id), _size, _damage);
-        }
+			ingredients[i] = new ItemStack(Item.getItemById(_id), _size, _damage);
+		}
 
-        isShiftClick = source.readBoolean();
-    }
+		isShiftClick = source.readBoolean();
+	}
 
-    @Override
-    public void run(EntityPlayer player, Side side) {
-        Ref.LOGGER.trace("Message: " + this.getClass().getName() + " Side: " + side);
+	@Override
+	public void run(EntityPlayer player, Side side) {
+		Ref.LOGGER.trace("Message: " + this.getClass().getName() + " Side: " + side);
 
-        WrappedRecipe recipe = RecipeHelper.getValidRecipe(result, ingredients);
-        if (recipe == null) {
-            return;
-        }
+		WrappedRecipe recipe = RecipeHelper.getValidRecipe(result, ingredients);
+		if (recipe == null) {
+			return;
+		}
 
-        ItemStack stack_in_hand = player.inventory.getItemStack();
+		ItemStack stack_in_hand = player.inventory.getItemStack();
 
-        // We need this call to canCraft() to populate the output in getCraftingResult() with NBT
-        if (RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), false, 1, ConfigHandler.MAX_RECURSION) == 0) {
-            return;
-        }
+		// We need this call to canCraft() to populate the output in getCraftingResult() with NBT
+		if (RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), false, 1, ConfigHandler.MAX_RECURSION) == 0) {
+			return;
+		}
 
-        ItemStack return_stack = recipe.handler.getCraftingResult(recipe, recipe.usedIngredients);
-        int return_size = 0;
+		ItemStack return_stack = recipe.handler.getCraftingResult(recipe, recipe.usedIngredients);
+		int return_size = 0;
 
-        if (stack_in_hand == null) {
-            return_size = return_stack.stackSize;
-        } else if (StackUtils.canStack(stack_in_hand, return_stack) == 0) {
-            return_size = return_stack.stackSize + stack_in_hand.stackSize;
-        }
+		if (stack_in_hand == null) {
+			return_size = return_stack.stackSize;
+		} else if (StackUtils.canStack(stack_in_hand, return_stack) == 0) {
+			return_size = return_stack.stackSize + stack_in_hand.stackSize;
+		}
 
-        if (return_size > 0) {
-            if (!isRightClick) {
-                if (isShiftClick) {
-                    int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, null);
-                    int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
-                    if (timesCrafted > 0) {
-                        return_stack.stackSize *= timesCrafted;
-                        if (InventoryUtils.addItemToInventory(player.inventory, return_stack)) {
-                            RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), true, maxTimes, ConfigHandler.MAX_RECURSION);
-                        }
-                    }
-                } else {
-                    if (RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), true, 1, ConfigHandler.MAX_RECURSION) > 0) {
-                        return_stack.stackSize = return_size;
-                        player.inventory.setItemStack(return_stack);
-                    }
-                }
-            } else {
-                int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, stack_in_hand);
-                int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), true, maxTimes, ConfigHandler.MAX_RECURSION);
-                if (timesCrafted > 0) {
-                    return_stack.stackSize = return_size + (timesCrafted - 1) * return_stack.stackSize;
-                    player.inventory.setItemStack(return_stack);
-                }
-            }
-        }
-    }
+		if (return_size > 0) {
+			if (!isRightClick) {
+				if (isShiftClick) {
+					int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, null);
+					int timesCrafted = RecipeHelper.canCraftWithComponents(recipe, player.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
+					if (timesCrafted > 0) {
+						return_stack.stackSize *= timesCrafted;
+						RecipeHelper.canCraftWithComponents(recipe, player.inventory, RecipeManager.getAllRecipes(), true, timesCrafted, ConfigHandler.MAX_RECURSION);
+						InventoryUtils.addItemToInventory(player.inventory, return_stack);
+					}
+				} else {
+					if (RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), true, 1, ConfigHandler.MAX_RECURSION) > 0) {
+						return_stack.stackSize = return_size;
+						player.inventory.setItemStack(return_stack);
+					}
+				}
+			} else {
+				int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, stack_in_hand);
+				int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), true, maxTimes, ConfigHandler.MAX_RECURSION);
+				if (timesCrafted > 0) {
+					return_stack.stackSize = return_size + (timesCrafted - 1) * return_stack.stackSize;
+					player.inventory.setItemStack(return_stack);
+				}
+			}
+		}
+	}
 }

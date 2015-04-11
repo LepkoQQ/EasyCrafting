@@ -255,7 +255,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 
 		if (finalStackSize > 0) {
 			boolean isRightClick = button == 1;
-			boolean isShiftClick = false;
+			boolean isShiftClick = action == 1;
 
 			PacketHandler.INSTANCE.sendToServer(new MessageEasyCrafting(recipe, isRightClick, isShiftClick));
 
@@ -268,14 +268,13 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 				}
 			} 
 			else if (isShiftClick) {
-				finalStack.stackSize = finalStackSize;
-				mc.thePlayer.inventory.setItemStack(finalStack);
-				//int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, null);
-				//int timesCrafted = RecipeHelper.canCraft(recipe, mc.thePlayer.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
-				//if (timesCrafted > 0) {	
-				//   finalStack.stackSize *= timesCrafted; //ignore finalStackSize; it might contain heldStack size
-				//   InventoryUtils.addItemToInventory(mc.thePlayer.inventory, finalStack);
-				//}
+				int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, null);
+				int timesCrafted = RecipeHelper.canCraftWithComponents(recipe, mc.thePlayer.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
+				if (timesCrafted > 0) {	
+					finalStack.stackSize *= timesCrafted; //ignore finalStackSize; it might contain heldStack size
+					RecipeHelper.canCraftWithComponents(recipe, mc.thePlayer.inventory, RecipeManager.getAllRecipes(), true, timesCrafted, ConfigHandler.MAX_RECURSION);
+					InventoryUtils.addItemToInventory(mc.thePlayer.inventory, finalStack);
+				}
 			}
 			else { // Left click; craft once
 				finalStack.stackSize = finalStackSize;
