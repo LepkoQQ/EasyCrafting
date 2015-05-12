@@ -23,6 +23,6 @@ public class SlotInterceptor extends Slot {
 
     @SideOnly(Side.CLIENT)
     private void onSlotChangedClient() {
-        RecipeChecker.INSTANCE.requested = true;
+        RecipeChecker.INSTANCE.setRequested(true);
     }
 }

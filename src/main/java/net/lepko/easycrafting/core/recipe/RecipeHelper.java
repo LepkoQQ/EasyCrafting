@@ -5,9 +5,11 @@ import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.lepko.easycrafting.core.util.StackUtils;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,7 +19,7 @@ public class RecipeHelper {
 	 * Check if a recipe can be crafted with the ingredients from the inventory.
 	 */
 	public static boolean canCraft(WrappedRecipe recipe, IInventory inventory) {
-		return canCraft(recipe, inventory, null, false, 1, 0) > 0;
+		return canCraft(recipe, inventory, false, 1, 0) > 0;
 	}
 
 	/**
@@ -26,7 +28,7 @@ public class RecipeHelper {
 	 */
 	public static boolean canCraft(WrappedRecipe recipe, IInventory inventory,
 			List<WrappedRecipe> recipesToCheck, int recursion) {
-		return canCraft(recipe, inventory, recipesToCheck, false, 1, recursion) > 0;
+		return canCraft(recipe, inventory, false, 1, recursion) > 0;
 	}
 
 	/**
@@ -37,9 +39,6 @@ public class RecipeHelper {
 	 *            - recipe to check
 	 * @param inventory
 	 *            - inventory to use the ingredients from
-	 * @param recipesToCheck
-	 *            - a list of recipes to try and craft from if an ingredient is
-	 *            missing
 	 * @param take
 	 *            - whether or not to take the ingredients from the inventory
 	 * @param recursion
@@ -47,8 +46,7 @@ public class RecipeHelper {
 	 *            (must be nonnegative)
 	 */
 	public static int canCraft(WrappedRecipe recipe, IInventory inventory,
-			List<WrappedRecipe> recipesToCheck, boolean take, int maxTimes,
-			int recursion) {
+			boolean take, int maxTimes, int recursion) {
 		if (recursion < 0) {
 			return 0;
 		}
@@ -72,12 +70,11 @@ public class RecipeHelper {
 						continue iiLoop;
 					}
 					// ingredient is not in inventory, can we craft it?
-					if (recipesToCheck != null && recursion > 0) {
+					if (recursion > 0) {
 						List<WrappedRecipe> list = getRecipesForItemFromList(
-								ingredient, recipe, recipesToCheck);
+								ingredient, recipe);
 						for (WrappedRecipe wr : list) {
-							if (canCraft(wr, tmp, recipesToCheck, true, 1,
-									recursion - 1) > 0) {
+							if (canCraft(wr, tmp, true, 1, recursion - 1) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,
 										wr.usedIngredients);
 								is.stackSize--;
@@ -107,12 +104,11 @@ public class RecipeHelper {
 						continue iiLoop;
 					}
 					// ingredient is not in inventory, can we craft it?
-					if (recipesToCheck != null && recursion > 0) {
+					if (recursion > 0) {
 						List<WrappedRecipe> list = getRecipesForItemFromList(
-								ingredients, recipe, recipesToCheck);
+								ingredients, recipe);
 						for (WrappedRecipe wr : list) {
-							if (canCraft(wr, tmp, recipesToCheck, true, 1,
-									recursion - 1) > 0) {
+							if (canCraft(wr, tmp, true, 1, recursion - 1) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,
 										wr.usedIngredients);
 								is.stackSize--;
@@ -148,8 +144,8 @@ public class RecipeHelper {
 	// / Checks inventory size and sees if all crafted components + recipe
 	// output can fit in the inventory. Used for shift-click crafting
 	public static int canCraftWithComponents(WrappedRecipe recipe,
-			IInventory inventory, List<WrappedRecipe> recipesToCheck,
-			boolean take, int maxTimes, int recursion) {
+			IInventory inventory, boolean take,
+			int maxTimes, int recursion) {
 		if (recursion < 0) {
 			return 0;
 		}
@@ -173,11 +169,11 @@ public class RecipeHelper {
 						continue iiLoop;
 					}
 					// ingredient is not in inventory, can we craft it?
-					if (recipesToCheck != null && recursion > 0) {
+					if (recursion > 0) {
 						List<WrappedRecipe> list = getRecipesForItemFromList(
-								ingredient, recipe, recipesToCheck);
+								ingredient, recipe);
 						for (WrappedRecipe wr : list) {
-							if (canCraft(wr, tmp, recipesToCheck, true, 1,
+							if (canCraft(wr, tmp, true, 1,
 									recursion - 1) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,
 										wr.usedIngredients);
@@ -208,12 +204,11 @@ public class RecipeHelper {
 						continue iiLoop;
 					}
 					// ingredient is not in inventory, can we craft it?
-					if (recipesToCheck != null && recursion > 0) {
+					if (recursion > 0) {
 						List<WrappedRecipe> list = getRecipesForItemFromList(
-								ingredients, recipe, recipesToCheck);
+								ingredients, recipe);
 						for (WrappedRecipe wr : list) {
-							if (canCraft(wr, tmp, recipesToCheck, true, 1,
-									recursion - 1) > 0) {
+							if (canCraft(wr, tmp, true, 1, recursion - 1) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,
 										wr.usedIngredients);
 								is.stackSize--;
@@ -275,23 +270,24 @@ public class RecipeHelper {
 	}
 
 	private static List<WrappedRecipe> getRecipesForItemFromList(
-			ItemStack ingredient, WrappedRecipe recipe,
-			List<WrappedRecipe> recipesToCheck) {
-		List<WrappedRecipe> list = new LinkedList<WrappedRecipe>();
-		for (WrappedRecipe wr : recipesToCheck) {
-			if (recipe.handler.matchItem(ingredient, wr.getOutput(), recipe)) {
-				list.add(wr);
-			}
+			ItemStack ingredient, WrappedRecipe recipe) {
+		List<WrappedRecipe> list = new ArrayList<WrappedRecipe>();
+		if(ingredient != null && ingredient.getItem() != null){
+			List<WrappedRecipe> recipes=RecipeManager.getProducers(ingredient.getItem());
+			if(recipes!=null)
+				for (WrappedRecipe wr : recipes)
+					if (recipe.handler.matchItem(ingredient, wr.getOutput(), recipe))
+						list.add(wr);
 		}
 		return list;
 	}
+	
 
 	private static List<WrappedRecipe> getRecipesForItemFromList(
-			List<ItemStack> ingredients, WrappedRecipe recipe,
-			List<WrappedRecipe> recipesToCheck) {
+			List<ItemStack> ingredients, WrappedRecipe recipe) {
 		List<WrappedRecipe> list = new LinkedList<WrappedRecipe>();
 		for (ItemStack is : ingredients) {
-			list.addAll(getRecipesForItemFromList(is, recipe, recipesToCheck));
+			list.addAll(getRecipesForItemFromList(is, recipe));
 		}
 		return list;
 	}

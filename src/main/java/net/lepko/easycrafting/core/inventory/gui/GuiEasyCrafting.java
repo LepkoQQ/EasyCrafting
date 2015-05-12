@@ -261,7 +261,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 
 			if (isRightClick) { // Right click; craft until max stack
 				int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, heldStack);
-				int timesCrafted = RecipeHelper.canCraft(recipe, mc.thePlayer.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
+				int timesCrafted = RecipeHelper.canCraft(recipe, mc.thePlayer.inventory, false, maxTimes, ConfigHandler.MAX_RECURSION);
 				if (timesCrafted > 0) {
 					finalStack.stackSize = finalStackSize + (timesCrafted - 1) * finalStack.stackSize;
 					mc.thePlayer.inventory.setItemStack(finalStack);
@@ -269,10 +269,10 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 			} 
 			else if (isShiftClick) {
 				int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, null);
-				int timesCrafted = RecipeHelper.canCraftWithComponents(recipe, mc.thePlayer.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
+				int timesCrafted = RecipeHelper.canCraftWithComponents(recipe, mc.thePlayer.inventory, false, maxTimes, ConfigHandler.MAX_RECURSION);
 				if (timesCrafted > 0) {	
 					finalStack.stackSize *= timesCrafted; //ignore finalStackSize; it might contain heldStack size
-					RecipeHelper.canCraftWithComponents(recipe, mc.thePlayer.inventory, RecipeManager.getAllRecipes(), true, timesCrafted, ConfigHandler.MAX_RECURSION);
+					RecipeHelper.canCraftWithComponents(recipe, mc.thePlayer.inventory, true, timesCrafted, ConfigHandler.MAX_RECURSION);
 					InventoryUtils.addItemToInventory(mc.thePlayer.inventory, finalStack);
 				}
 			}

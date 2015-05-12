@@ -50,6 +50,15 @@ public enum RecipeChecker {
 			}
 		}
 	}
+	
+	public boolean isRequested() {
+		return requested;
+	}
+
+	public void setRequested(boolean requested) {
+		this.requested = requested;
+	}
+
 
 	private class CraftabilityChecker implements Runnable {
 
@@ -71,7 +80,7 @@ public enum RecipeChecker {
 				}
 			}
 		}
-
+		
 		private void setCraftableRecipes() {
 			InventoryPlayer inventory = mc.thePlayer.inventory;
 			recipes = getCraftableRecipes(inventory, ConfigHandler.MAX_RECURSION, ConfigHandler.MAX_TIME, RecipeManager.getAllRecipes());

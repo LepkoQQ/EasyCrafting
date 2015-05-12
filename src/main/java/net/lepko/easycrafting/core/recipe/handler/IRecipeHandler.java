@@ -13,4 +13,5 @@ public interface IRecipeHandler {
     public boolean matchItem(ItemStack target, ItemStack candidate, WrappedRecipe recipe);
 
     public ItemStack getCraftingResult(WrappedRecipe recipe, List<ItemStack> usedIngredients);
+    
 }
