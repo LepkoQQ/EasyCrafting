@@ -297,10 +297,11 @@ public class RecipeHelper {
 	 */
 	public static WrappedRecipe getValidRecipe(ItemStack result,
 			ItemStack[] ingredients) {
-		List<WrappedRecipe> all = RecipeManager.getAllRecipes();
+		if(result==null)return null;
+		List<WrappedRecipe> all = RecipeManager.getConsumers(result.getItem());
+		if(all==null)return null;
 		allLoop: for (WrappedRecipe wr : all) {
-			if (StackUtils.areEqualNoSizeNoNBT(wr.getOutput(), result)
-					&& wr.inputs.size() == ingredients.length) {
+			if (wr.inputs.size() == ingredients.length) {
 				ingLoop: for (int i = 0; i < ingredients.length; i++) {
 					if (wr.inputs.get(i) instanceof ItemStack) {
 						ItemStack is = (ItemStack) wr.inputs.get(i);
