@@ -1,5 +1,7 @@
 package net.lepko.easycrafting.core.inventory.gui;
 
+import org.lwjgl.opengl.GL11;
+
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.block.TileEntityAutoCrafting;
 import net.lepko.easycrafting.core.inventory.ContainerAutoCrafting;
@@ -30,6 +32,7 @@ public class GuiAutoCrafting extends GuiContainer {
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float tickTime, int mouseX, int mouseY) {
+    	GL11.glColor4f(1, 1, 1, 1);
         // Background
         mc.renderEngine.bindTexture(GUI_TEXTURE);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
