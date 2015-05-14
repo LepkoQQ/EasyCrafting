@@ -5,7 +5,6 @@ import io.netty.buffer.ByteBuf;
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.config.ConfigHandler;
 import net.lepko.easycrafting.core.recipe.RecipeHelper;
-import net.lepko.easycrafting.core.recipe.RecipeManager;
 import net.lepko.easycrafting.core.recipe.WrappedRecipe;
 import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.lepko.easycrafting.core.util.StackUtils;
@@ -101,7 +100,7 @@ public class MessageEasyCrafting extends AbstractMessage {
 		ItemStack stack_in_hand = player.inventory.getItemStack();
 
 		// We need this call to canCraft() to populate the output in getCraftingResult() with NBT
-		if (RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), false, 1, ConfigHandler.MAX_RECURSION) == 0) {
+		if (RecipeHelper.canCraft(recipe, player.inventory, false, 1, ConfigHandler.MAX_RECURSION) == 0) {
 			return;
 		}
 
@@ -118,21 +117,21 @@ public class MessageEasyCrafting extends AbstractMessage {
 			if (!isRightClick) {
 				if (isShiftClick) {
 					int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, null);
-					int timesCrafted = RecipeHelper.canCraftWithComponents(recipe, player.inventory, RecipeManager.getAllRecipes(), false, maxTimes, ConfigHandler.MAX_RECURSION);
+					int timesCrafted = RecipeHelper.canCraftWithComponents(recipe, player.inventory, false, maxTimes, ConfigHandler.MAX_RECURSION);
 					if (timesCrafted > 0) {
 						return_stack.stackSize *= timesCrafted;
-						RecipeHelper.canCraftWithComponents(recipe, player.inventory, RecipeManager.getAllRecipes(), true, timesCrafted, ConfigHandler.MAX_RECURSION);
+						RecipeHelper.canCraftWithComponents(recipe, player.inventory, true, timesCrafted, ConfigHandler.MAX_RECURSION);
 						InventoryUtils.addItemToInventory(player.inventory, return_stack);
 					}
 				} else {
-					if (RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), true, 1, ConfigHandler.MAX_RECURSION) > 0) {
+					if (RecipeHelper.canCraft(recipe, player.inventory, true, 1, ConfigHandler.MAX_RECURSION) > 0) {
 						return_stack.stackSize = return_size;
 						player.inventory.setItemStack(return_stack);
 					}
 				}
 			} else {
 				int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, stack_in_hand);
-				int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, RecipeManager.getAllRecipes(), true, maxTimes, ConfigHandler.MAX_RECURSION);
+				int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, true, maxTimes, ConfigHandler.MAX_RECURSION);
 				if (timesCrafted > 0) {
 					return_stack.stackSize = return_size + (timesCrafted - 1) * return_stack.stackSize;
 					player.inventory.setItemStack(return_stack);

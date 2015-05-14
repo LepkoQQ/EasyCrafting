@@ -8,9 +8,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -20,6 +22,10 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 
 
 
+
+
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -39,7 +45,8 @@ public class RecipeManager {
 		HANDLERS.add(new VanillaRecipeHandler());
 		HANDLERS.add(new ForgeRecipeHandler());
 	}
-	private static final List<WrappedRecipe> allRecipes = new LinkedList<WrappedRecipe>();
+	private static final List<WrappedRecipe> allRecipes = new ArrayList<WrappedRecipe>();
+	private static HashMap<Item, List<WrappedRecipe>> producers=new HashMap(), consumers=new HashMap();
 	private static int prevListSize = 0;
 	private static IRecipe prevLastElement = null;
 
@@ -76,8 +83,13 @@ public class RecipeManager {
 		HashMap<String,String> recipeExists = new HashMap<String,String>();
 		for (IRecipe r : recipes) {
 			WrappedRecipe wr = WrappedRecipe.of(r);
-			if (wr != null && !CheckIfRecipeAlreadyExists(allRecipes, wr,recipeExists))
-			{
+			if (wr != null && !CheckIfRecipeAlreadyExists(allRecipes, wr,recipeExists)){
+				addItem(wr, wr.getOutput().getItem(), producers);
+				for(Object o:wr.inputs){
+					if(o instanceof ItemStack){
+						addItem(wr, ((ItemStack) o).getItem(), consumers);
+					}
+				}
 				allRecipes.add(wr);
 			} else {
 				fails++;
@@ -144,4 +156,23 @@ public class RecipeManager {
 			return true;
 		}
 	}
+	
+	private static void addItem(WrappedRecipe sr, Item out, HashMap<Item, List<WrappedRecipe>> r){
+		if(r.containsKey(out)){
+			r.get(out).add(sr);
+		}else{
+			ArrayList<WrappedRecipe> ls=new ArrayList<WrappedRecipe>();
+			ls.add(sr);
+			r.put(out, ls);
+		}
+	}
+	
+	public static List<WrappedRecipe> getProducers(Item i){
+		return producers.get(i);
+	}
+	
+	public static List<WrappedRecipe> getConsumers(Item i){
+		return producers.get(i);
+	}
+	
 }
