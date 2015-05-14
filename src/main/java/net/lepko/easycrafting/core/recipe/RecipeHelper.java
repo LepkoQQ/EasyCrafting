@@ -19,7 +19,7 @@ public class RecipeHelper {
 	 * Check if a recipe can be crafted with the ingredients from the inventory.
 	 */
 	public static boolean canCraft(WrappedRecipe recipe, IInventory inventory) {
-		return canCraft(recipe, inventory, false, 1, 0) > 0;
+		return canCraft(recipe, inventory, false, 1, 0, false) > 0;
 	}
 
 	/**
@@ -28,7 +28,7 @@ public class RecipeHelper {
 	 */
 	public static boolean canCraft(WrappedRecipe recipe, IInventory inventory,
 			List<WrappedRecipe> recipesToCheck, int recursion) {
-		return canCraft(recipe, inventory, false, 1, recursion) > 0;
+		return canCraft(recipe, inventory, false, 1, recursion, false) > 0;
 	}
 
 	/**
@@ -44,13 +44,21 @@ public class RecipeHelper {
 	 * @param recursion
 	 *            - how deep to recurse while trying to craft an ingredient
 	 *            (must be nonnegative)
+	 * @param strictRecursion If this is set to true, will not recurse through 
+	 *  		  - another recipe that causes pathological recursion.
 	 */
 	public static int canCraft(WrappedRecipe recipe, IInventory inventory,
-			boolean take, int maxTimes, int recursion) {
+			boolean take, int maxTimes, int recursion, boolean strictRecursion) {
 		if (recursion < 0) {
 			return 0;
 		}
-
+		
+		if(recipe.knownToCauseRecursionProblems){
+			if(strictRecursion)
+				return 0;
+			strictRecursion=true;
+		}
+		
 		recipe.usedIngredients.clear();
 		int invSize = InventoryUtils.getMainInventorySize(inventory);
 		InventoryBasic tmp = new InventoryBasic("tmp", true, invSize);
@@ -74,7 +82,7 @@ public class RecipeHelper {
 						List<WrappedRecipe> list = getRecipesForItemFromList(
 								ingredient, recipe);
 						for (WrappedRecipe wr : list) {
-							if (canCraft(wr, tmp, true, 1, recursion - 1) > 0) {
+							if (canCraft(wr, tmp, true, 1, recursion - 1, strictRecursion) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,
 										wr.usedIngredients);
 								is.stackSize--;
@@ -108,7 +116,7 @@ public class RecipeHelper {
 						List<WrappedRecipe> list = getRecipesForItemFromList(
 								ingredients, recipe);
 						for (WrappedRecipe wr : list) {
-							if (canCraft(wr, tmp, true, 1, recursion - 1) > 0) {
+							if (canCraft(wr, tmp, true, 1, recursion - 1, strictRecursion) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,
 										wr.usedIngredients);
 								is.stackSize--;
@@ -174,7 +182,7 @@ public class RecipeHelper {
 								ingredient, recipe);
 						for (WrappedRecipe wr : list) {
 							if (canCraft(wr, tmp, true, 1,
-									recursion - 1) > 0) {
+									recursion - 1, false) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,
 										wr.usedIngredients);
 								is.stackSize--;
@@ -208,7 +216,7 @@ public class RecipeHelper {
 						List<WrappedRecipe> list = getRecipesForItemFromList(
 								ingredients, recipe);
 						for (WrappedRecipe wr : list) {
-							if (canCraft(wr, tmp, true, 1, recursion - 1) > 0) {
+							if (canCraft(wr, tmp, true, 1, recursion - 1, false) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,
 										wr.usedIngredients);
 								is.stackSize--;
