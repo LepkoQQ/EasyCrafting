@@ -17,18 +17,6 @@ import java.util.List;
 
 public class WrappedRecipe {
 	
-	private static Class[] problemItemClasses;
-	
-	static{
-		List<Class> classes=new ArrayList<Class>();
-		try { //make one try/catch block per set of classes that might be independently installed
-			classes.add(Class.forName("tconstruct.world.itemblocks.WoolSlab1Item"));
-			classes.add(Class.forName("tconstruct.world.itemblocks.WoolSlab2Item"));
-		} catch (ClassNotFoundException e) {
-		}
-		problemItemClasses=classes.toArray(new Class[0]);
-	}
-
 	public final IRecipe recipe;
 	public final List<Object> inputs;
 	public final List<WrappedStack> collatedInputs;
@@ -51,14 +39,6 @@ public class WrappedRecipe {
 		for(WrappedStack stk:collatedInputs){
 			if(output.stacks.get(0).getItem()==stk.stacks.get(0).getItem())
 				return true;
-		}
-		Item i=output.stacks.get(0).getItem();
-		if(i != null){
-			for(Class c:problemItemClasses){
-				if(c.isAssignableFrom(i.getClass())){
-					return true;
-				}
-			}
 		}
 		return false;
 	}
@@ -172,4 +152,5 @@ public class WrappedRecipe {
 	public String toString(){
 		return collatedInputs + "->" + output; 
 	}
+	
 }
