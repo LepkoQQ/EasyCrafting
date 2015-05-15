@@ -1,10 +1,12 @@
 package net.lepko.easycrafting.core.recipe;
 
 import com.google.common.primitives.Ints;
+
 import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.recipe.handler.IRecipeHandler;
 import net.lepko.easycrafting.core.util.StackUtils;
 import net.lepko.easycrafting.core.util.WrappedStack;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 
@@ -14,13 +16,14 @@ import java.util.Comparator;
 import java.util.List;
 
 public class WrappedRecipe {
-
+	
 	public final IRecipe recipe;
 	public final List<Object> inputs;
 	public final List<WrappedStack> collatedInputs;
 	public final WrappedStack output;
 	public final IRecipeHandler handler;
 	public final List<ItemStack> usedIngredients;
+	public final boolean knownToCauseRecursionProblems;
 
 	private WrappedRecipe(IRecipe recipe, List<Object> inputs, WrappedStack output, IRecipeHandler handler) {
 		this.recipe = recipe;
@@ -29,6 +32,15 @@ public class WrappedRecipe {
 		this.output = output;
 		this.handler = handler;
 		this.usedIngredients = new ArrayList<ItemStack>(9);
+		knownToCauseRecursionProblems=checkKnownRecursionProblems();
+	}
+	
+	private boolean checkKnownRecursionProblems() {
+		for(WrappedStack stk:collatedInputs){
+			if(output.stacks.get(0).getItem()==stk.stacks.get(0).getItem())
+				return true;
+		}
+		return false;
 	}
 
 	public ItemStack getOutput() {
@@ -136,4 +148,9 @@ public class WrappedRecipe {
 			}
 		}
 	}
+	
+	public String toString(){
+		return collatedInputs + "->" + output; 
+	}
+	
 }

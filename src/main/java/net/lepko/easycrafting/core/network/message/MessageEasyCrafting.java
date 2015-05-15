@@ -100,7 +100,7 @@ public class MessageEasyCrafting extends AbstractMessage {
 		ItemStack stack_in_hand = player.inventory.getItemStack();
 
 		// We need this call to canCraft() to populate the output in getCraftingResult() with NBT
-		if (RecipeHelper.canCraft(recipe, player.inventory, false, 1, ConfigHandler.MAX_RECURSION) == 0) {
+		if (RecipeHelper.canCraft(recipe, player.inventory, false, 1, ConfigHandler.MAX_RECURSION, false) == 0) {
 			return;
 		}
 
@@ -124,14 +124,14 @@ public class MessageEasyCrafting extends AbstractMessage {
 						InventoryUtils.addItemToInventory(player.inventory, return_stack);
 					}
 				} else {
-					if (RecipeHelper.canCraft(recipe, player.inventory, true, 1, ConfigHandler.MAX_RECURSION) > 0) {
+					if (RecipeHelper.canCraft(recipe, player.inventory, true, 1, ConfigHandler.MAX_RECURSION, false) > 0) {
 						return_stack.stackSize = return_size;
 						player.inventory.setItemStack(return_stack);
 					}
 				}
 			} else {
 				int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(return_stack, stack_in_hand);
-				int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, true, maxTimes, ConfigHandler.MAX_RECURSION);
+				int timesCrafted = RecipeHelper.canCraft(recipe, player.inventory, true, maxTimes, ConfigHandler.MAX_RECURSION, false);
 				if (timesCrafted > 0) {
 					return_stack.stackSize = return_size + (timesCrafted - 1) * return_stack.stackSize;
 					player.inventory.setItemStack(return_stack);
