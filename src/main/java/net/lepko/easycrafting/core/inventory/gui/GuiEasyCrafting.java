@@ -89,8 +89,8 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 		searchField.setEnableBackgroundDrawing(false);
 		searchField.setVisible(true);
 		searchField.setTextColor(0xFFFFFF);
-		searchField.setCanLoseFocus(false);
-		searchField.setFocused(true);
+		searchField.setCanLoseFocus(true);
+		searchField.setFocused(false);
 		searchField.setText(LAST_SEARCH);
 	}
 
