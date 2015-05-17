@@ -66,7 +66,7 @@ public class RecipeManager {
 		}
 		return false;
 	}
-
+	@SuppressWarnings("unchecked")
 	public static void scanRecipes() {
 		@SuppressWarnings("unchecked")
 		List<IRecipe> recipes = CraftingManager.getInstance().getRecipeList();
@@ -90,6 +90,13 @@ public class RecipeManager {
 				for(Object o:wr.inputs){
 					if(o instanceof ItemStack){
 						addItem(wr, ((ItemStack) o).getItem(), consumers);
+					}
+					else if(o instanceof List){
+						ArrayList<ItemStack> ar = (ArrayList<ItemStack>)o;
+						for (ItemStack is : ar)
+						{
+							addItem(wr, is.getItem(), consumers);
+						}
 					}
 				}
 				allRecipes.add(wr);
@@ -173,44 +180,7 @@ public class RecipeManager {
 	}
 	
 	public static List<WrappedRecipe> getConsumers(Item i){
-		return producers.get(i);
+		return consumers.get(i);
 	}
 	
 }
-
-/* Infinite loop:
-
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab2Item@31660f49
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab1Item@e5c3248
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab2Item@31660f49
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab1Item@e5c3248
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab2Item@31660f49
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab1Item@e5c3248
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab2Item@31660f49
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab1Item@e5c3248
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab2Item@31660f49
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab1Item@e5c3248
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab2Item@31660f49
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab1Item@e5c3248
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab2Item@31660f49
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab1Item@e5c3248
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for tconstruct.world.itemblocks.WoolSlab2Item@31660f49
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemCloth@474cc5ed
-[17:46:37] [EasyCrafting-CraftabilityChecker/INFO] [EasyCrafting/]: Call for net.minecraft.item.ItemReed@7083ef3d
-*/
