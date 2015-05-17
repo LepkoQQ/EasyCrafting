@@ -1,11 +1,9 @@
 package net.lepko.easycrafting.core.recipe;
 
-import net.lepko.easycrafting.Ref;
 import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.lepko.easycrafting.core.util.StackUtils;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 
@@ -83,12 +81,10 @@ public class RecipeHelper {
 								ingredient, recipe);
 						for (WrappedRecipe wr : list) {
 							if (canCraft(wr, tmp, true, 1, recursion - 1, strictRecursion) > 0) {
-								ItemStack is = wr.handler.getCraftingResult(wr,
-										wr.usedIngredients);
+								ItemStack is = wr.handler.getCraftingResult(wr,wr.usedIngredients);
 								is.stackSize--;
 								if (is.stackSize > 0
-										&& !InventoryUtils.addItemToInventory(
-												tmp, is)) {
+										&& !InventoryUtils.addItemToInventory(tmp, is)) {
 									break timesLoop;
 								}
 								ItemStack usedItemStack = is.copy();
@@ -277,8 +273,7 @@ public class RecipeHelper {
 		return -1;
 	}
 
-	private static List<WrappedRecipe> getRecipesForItemFromList(
-			ItemStack ingredient, WrappedRecipe recipe) {
+	private static List<WrappedRecipe> getRecipesForItemFromList(ItemStack ingredient, WrappedRecipe recipe) {
 		List<WrappedRecipe> list = new ArrayList<WrappedRecipe>();
 		if(ingredient != null && ingredient.getItem() != null){
 			List<WrappedRecipe> recipes=RecipeManager.getProducers(ingredient.getItem());
@@ -290,9 +285,7 @@ public class RecipeHelper {
 		return list;
 	}
 	
-
-	private static List<WrappedRecipe> getRecipesForItemFromList(
-			List<ItemStack> ingredients, WrappedRecipe recipe) {
+	private static List<WrappedRecipe> getRecipesForItemFromList(List<ItemStack> ingredients, WrappedRecipe recipe) {
 		List<WrappedRecipe> list = new LinkedList<WrappedRecipe>();
 		for (ItemStack is : ingredients) {
 			list.addAll(getRecipesForItemFromList(is, recipe));
