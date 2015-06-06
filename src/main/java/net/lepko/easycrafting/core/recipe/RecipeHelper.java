@@ -2,12 +2,15 @@ package net.lepko.easycrafting.core.recipe;
 
 import net.lepko.easycrafting.core.util.InventoryUtils;
 import net.lepko.easycrafting.core.util.StackUtils;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,7 +20,7 @@ public class RecipeHelper {
 	 * Check if a recipe can be crafted with the ingredients from the inventory.
 	 */
 	public static boolean canCraft(WrappedRecipe recipe, IInventory inventory) {
-		return canCraft(recipe, inventory, false, 1, 0, false) > 0;
+		return canCraft(recipe, inventory, false, 1, 0, new ArrayDeque()) > 0;
 	}
 
 	/**
@@ -26,9 +29,9 @@ public class RecipeHelper {
 	 */
 	public static boolean canCraft(WrappedRecipe recipe, IInventory inventory,
 			List<WrappedRecipe> recipesToCheck, int recursion) {
-		return canCraft(recipe, inventory, false, 1, recursion, false) > 0;
+		return canCraft(recipe, inventory, false, 1, recursion, new ArrayDeque()) > 0;
 	}
-
+	
 	/**
 	 * Check if a recipe can be crafted with the ingredients from the inventory.
 	 * If an ingredient is missing try to craft it from a list of recipes.
@@ -42,20 +45,24 @@ public class RecipeHelper {
 	 * @param recursion
 	 *            - how deep to recurse while trying to craft an ingredient
 	 *            (must be nonnegative)
-	 * @param strictRecursion If this is set to true, will not recurse through 
-	 *  		  - another recipe that causes pathological recursion.
 	 */
+	
 	public static int canCraft(WrappedRecipe recipe, IInventory inventory,
-			boolean take, int maxTimes, int recursion, boolean strictRecursion) {
+			boolean take, int maxTimes, int recursion) {
+		return canCraft(recipe, inventory, take, maxTimes, recursion, new ArrayDeque());
+	}
+
+	private static int canCraft(WrappedRecipe recipe, IInventory inventory,
+			boolean take, int maxTimes, int recursion, Deque checkedRecipeOutputs) {
 		if (recursion < 0) {
 			return 0;
 		}
 		
-		if(recipe.knownToCauseRecursionProblems){
-			if(strictRecursion)
-				return 0;
-			strictRecursion=true;
+		if(checkedRecipeOutputs.contains(recipe.output.stacks.get(0).getItem())){
+			return 0;
 		}
+		
+		checkedRecipeOutputs.addFirst(recipe.output.stacks.get(0).getItem());
 		
 		recipe.usedIngredients.clear();
 		int invSize = InventoryUtils.getMainInventorySize(inventory);
@@ -80,7 +87,7 @@ public class RecipeHelper {
 						List<WrappedRecipe> list = getRecipesForItemFromList(
 								ingredient, recipe);
 						for (WrappedRecipe wr : list) {
-							if (canCraft(wr, tmp, true, 1, recursion - 1, strictRecursion) > 0) {
+							if (canCraft(wr, tmp, true, 1, recursion - 1, checkedRecipeOutputs) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,wr.usedIngredients);
 								is.stackSize--;
 								if (is.stackSize > 0
@@ -112,7 +119,7 @@ public class RecipeHelper {
 						List<WrappedRecipe> list = getRecipesForItemFromList(
 								ingredients, recipe);
 						for (WrappedRecipe wr : list) {
-							if (canCraft(wr, tmp, true, 1, recursion - 1, strictRecursion) > 0) {
+							if (canCraft(wr, tmp, true, 1, recursion - 1, checkedRecipeOutputs) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,
 										wr.usedIngredients);
 								is.stackSize--;
@@ -142,14 +149,23 @@ public class RecipeHelper {
 				InventoryUtils.setContents(inventory, tmp2);
 			}
 		}
+		
+		checkedRecipeOutputs.removeFirst();
+		
 		return timesCrafted;
+	}
+	
+	public static int canCraftWithComponents(WrappedRecipe recipe,
+			InventoryPlayer inventory, boolean b, int maxTimes,
+			int maxRecursion) {
+		return canCraftWithComponents(recipe, inventory, b, maxTimes, maxRecursion, new ArrayDeque());
 	}
 
 	// / Checks inventory size and sees if all crafted components + recipe
 	// output can fit in the inventory. Used for shift-click crafting
-	public static int canCraftWithComponents(WrappedRecipe recipe,
+	private static int canCraftWithComponents(WrappedRecipe recipe,
 			IInventory inventory, boolean take,
-			int maxTimes, int recursion) {
+			int maxTimes, int recursion, Deque checkedRecipes) {
 		if (recursion < 0) {
 			return 0;
 		}
@@ -178,7 +194,7 @@ public class RecipeHelper {
 								ingredient, recipe);
 						for (WrappedRecipe wr : list) {
 							if (canCraft(wr, tmp, true, 1,
-									recursion - 1, false) > 0) {
+									recursion - 1, checkedRecipes) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,
 										wr.usedIngredients);
 								is.stackSize--;
@@ -212,7 +228,7 @@ public class RecipeHelper {
 						List<WrappedRecipe> list = getRecipesForItemFromList(
 								ingredients, recipe);
 						for (WrappedRecipe wr : list) {
-							if (canCraft(wr, tmp, true, 1, recursion - 1, false) > 0) {
+							if (canCraft(wr, tmp, true, 1, recursion - 1, checkedRecipes) > 0) {
 								ItemStack is = wr.handler.getCraftingResult(wr,
 										wr.usedIngredients);
 								is.stackSize--;
@@ -299,7 +315,7 @@ public class RecipeHelper {
 	public static WrappedRecipe getValidRecipe(ItemStack result,
 			ItemStack[] ingredients) {
 		if(result==null)return null;
-		List<WrappedRecipe> all = RecipeManager.getConsumers(result.getItem());
+		List<WrappedRecipe> all = RecipeManager.getProducers(result.getItem());
 		if(all==null)return null;
 		allLoop: for (WrappedRecipe wr : all) {
 			if (wr.inputs.size() == ingredients.length) {
@@ -356,4 +372,5 @@ public class RecipeHelper {
 		}
 		return maxTimes;
 	}
+
 }

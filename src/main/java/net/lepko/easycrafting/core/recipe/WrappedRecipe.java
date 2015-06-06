@@ -23,7 +23,6 @@ public class WrappedRecipe {
 	public final WrappedStack output;
 	public final IRecipeHandler handler;
 	public final List<ItemStack> usedIngredients;
-	public final boolean knownToCauseRecursionProblems;
 
 	private WrappedRecipe(IRecipe recipe, List<Object> inputs, WrappedStack output, IRecipeHandler handler) {
 		this.recipe = recipe;
@@ -32,17 +31,8 @@ public class WrappedRecipe {
 		this.output = output;
 		this.handler = handler;
 		this.usedIngredients = new ArrayList<ItemStack>(9);
-		knownToCauseRecursionProblems=checkKnownRecursionProblems();
 	}
 	
-	private boolean checkKnownRecursionProblems() {
-		for(WrappedStack stk:collatedInputs){
-			if(output.stacks.get(0).getItem()==stk.stacks.get(0).getItem())
-				return true;
-		}
-		return false;
-	}
-
 	public ItemStack getOutput() {
 		return StackUtils.copyStack(output.stacks.get(0), output.size);
 	}
