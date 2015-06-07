@@ -263,7 +263,7 @@ public class GuiEasyCrafting extends GuiTabbed implements IContainerTooltipHandl
 
 			if (isRightClick) { // Right click; craft until max stack
 				int maxTimes = RecipeHelper.calculateCraftingMultiplierUntilMaxStack(slotStack, heldStack);
-				int timesCrafted = RecipeHelper.canCraft(recipe, mc.thePlayer.inventory, false, maxTimes, ConfigHandler.MAX_RECURSION, false);
+				int timesCrafted = RecipeHelper.canCraft(recipe, mc.thePlayer.inventory, false, maxTimes, ConfigHandler.MAX_RECURSION);
 				if (timesCrafted > 0) {
 					finalStack.stackSize = finalStackSize + (timesCrafted - 1) * finalStack.stackSize;
 					mc.thePlayer.inventory.setItemStack(finalStack);

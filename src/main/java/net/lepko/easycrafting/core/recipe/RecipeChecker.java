@@ -1,6 +1,7 @@
 package net.lepko.easycrafting.core.recipe;
 
 import com.google.common.collect.ImmutableList;
+
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -16,6 +17,8 @@ import net.minecraft.inventory.IInventory;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SideOnly(Side.CLIENT)
 public enum RecipeChecker {
@@ -59,7 +62,32 @@ public enum RecipeChecker {
 		this.requested = requested;
 	}
 
-
+	//Timeout code for craftability check - mostly for debugging purposes
+	
+	static final ExecutorService timekeeperThread=Executors.newFixedThreadPool(1);
+	
+	static Runnable timekeeperTask() {
+		return new Runnable(){
+			public void run() {
+				try {
+					Thread.sleep(500L);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				while(!RecipeHelper.state.isEmpty()) {
+					if(!RecipeHelper.state.isEmpty()){
+						Ref.LOGGER.info("Long operation in recipe chain "+RecipeHelper.state);
+					}
+					try {
+						Thread.sleep(500L);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+	}
+	
 	private class CraftabilityChecker implements Runnable {
 
 		@Override
@@ -73,15 +101,11 @@ public enum RecipeChecker {
 
 					setCraftableRecipes();
 				}
-
-				try {
-					Thread.sleep(50L);
-				} catch (InterruptedException ignored) {
-				}
 			}
 		}
 		
 		private void setCraftableRecipes() {
+			timekeeperThread.submit(timekeeperTask());
 			InventoryPlayer inventory = mc.thePlayer.inventory;
 			recipes = getCraftableRecipes(inventory, ConfigHandler.MAX_RECURSION, ConfigHandler.MAX_TIME, RecipeManager.getAllRecipes());
 			done = !suspended;
