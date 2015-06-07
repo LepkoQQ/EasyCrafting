@@ -7,12 +7,15 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class RecipeHelper {
 	
@@ -53,20 +56,16 @@ public class RecipeHelper {
 			boolean take, int maxTimes, int recursion) {
 		return canCraft(recipe, inventory, take, maxTimes, recursion, new ArrayDeque());
 	}
-
+	
 	private static int canCraft(WrappedRecipe recipe, IInventory inventory,
 			boolean take, int maxTimes, int recursion, Deque checkedRecipeOutputs) {
 		if (recursion < 0) {
 			return 0;
 		}
 		
-		state=checkedRecipeOutputs;
-		
-		if(checkedRecipeOutputs.contains(recipe.output.stacks.get(0).getItem())){
+		if(!canRecurse(checkedRecipeOutputs, recipe.getOutput())){
 			return 0;
 		}
-		
-		checkedRecipeOutputs.addFirst(recipe.output.stacks.get(0).getItem());
 		
 		recipe.usedIngredients.clear();
 		int invSize = InventoryUtils.getMainInventorySize(inventory);
@@ -375,6 +374,66 @@ public class RecipeHelper {
 			}
 		}
 		return maxTimes;
+	}
+	
+	/**
+	 * Checks if we already know how to make the given item.
+	 */
+	private static boolean canRecurse(Deque checkedRecipeOutputs, ItemStack outputStack){
+		state=checkedRecipeOutputs;
+		
+		boolean useOreDict=false;
+		
+		OreDictionaryCheck odc=new OreDictionaryCheck();
+		
+		for(int i: OreDictionary.getOreIDs(outputStack)) {
+			odc.addInt(i);
+			useOreDict=true;
+		}
+		
+		Object key=useOreDict ? odc : outputStack.getItem();
+		
+		if(checkedRecipeOutputs.contains(key))
+			return false;
+		else
+			checkedRecipeOutputs.addFirst(key);
+
+		return true;
+	}
+	
+	/**
+	 * Utility class for comparing things by ore dictionary
+	 * @author planetguy
+	 *
+	 */
+	private static class OreDictionaryCheck {
+		
+		private Set<Integer> set=new HashSet();
+		
+		public void addInt(int i){
+			set.add(i);
+		}
+		
+		public boolean bigEnough(){
+			return set.size() != 0;
+		}
+		
+		public boolean equals(Object o){
+			if(o instanceof OreDictionaryCheck)
+				return equals((OreDictionaryCheck) o);
+			else
+				return false;
+		}
+		
+		//Abuses equals() a bit
+		public boolean equals(OreDictionaryCheck c){
+			for(Integer i:set){
+				if(c.set.contains(i))
+					return true;
+			}
+			return false;
+		}
+		
 	}
 
 }
