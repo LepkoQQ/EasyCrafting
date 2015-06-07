@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class RecipeHelper {
+	
+	public static Deque state;
 
 	/**
 	 * Check if a recipe can be crafted with the ingredients from the inventory.
@@ -57,6 +59,8 @@ public class RecipeHelper {
 		if (recursion < 0) {
 			return 0;
 		}
+		
+		state=checkedRecipeOutputs;
 		
 		if(checkedRecipeOutputs.contains(recipe.output.stacks.get(0).getItem())){
 			return 0;
