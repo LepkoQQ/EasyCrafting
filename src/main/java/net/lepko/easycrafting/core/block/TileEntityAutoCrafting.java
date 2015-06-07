@@ -300,6 +300,7 @@ public class TileEntityAutoCrafting extends TileEntity implements ISidedInventor
 
     @Override
     public void setInventorySlotContents(int slotIndex, ItemStack stack) {
+        inventoryChanged = true;
         inventory[slotIndex] = stack;
     }
 
